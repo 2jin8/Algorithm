@@ -100,16 +100,6 @@ public class Main {
         }
         return newMap;
     }
-
-    public static boolean isMelting(int[][] map) {
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < m; j++) {
-                if (map[i][j] != 0)
-                    return false;
-            }
-        }
-        return true;
-    }
 }
 
 class Point {
