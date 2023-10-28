@@ -33,14 +33,14 @@ public class Main {
                 }
             }
 
-            if (iceNum >= 2) { // 빙산이 두 개 이상이면 종료
-                System.out.println(year);
-                break;
-            }
-            if (isMelting(map)) { // 빙산이 모두 녹았으면 종료
+            if (iceNum == 0) { // 빙산이 모두 녹은 경우 종료
                 System.out.println(0);
                 break;
             }
+            else if (iceNum >= 2) { // 빙산이 두 개 이상이면 종료
+                System.out.println(year);
+                break;
+            } 
         }
     }
 
