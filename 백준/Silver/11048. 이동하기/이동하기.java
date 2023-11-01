@@ -20,9 +20,9 @@ public class Main {
             for (int j = 0; j < m; j++) {
                 if (i == 0 && j == 0) continue;
 
-                if (i == 0) {
+                if (i == 0) { // 첫 번째 행은 ≫ 방향으로만 이동 가능
                     board[i][j] += board[i][j - 1];
-                } else if (j == 0) {
+                } else if (j == 0) { // 첫 번째 열은 ∨ 방향으로만 이동 가능
                     board[i][j] += board[i - 1][j];
                 } else {
                     board[i][j] += Math.max(board[i - 1][j - 1], Math.max(board[i][j - 1], board[i - 1][j]));
@@ -30,15 +30,5 @@ public class Main {
             }
         }
         System.out.println(board[n - 1][m - 1]);
-    }
-}
-
-class Point {
-    int r;
-    int c;
-
-    public Point(int r, int c) {
-        this.r = r;
-        this.c = c;
     }
 }
