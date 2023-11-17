@@ -47,7 +47,7 @@ class Solution
 			int tx = graph.get(x).get(i);
 			if (!visited[tx]) {
 				dfs(tx, cnt+1);
-				visited[tx]=false;
+				visited[tx]=false; // 다시 돌아오면 방문 처리 취소
 			}
 		}
 		
