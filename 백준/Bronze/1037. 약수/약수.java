@@ -4,12 +4,12 @@ public class Main {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
         int cnt = sc.nextInt();
-        int[] nums = new int[cnt];
+        int min = Integer.MAX_VALUE, max = Integer.MIN_VALUE;
         for (int i = 0; i < cnt; i++) {
-            nums[i] = sc.nextInt();
+            int num = sc.nextInt();
+            min = Math.min(num, min);
+            max = Math.max(num, max);
         }
-        Arrays.sort(nums);
-        int len = nums.length;
-        System.out.println(nums[0] * nums[len - 1]);
+        System.out.println(min * max);
     }
 }
