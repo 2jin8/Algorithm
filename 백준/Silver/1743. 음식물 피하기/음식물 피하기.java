@@ -53,10 +53,7 @@ public class Main {
                 if (tr <= 0 || tc <= 0 || tr > n || tc > m)
                     continue;
 
-                if (board[tr][tc] == 0)
-                    continue;
-
-                if (!visited[tr][tc]) {
+                if (board[tr][tc] == 1 && !visited[tr][tc]) {
                     queue.offer(new Point(tr, tc));
                     visited[tr][tc] = true;
                 }
