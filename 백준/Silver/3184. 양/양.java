@@ -45,7 +45,7 @@ public class Main {
             r = point.r;
             c = point.c;
             if (board[r][c] == 'v') foxNum++; // 늑대 수 세기
-            if (board[r][c] == 'o') sheepNum++; // 양의 수 세기
+            else if (board[r][c] == 'o') sheepNum++; // 양의 수 세기
 
             for (int i = 0; i < 4; i++) {
                 int tr = r + dr[i];
