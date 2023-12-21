@@ -42,21 +42,21 @@ public class Main {
             if (x == k) break;
 
             int x1 = x - 1, x2 = x + 1, x3 = 2 * x;
-            if (x1 >= 0 && line[x1] > line[x]) {
+            if (x1 >= 0 && !visited[x1]) {
                 queue.offer(x1);
                 visited[x1] = true;
                 line[x1] = Math.min(line[x1], line[x] + 1);
                 route[x1] = x;
             }
 
-            if (x2 < INF && line[x2] > line[x]) {
+            if (x2 < INF && !visited[x2]) {
                 queue.offer(x2);
                 visited[x2] = true;
                 line[x2] = Math.min(line[x2], line[x] + 1);
                 route[x2] = x;
             }
 
-            if (x3 < INF && line[x3] > line[x]) {
+            if (x3 < INF && !visited[x3]) {
                 queue.offer(x3);
                 visited[x3] = true;
                 line[x3] = Math.min(line[x3], line[x] + 1);
