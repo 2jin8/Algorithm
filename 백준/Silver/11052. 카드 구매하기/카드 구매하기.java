@@ -1,25 +1,20 @@
-import java.util.*;
 import java.io.*;
 
 public class Main {
-    static int n;
-    static int[] dp = new int[1001];
-    static int[] p = new int[1001];
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        n = Integer.parseInt(br.readLine());
-
-        StringTokenizer st = new StringTokenizer(br.readLine());
+        int n = Integer.parseInt(br.readLine());
+        String[] str = br.readLine().split(" ");
+        int[] cards = new int[n + 1];
         for (int i = 1; i <= n; i++) {
-            p[i] = Integer.parseInt(st.nextToken());
+            cards[i] = Integer.parseInt(str[i - 1]);
         }
 
-        dp[1] = p[1];
-        dp[2] = Math.max(p[2], dp[1] + p[1]);
-        for (int i = 3; i <= n; i++) {
-            dp[i] = p[i];
-            for (int j = i - 1; j >= 1; j--) {
-                dp[i] = Math.max(dp[i], dp[j] + p[i - j]);
+        int[] dp = new int[n + 1];
+        for (int i = 1; i <= n; i++) {
+            dp[i] = cards[i];
+            for (int j = 1; j <= i / 2; j++) {
+                dp[i] = Math.max(dp[i], dp[j] + dp[i - j]);
             }
         }
         System.out.println(dp[n]);
