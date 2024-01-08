@@ -2,41 +2,42 @@ import java.util.*;
 import java.io.*;
 
 public class Main {
-
-    private static int N, K;
-    private static int[] pointX = new int[100001];
-    public static void main(String[] args) throws IOException {
+    static int N, K;
+    static final int MAX = 100000;
+    public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st = new StringTokenizer(br.readLine());
+        StringTokenizer st = new StringTokenizer(br.readLine(), " ");
         N = Integer.parseInt(st.nextToken());
         K = Integer.parseInt(st.nextToken());
-
         System.out.println(bfs());
     }
 
-    private static int bfs() {
+    public static int bfs() {
+        int[] point = new int[MAX + 1];
+        boolean[] visited = new boolean[MAX + 1];
         Queue<Integer> queue = new LinkedList<>();
-        pointX[N] = 1;
-        queue.add(N);
-
+        queue.offer(N);
+        visited[N] = true;
         while (!queue.isEmpty()) {
-            int n = queue.poll();
-            if (n == K) {
-                return pointX[n] - 1;
+            int p = queue.poll();
+            if (p == K) break;
+
+            if (p >= 1 && !visited[p - 1]) {
+                queue.offer(p - 1);
+                visited[p - 1] = true;
+                point[p - 1] = point[p] + 1;
             }
-            if (n - 1 >= 0 && pointX[n - 1] == 0) { // n - 1 좌표 방문하지 않았을 경우
-                queue.add(n - 1);
-                pointX[n - 1] = pointX[n] + 1;
+            if (p + 1 <= MAX && !visited[p + 1]) {
+                queue.offer(p + 1);
+                visited[p + 1] = true;
+                point[p + 1] = point[p] + 1;
             }
-            if (n + 1 <= 100000 && pointX[n + 1] == 0) { // n + 1 좌표 방문하지 않았을 경우
-                queue.add(n + 1);
-                pointX[n + 1] = pointX[n] + 1;
-            }
-            if (2 * n <= 100000 && pointX[2 * n] == 0) { // 2 * n 좌표 방문하지 않았을 경우
-                queue.add(2 * n);
-                pointX[2 * n] = pointX[n] + 1;
+            if (2 * p <= MAX && !visited[2 * p]) {
+                queue.offer(2 * p);
+                visited[2 * p] = true;
+                point[2 * p] = point[p] + 1;
             }
         }
-        return -1;
+        return point[K];
     }
 }
