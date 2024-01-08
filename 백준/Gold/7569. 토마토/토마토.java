@@ -17,24 +17,17 @@ public class Main {
         H = Integer.parseInt(st.nextToken());
         box = new int[N][M][H];
         visited = new boolean[N][M][H];
-        int tomato = 0, empty = 0;
         for (int l = 0; l < H; l++) {
             for (int i = 0; i < N; i++) {
                 st = new StringTokenizer(br.readLine(), " ");
                 for (int j = 0; j < M; j++) {
                     box[i][j][l] = Integer.parseInt(st.nextToken());
                     if (box[i][j][l] == 1) {
-                        tomato++;
                         queue.offer(new Point(i, j, l));
                         visited[i][j][l] = true;
                     }
-                    else if (box[i][j][l] == -1) empty++;
                 }
             }
-        }
-        if (tomato + empty == N * H * M) {
-            System.out.println(0);
-            return;
         }
 
         int day = bfs();
