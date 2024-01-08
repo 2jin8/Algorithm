@@ -1,101 +1,65 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.util.*;
+import java.io.*;
 
 public class Main {
-
-    private static boolean[][] twoVisited;
-    private static boolean[][] threeVisited;
-
-    private static int[][] twoColor;
-    private static int[][] threeColor;
-    private static int count = 0;
-    
-    public static void main(String[] args) throws IOException {
+    static int n;
+    public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        int n = Integer.parseInt(br.readLine());
-        init(n);
-
+        // 적록색약 X - 빨 / 파 / 초
+        // 적록색약 O - 빨, 초 / 파
+        n = Integer.parseInt(br.readLine());
+        char[][] areaO = new char[n][n]; // 적록색약 O
+        char[][] areaX = new char[n][n]; // 적록색약 X
         for (int i = 0; i < n; i++) {
-            String[] str = br.readLine().split("");
+            String str = br.readLine();
             for (int j = 0; j < n; j++) {
-                switch (str[j]) {
-                    case "R":
-                        twoColor[i][j] = 1;
-                        threeColor[i][j] = 1;
-                        break;
-                    case "G":
-                        twoColor[i][j] = 1;
-                        threeColor[i][j] = 2;
-                        break;
-                    case "B":
-                        twoColor[i][j] = 0;
-                        threeColor[i][j] = 0;
-                        break;
-                }
+                areaX[i][j] = str.charAt(j);
+                if (areaX[i][j] == 'B') areaO[i][j] = areaX[i][j];
+                else areaO[i][j] = 'R'; // R, G -> R로 저장
             }
         }
 
-        // 적록색약 X
+        boolean[][] visitedO = new boolean[n][n];
+        boolean[][] visitedX = new boolean[n][n];
+        int cntO = 0, cntX = 0;
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
-                if (!threeVisited[i][j]) {
-                    DFS(threeColor[i][j], threeColor, threeVisited, i, j);
-                    count++;
+                // 적록색약 O
+                if (!visitedO[i][j]) {
+                    bfs(areaO, visitedO, i, j);
+                    cntO++;
+                }
+                // 적록색약 X
+                if (!visitedX[i][j]) {
+                    bfs(areaX, visitedX, i, j);
+                    cntX++;
                 }
             }
         }
-        System.out.print(count + " ");
-        count = 0;
-        
-        // 적록색약 O
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
-                if (!twoVisited[i][j]) {
-                    DFS(twoColor[i][j], twoColor, twoVisited, i, j);
-                    count++;
-                }
-            }
-        }
-        System.out.println(count);
-        br.close();
+        System.out.println(cntX + " " + cntO);
     }
 
-    private static void init(int n) {
-        twoColor = new int[n][n];
-        threeColor = new int[n][n];
+    public static void bfs(char[][] area, boolean[][] visited, int x, int y) {
+        Queue<int[]> queue = new LinkedList<>();
+        queue.offer(new int[]{x, y});
+        visited[x][y] = true;
 
-        twoVisited = new boolean[n][n];
-        threeVisited = new boolean[n][n];
-    }
+        char color = area[x][y];
+        int[] dx = {1, -1, 0, 0};
+        int[] dy = {0, 0, 1, -1};
+        while (!queue.isEmpty()) {
+            int[] poll = queue.poll();
 
-    private static void DFS(int checkNum, int[][] color, boolean[][] visited, int i, int j) {
-        visited[i][j] = true;
+            for (int i = 0; i < 4; i++) {
+                int tx = poll[0] + dx[i];
+                int ty = poll[1] + dy[i];
+                if (tx < 0 || ty < 0 || tx >= n || ty >= n)
+                    continue;
 
-        // 위(i + 1)
-        if (i != color.length - 1) {
-            if (color[i + 1][j] == checkNum && !visited[i + 1][j]) {
-                DFS(checkNum, color, visited, i + 1, j);
-            }
-        }
-
-        // 아래(i - 1)
-        if (i != 0) {
-            if (color[i - 1][j] == checkNum && !visited[i - 1][j]) {
-                DFS(checkNum, color, visited, i - 1, j);
-            }
-        }
-        // 오른쪽(j + 1)
-        if (j != color[0].length - 1) {
-            if (color[i][j + 1] == checkNum && !visited[i][j + 1]) {
-                DFS(checkNum, color, visited, i, j + 1);
-            }
-        }
-
-        // 왼쪽(j - 1)
-        if (j != 0) {
-            if (color[i][j - 1] == checkNum && !visited[i][j - 1]) {
-                DFS(checkNum, color, visited, i, j - 1);
+                if (area[tx][ty] == color && !visited[tx][ty]) {
+                    queue.offer(new int[]{tx, ty});
+                    visited[tx][ty] = true;
+                }
             }
         }
     }
