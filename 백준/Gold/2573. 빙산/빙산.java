@@ -1,113 +1,94 @@
-import java.util.*;
 import java.io.*;
+import java.util.*;
 
 public class Main {
-    static int n, m;
-    static int[] dx = {-1, 1, 0, 0};
-    static int[] dy = {0, 0, -1, 1};
-    public static void main(String[] args) throws IOException {
+    static int N, M;
+    static int[] dx = {1, -1, 0, 0};
+    static int[] dy = {0, 0, 1, -1};
+
+    public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine());
-        n = Integer.parseInt(st.nextToken());
-        m = Integer.parseInt(st.nextToken());
-        int[][] map = new int[n][m];
-        for (int i = 0; i < n; i++) {
+        N = Integer.parseInt(st.nextToken());
+        M = Integer.parseInt(st.nextToken());
+        int[][] mapA = new int[N][M]; // 변경 전 배열
+        int[][] mapB = new int[N][M]; // 변경 후 배열
+        for (int i = 0; i < N; i++) {
             st = new StringTokenizer(br.readLine());
-            for (int j = 0; j < m; j++) {
-                map[i][j] = Integer.parseInt(st.nextToken());
+            for (int j = 0; j < M; j++) {
+                mapA[i][j] = Integer.parseInt(st.nextToken());
+                mapB[i][j] = mapA[i][j];
             }
         }
 
         int year = 0;
-        while (true) {
-            meltingIce(map); // 높이 조정
+        while (true) { // 빙산이 분리되어있지 않을 때까지
             year++;
-            boolean[][] visited = new boolean[n][m];
-            int iceNum = 0; // 빙산의 수
-            for (int i = 0; i < n; i++) {
-                for (int j = 0; j < m; j++) {
-                    if (map[i][j] != 0 && !visited[i][j]) {
-                        bfs(map, visited, i, j); // bfs 탐색으로 빙산의 수 세기
-                        iceNum++;
+            for (int i = 0; i < N; i++) {
+                for (int j = 0; j < M; j++) {
+                    if (mapA[i][j] != 0) { // 빙산이 있다면
+                        int zero = 0;
+                        for (int k = 0; k < 4; k++) { // 동서남북에 0이 저장된 개수 세기
+                            int tx = i + dx[k];
+                            int ty = j + dy[k];
+                            if (tx < 0 || ty < 0 || tx >= N || ty >= M) continue;
+
+                            if (mapA[tx][ty] == 0) zero++;
+                        }
+                        mapB[i][j] = Math.max(0, mapB[i][j] - zero); // 주변에 0의 개수만큼 감소
                     }
                 }
             }
 
-            if (iceNum == 0) { // 빙산이 모두 녹은 경우 종료
+            int total = check(mapB);
+            if (total == 0) { // 빙산이 다 녹은 경우
                 System.out.println(0);
-                break;
-            }
-            else if (iceNum >= 2) { // 빙산이 두 개 이상이면 종료
+                return;
+            } else if (total != 1) {
                 System.out.println(year);
                 break;
-            } 
+            }
+
+            for (int i = 0; i < N; i++) {
+                mapA[i] = mapB[i].clone();
+            }
         }
+    }
+
+    public static int check(int[][] map) {
+        boolean[][] visited = new boolean[N][M];
+        int total = 0;
+        // 빙산이 분리되어 있는지 확인
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < M; j++) {
+                if (map[i][j] != 0 && !visited[i][j]) {
+                    total++;
+                    bfs(map, visited, i, j);
+                }
+            }
+        }
+
+        return total;
     }
 
     public static void bfs(int[][] map, boolean[][] visited, int x, int y) {
+        Queue<int[]> queue = new LinkedList<>();
+        queue.offer(new int[]{x, y});
         visited[x][y] = true;
-        Queue<Point> queue = new LinkedList<>();
-        queue.offer(new Point(x, y));
 
         while (!queue.isEmpty()) {
-            Point point = queue.poll();
-            x = point.x;
-            y = point.y;
+            int[] poll = queue.poll();
 
             for (int i = 0; i < 4; i++) {
-                int tx = x + dx[i];
-                int ty = y + dy[i];
-                if (tx < 0 || ty < 0 || tx >= n || ty >= m)
-                    continue;
+                int tx = poll[0] + dx[i];
+                int ty = poll[1] + dy[i];
+                if (tx < 0 || ty < 0 || tx >= N || ty >= M) continue;
 
-                if (map[tx][ty] != 0 && !visited[tx][ty]) {
-                    queue.offer(new Point(tx, ty));
-                    visited[tx][ty] = true;
+                if (!visited[tx][ty] && map[tx][ty] != 0) {
+                    visited[tx][ty]=true;
+                    queue.offer(new int[]{tx, ty});
                 }
             }
         }
-    }
-
-    public static void meltingIce(int[][] map) {
-        int[][] tmpMap = cloneArray(map); // map의 값이 수정되기 때문에 기존의 map 복제
-        for (int x = 0; x < n; x++) {
-            for (int y = 0; y < m; y++) {
-                if (tmpMap[x][y] != 0) {
-                    int cnt = 0;
-                    for (int i = 0; i < 4; i++) {
-                        int tx = x + dx[i];
-                        int ty = y + dy[i];
-
-                        if (tx < 0 || ty < 0 || tx >= n || ty >= m)
-                            continue;
-
-                        if (tmpMap[tx][ty] == 0)
-                            cnt++;
-                    }
-                    int melt = tmpMap[x][y] - cnt;
-                    map[x][y] = Math.max(melt, 0); // map의 빙산 높이 변경
-                }
-            }
-        }
-    }
-
-    public static int[][] cloneArray(int[][] map) {
-        int[][] newMap = new int[n][m];
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < m; j++) {
-                newMap[i][j] = map[i][j];
-            }
-        }
-        return newMap;
-    }
-}
-
-class Point {
-    int x;
-    int y;
-
-    public Point(int x, int y) {
-        this.x = x;
-        this.y = y;
     }
 }
