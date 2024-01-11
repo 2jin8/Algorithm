@@ -63,8 +63,8 @@ public class Main {
 
                 // 다른 육지 만난 경우
                 if (map[tx][ty] != 0 && map[tx][ty] != group) {
-                    min = Math.min(min, dist[x][y]);
-                    continue;
+                    min = dist[x][y];
+                    break;
                 }
 
                 if (map[tx][ty] == 0 && !visited[tx][ty]) {
