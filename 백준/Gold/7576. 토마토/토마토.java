@@ -1,79 +1,74 @@
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.StringTokenizer;
 
 public class Main {
-    static int m, n;
-    static Queue<Point> queue = new LinkedList<>();
+
+    private static int N, M;
+    private static int[][] box;
+    private static int[] dx = {1, 0, -1, 0};
+    private static int[] dy = {0, -1, 0, 1};
+    private static Queue<int[]> queue = new LinkedList<>();
+
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine());
-        m = Integer.parseInt(st.nextToken());
-        n = Integer.parseInt(st.nextToken());
-        
-        int[][] box = new int[n][m];
-        for (int i = 0; i < n; i++) {
+        N = Integer.parseInt(st.nextToken());
+        M = Integer.parseInt(st.nextToken());
+
+        box = new int[M][N];
+
+        for (int i = 0; i < M; i++) {
             st = new StringTokenizer(br.readLine());
-            for (int j = 0; j < m; j++) {
+            for (int j = 0; j < N; j++) {
                 box[i][j] = Integer.parseInt(st.nextToken());
                 if (box[i][j] == 1) {
-                    queue.offer(new Point(i, j));
+                    queue.add(new int[]{i, j});
                 }
             }
         }
 
-        if (isZero(box)) { // 모두 익어있는 경우
-            System.out.println(0);
-            return;
-        }
-
-        int days = bfs(box);
-        if (isZero(box)) System.out.println(days);
-        else System.out.println(-1);
+        BFS();
+        checkBox();
     }
-
-    private static int bfs(int[][] box) {
-        int[] dx = {-1, 1, 0, 0};
-        int[] dy = {0, 0, -1, 1};
-        
-        int x = 0, y = 0;
+    
+    private static void BFS() {
         while (!queue.isEmpty()) {
-            Point point = queue.poll();
-            x = point.x;
-            y = point.y;
+            int[] point = queue.poll();
+            int x = point[0];
+            int y = point[1];
 
             for (int i = 0; i < 4; i++) {
-                int tx = x + dx[i];
-                int ty = y + dy[i];
+                int cx = x + dx[i];
+                int cy = y + dy[i];
 
-                if (tx < 0 || ty < 0 || tx >= n || ty >= m)
+                if (cx < 0 || cy < 0 || cx >= M || cy >= N) {
                     continue;
+                }
 
-                if (box[tx][ty] == 0) {
-                    queue.offer(new Point(tx, ty));
-                    box[tx][ty] = box[x][y] + 1;
+                if (box[cx][cy] == 0) { // 토마토가 익지 않은 경우
+                    queue.add(new int[]{cx, cy});
+                    box[cx][cy] = box[x][y] + 1;
                 }
             }
         }
-        return box[x][y] - 1;
     }
 
-    private static boolean isZero(int[][] box) {
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < m; j++) {
-                if (box[i][j] == 0)
-                    return false;
+    private static void checkBox() {
+        int ans = 0;
+
+        for (int i = 0; i < M; i++) {
+            for (int j = 0; j < N; j++) {
+                if (box[i][j] == 0) {
+                    System.out.println(-1);
+                    return;
+                }
+                ans = Math.max(ans, box[i][j]);
             }
         }
-        return true;
-    }
-}
-
-class Point {
-    int x;
-    int y;
-
-    public Point(int x, int y) {
-        this.x = x;
-        this.y = y;
+        System.out.println(ans - 1);
     }
 }
