@@ -1,40 +1,45 @@
+import java.io.*;
 import java.util.*;
 
 public class Main {
-    public static void main(String[] args) {
-        Scanner scan = new Scanner(System.in);
-        int F = scan.nextInt(); // 최대 층
-        int S = scan.nextInt(); // 현재 층
-        int G = scan.nextInt(); // 목표 층
-        int U = scan.nextInt(); // 위로 가는 버튼
-        int D = scan.nextInt(); // 아래로 가는 버튼
-        int[] dp = new int[F + 1];
+    static int F, S, G, U, D;
+    static int[] dist;
+    static boolean[] visited;
+    public static void main(String[] args) throws Exception {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        String[] str = br.readLine().split(" ");
+        F = Integer.parseInt(str[0]); // 총 F층
+        S = Integer.parseInt(str[1]); // 현재 S층
+        G = Integer.parseInt(str[2]); // 스타트링크 G층
+        U = Integer.parseInt(str[3]); // U만큼 업
+        D = Integer.parseInt(str[4]); // D만큼 다운
+        dist = new int[F + 1];
+        visited = new boolean[F + 1];
+
+        int bfs = bfs(S);
+        System.out.println(bfs == -1? "use the stairs" : bfs);;
+    }
+
+    public static int bfs(int x) {
         Queue<Integer> queue = new LinkedList<>();
-        queue.offer(S);
-        dp[S] = 1;
+        queue.offer(x);
+        visited[x] = true;
 
         while (!queue.isEmpty()) {
-            int floor = queue.poll();
-            if (floor == G) {
-                System.out.println(dp[G] - 1);
-                return;
-            }
+            x = queue.poll();
+            if (x == G) return dist[x];
 
-            int up = floor + U;
-            int down = floor - D;
-            if (up >= 1 && up <= F) {
-                if (dp[up]== 0) {
-                    queue.offer(up);
-                    dp[up] = dp[floor] + 1;
-                }
+            if (x + U <= F && !visited[x + U]) {
+                dist[x + U] = dist[x] + 1;
+                visited[x + U] = true;
+                queue.offer(x + U);
             }
-            if (down >= 1 && down <= F) {
-                if (dp[down] == 0) {
-                    queue.offer(down);
-                    dp[down] = dp[floor] + 1;
-                }
+            if (x - D > 0 && !visited[x - D]) {
+                dist[x - D] = dist[x] + 1;
+                visited[x - D] = true;
+                queue.offer(x - D);
             }
         }
-        System.out.println("use the stairs");
+        return -1;
     }
 }
