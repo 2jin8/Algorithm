@@ -1,108 +1,80 @@
-import java.util.*;
 import java.io.*;
+import java.util.*;
 
 public class Main {
-
-    public static int L, R, C;
-    public static Point start, end;
-    public static char[][][] building;
-    public static int[][][] time;
-    public static void main(String[] args) throws IOException {
+    static int L, R, C;
+    static char[][][] building;
+    static boolean[][][] visited;
+    public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
-        StringTokenizer st = new StringTokenizer(br.readLine());
-        L = Integer.parseInt(st.nextToken());
-        R = Integer.parseInt(st.nextToken());
-        C = Integer.parseInt(st.nextToken());
 
-        while (L != 0 && R != 0 && C != 0) {
-            building = new char[L][R][C];
-            time = new int[L][R][C];
-            for (int l = 0; l < L; l++) {
-                for (int r = 0; r < R; r++) {
+        StringBuilder sb = new StringBuilder();
+        while (true) {
+            String[] s = br.readLine().split(" ");
+            L = Integer.parseInt(s[0]);
+            R = Integer.parseInt(s[1]);
+            C = Integer.parseInt(s[2]);
+            if (L == 0 && R == 0 && C == 0) break;
+
+            building = new char[R][C][L];
+            visited = new boolean[R][C][L];
+            Point start = null;
+            for (int k = 0; k < L; k++) {
+                for (int i = 0; i < R; i++) {
                     String str = br.readLine();
-                    for (int c = 0; c < C; c++) {
-                        building[l][r][c] = str.charAt(c);
-                        if (building[l][r][c] == 'S') start = new Point(l, r, c);
-                        if (building[l][r][c] == 'E') end = new Point(l, r, c);
+                    for (int j = 0; j < C; j++) {
+                        building[i][j][k] = str.charAt(j);
+                        if (building[i][j][k] == 'S') start = new Point(i, j, k, 0);
                     }
                 }
                 br.readLine();
             }
-            int x = bfs();
-            if (x == -1) bw.write("Trapped!\n");
-            else bw.write("Escaped in " + x + " minute(s).\n");
-
-            st = new StringTokenizer(br.readLine());
-            L = Integer.parseInt(st.nextToken());
-            R = Integer.parseInt(st.nextToken());
-            C = Integer.parseInt(st.nextToken());
+            int bfs = bfs(start);
+            sb.append(bfs == -1 ? "Trapped!" : "Escaped in " + bfs + " minute(s).").append("\n");
         }
-        bw.flush();
-        br.close(); bw.close();
+        System.out.println(sb);
     }
 
-    public static int bfs() {
+    public static int bfs(Point start) {
         Queue<Point> queue = new LinkedList<>();
         queue.offer(start);
-        time[start.l][start.r][start.c] = 1;
+        visited[start.x][start.y][start.z] = true;
 
-        int[] dl = {-1, 1};
-        int[] dr = {-1, 1, 0, 0};
-        int[] dc = {0, 0, -1, 1};
+        int[] dx = {1, -1, 0, 0, 0, 0};
+        int[] dy = {0, 0, 1, -1, 0, 0};
+        int[] dz = {0, 0, 0, 0, 1, -1};
         while (!queue.isEmpty()) {
             Point point = queue.poll();
-            int l = point.l;
-            int r = point.r;
-            int c = point.c;
-            if (l == end.l && r == end.r && c == end.c)
-                return time[l][r][c] - 1;
+            if (building[point.x][point.y][point.z] == 'E')
+                return point.time;
 
-            // 동, 서, 남, 북 탐색
-            for (int i = 0; i < 4; i++) {
-                int tr = r + dr[i];
-                int tc = c + dc[i];
-
-                if (tr < 0 || tc < 0 || tr >= R || tc >= C) // 범위 벗어나면 이동 불가
+            for (int i = 0; i < 6; i++) {
+                int tx = point.x + dx[i];
+                int ty = point.y + dy[i];
+                int tz = point.z + dz[i];
+                if (tx < 0 || ty < 0 || tz < 0 || tx >= R || ty >= C || tz >= L)
                     continue;
 
-                if (building[l][tr][tc] == '#') // 벽이면 이동 불가
-                    continue;
-
-                if (time[l][tr][tc] == 0) { // 방문하지 않은 경우
-                    time[l][tr][tc] = time[l][r][c] + 1;
-                    queue.offer(new Point(l, tr, tc));
-                }
-            }
-
-            // 상, 하 탐색
-            for (int i = 0; i < 2; i++) {
-                int tl = l + dl[i];
-
-                if (tl < 0 || tl >= L)
-                    continue;
-
-                if (building[tl][r][c] == '#')
-                    continue;
-
-                if (time[tl][r][c] == 0) {
-                    time[tl][r][c] = time[l][r][c] + 1;
-                    queue.offer(new Point(tl, r, c));
+                if (building[tx][ty][tz] != '#' && !visited[tx][ty][tz]) {
+                    queue.offer(new Point(tx, ty, tz, point.time + 1));
+                    visited[tx][ty][tz] = true;
                 }
             }
         }
         return -1;
     }
-}
 
-class Point {
-    int l;
-    int r;
-    int c;
+    static class Point {
+        int x;
+        int y;
+        int z;
+        int time; // 탈출 소요 시간
 
-    public Point(int l, int r, int c) {
-        this.l = l;
-        this.r = r;
-        this.c = c;
+        public Point(int x, int y, int z, int time) {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+            this.time = time;
+        }
     }
 }
