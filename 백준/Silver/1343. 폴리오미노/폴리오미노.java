@@ -1,48 +1,46 @@
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.StringTokenizer;
 
 public class Main {
-    static final String A = "AAAA";
-    static final String B = "BB";
-    public static void main(String[] args) {
-        Scanner scan = new Scanner(System.in);
-        String string = scan.nextLine();
-        StringTokenizer st = new StringTokenizer(string, ".");
-        int tokenCnt = st.countTokens();
-        String[] changes = new String[tokenCnt];
-        for (int i = 0; i < tokenCnt; i++) {
-            String s = st.nextToken();
-            int len = s.length();
-            if (len % 2 != 0) { // X의 개수가 홀수면 완전히 덮기 불가능
-                System.out.println(-1);
+
+    public static void main(String[] args) throws Exception {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        String board = br.readLine();
+        StringTokenizer st = new StringTokenizer(board, ".");
+        String[] change = new String[st.countTokens()];
+        int idx = 0;
+        while (st.hasMoreTokens()) {
+            String b = st.nextToken();
+            if (b.length() % 2 != 0) { // X의 수가 홀수인 경우
+                System.out.println(-1); // 덮을 수 없음
                 return;
             }
 
-            if (len == 2) { // X가 2개면 BB로 덮기
-                changes[i] = B;
-            } else if (len == 4) { // 4개면 AAAA로 덮기
-                changes[i] = A;
-            } else { //  최대한 AAAA로 덮고 나머지 2개를 BB로 덮기
-                StringBuilder sb = new StringBuilder();
-                int count4 = len / 4; // AAAA를 사용할 개수
-                int count2 = (len % 4) / 2; // BB를 사용할 개수
-                for (int j = 0; j < count4; j++) sb.append(A);
-                for (int j = 0; j < count2; j++) sb.append(B);
-                changes[i] = sb.toString();
+            StringBuilder sb = new StringBuilder();
+            int len = b.length();
+            for (int i = 0; i < len / 4; i++) { // 사전순 → A로 먼저 덮기
+                sb.append("AAAA");
             }
+            len %= 4;
+            for (int i = 0; i < len / 2; i++) {
+                sb.append("BB");
+            }
+            change[idx++] = sb.toString();
         }
 
-        int cIdx = 0;
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < string.length(); i++) {
-            char c = string.charAt(i);
+        StringBuilder result = new StringBuilder();
+        idx = 0;
+        for (int i = 0; i < board.length(); i++) {
+            char c = board.charAt(i);
             if (c == 'X') {
-                String change = changes[cIdx++];
-                sb.append(change);
-                i += change.length() - 1;
+                String s = change[idx++];
+                result.append(s);
+                i += s.length() - 1;
             } else {
-                sb.append(c);
+                result.append(c);
             }
         }
-        System.out.println(sb);
+        System.out.println(result);
     }
 }
