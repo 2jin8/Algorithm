@@ -1,24 +1,24 @@
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.Arrays;
+import java.util.Collections;
 
 public class Main {
+
     public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        int N = Integer.parseInt(br.readLine());
-        Integer[] tips = new Integer[N];
-        for (int i = 0; i < N; i++) {
+        int n = Integer.parseInt(br.readLine());
+        Integer[] tips = new Integer[n];
+        for (int i = 0; i < n; i++) {
             tips[i] = Integer.parseInt(br.readLine());
         }
         Arrays.sort(tips, Collections.reverseOrder());
-
-
-        long total = 0;
-        int order = 1;
-        for (int tip : tips) {
-            int tmp = tip + 1 - order++;
-            if (tmp < 0) break; // 음수면 종료
-            total += tmp;
+        long money = 0;
+        for (int i = 0, order =  1; i < n; i++, order++) {
+            int m = tips[i] - (order - 1);
+            if (m < 0) break;
+            money += m;
         }
-        System.out.println(total);
+        System.out.println(money);
     }
 }
