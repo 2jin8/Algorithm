@@ -1,52 +1,41 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.StringTokenizer;
-
-/**
- *
- */
+import java.io.*;
+import java.util.*;
 
 public class Main {
-    private static int N, M;
-    private static long sum = 0;
-
-    // 완전 이분탐색 이용
-    public static void main(String[] args) throws IOException {
+    static int N;
+    static long M;
+    public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st = new StringTokenizer(br.readLine());
-
+        StringTokenizer st = new StringTokenizer(br.readLine(), " ");
         N = Integer.parseInt(st.nextToken());
-        M = Integer.parseInt(st.nextToken());
-
-        int[] trees = new int[N];
-        int min = 1, max = 0;
-        st = new StringTokenizer(br.readLine());
+        M = Long.parseLong(st.nextToken());
+        int[] arr = new int[N];
+        st = new StringTokenizer(br.readLine(), " ");
+        int max = 0;
         for (int i = 0; i < N; i++) {
-            trees[i] = Integer.parseInt(st.nextToken());
-            max = Math.max(trees[i], max);
+            arr[i] = Integer.parseInt(st.nextToken());
+            max = Math.max(max, arr[i]);
         }
+        System.out.println(binarySearch(arr, 1, max));;
+    }
 
-        int mid = 0;
-        while (min <= max) {
-//            mid = (min + max) / 2;
-            sum = 0;
-            for (int tree : trees) {
-                if (tree - mid > 0) {
-                    sum += tree - mid;
-                }
+    public static int binarySearch(int[] arr, int start, int end) {
+        int result = 0;
+        while (start <= end) {
+            int mid = (start + end) / 2;
+            long sum = 0;
+            for (int i = 0; i < N; i++) {
+                // 나무의 높이가 자르는 높이보다 큰 경우
+                if (arr[i] > mid) sum += arr[i] - mid;
             }
 
-            if (sum > M) {
-                min = mid + 1;
-            } else if (sum < M) {
-                max = mid - 1;
-            } else {
-                System.out.println(mid);
-                return;
+            if (sum < M) { // 가져가야 할 나무가 부족한 경우, 자르는 높이 낮추기
+                end = mid - 1;
+            } else { // 가져가야 할 나무가 충분하거나 같은 경우, 자르는 높이 높이기
+                result = mid;
+                start = mid + 1;
             }
-            mid = (min + max) / 2;
         }
-        System.out.println(mid);
+        return result;
     }
 }
