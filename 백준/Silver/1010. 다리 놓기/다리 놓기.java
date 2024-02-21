@@ -7,8 +7,7 @@ public class Main {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         int[][] dp = new int[MAX + 1][MAX + 1];
         for (int i = 1; i <= MAX; i++) {
-            for (int j = 1; j <= MAX; j++) {
-                if (i < j) break;
+            for (int j = 1; j <= i; j++) {
                 if (j == 1) dp[i][j] = i;
                 else if (i == j) dp[i][j] = 1;
                 else dp[i][j] = dp[i - 1][j - 1] + dp[i - 1][j];
