@@ -1,46 +1,27 @@
-import java.util.*;
 import java.io.*;
+import java.util.*;
 
 public class Main {
-
-    static long[] dp = new long[31];
-
+    static final int MAX = 30;
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
-
-        int t = Integer.parseInt(br.readLine());
-        for (int i = 0; i < t; i++) {
-            StringTokenizer st = new StringTokenizer(br.readLine());
-            int n = Integer.parseInt(st.nextToken());
-            int m = Integer.parseInt(st.nextToken());
-
-            int maxN = Math.max(n, m - n);
-            int minN = Math.min(n, m - n);
-            long up = mul(maxN, m);
-            long down = factorial(minN);
-            bw.write((up / down) + "\n");
-        }
-        bw.flush(); bw.close();
-    }
-
-    public static long mul(int a, int b) {
-        long total = 1;
-        for (int i = a + 1; i <= b; i++) {
-            total *= i;
-        }
-        return total;
-    }
-
-    public static long factorial(int n) {
-        dp[0] = 1; dp[1] = 1;
-        if (dp[n] != 0) return dp[n];
-
-        for (int i = 2; i <= n; i++) {
-            if (dp[i] == 0) {
-                dp[i] = dp[i - 1] * i;
+        int[][] dp = new int[MAX + 1][MAX + 1];
+        for (int i = 1; i <= MAX; i++) {
+            for (int j = 1; j <= MAX; j++) {
+                if (i < j) break;
+                if (j == 1) dp[i][j] = i;
+                else if (i == j) dp[i][j] = 1;
+                else dp[i][j] = dp[i - 1][j - 1] + dp[i - 1][j];
             }
         }
-        return dp[n];
+        int N = Integer.parseInt(br.readLine());
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < N; i++) {
+            StringTokenizer st = new StringTokenizer(br.readLine(), " ");
+            int k = Integer.parseInt(st.nextToken());
+            int n = Integer.parseInt(st.nextToken());
+            sb.append(dp[n][k]).append("\n");
+        }
+        System.out.println(sb);
     }
 }
