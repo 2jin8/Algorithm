@@ -1,81 +1,72 @@
-import java.util.*;
 import java.io.*;
+import java.util.*;
 
 public class Main {
-
+    static int V, E, K;
+    static int[] d;
     static final int INF = (int) 1e9;
-    static int v, e, k;
     static ArrayList<ArrayList<Node>> graph = new ArrayList<>();
-    static int[] d = new int[20001];
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st = new StringTokenizer(br.readLine());
-        v = Integer.parseInt(st.nextToken()); // 정점의 개수
-        e = Integer.parseInt(st.nextToken()); // 간선의 개수
-        k = Integer.parseInt(br.readLine()); // 시작점
-
-        for (int i = 0; i <= v; i++) {
+        StringTokenizer st = new StringTokenizer(br.readLine(), " ");
+        V = Integer.parseInt(st.nextToken()); // 1부터 시작
+        E = Integer.parseInt(st.nextToken());
+        K = Integer.parseInt(br.readLine()) - 1; // 시작 정점
+        d = new int[V];
+        Arrays.fill(d, INF);
+        for (int i = 0; i < V; i++) {
             graph.add(new ArrayList<>());
         }
-        Arrays.fill(d, INF);
 
-        for (int i = 0; i < e; i++) {
-            st = new StringTokenizer(br.readLine());
-            int u = Integer.parseInt(st.nextToken());
-            int v = Integer.parseInt(st.nextToken());
+        for (int i = 0; i < E; i++) {
+            st = new StringTokenizer(br.readLine(), " ");
+            int u = Integer.parseInt(st.nextToken()) - 1;
+            int v = Integer.parseInt(st.nextToken()) - 1;
             int w = Integer.parseInt(st.nextToken());
             graph.get(u).add(new Node(v, w));
         }
-
-        dijkstra();
-        for (int i = 1; i <= v; i++) {
-            if (d[i] == INF) System.out.println("INF");
-            else System.out.println(d[i]);
+        findRoute(K);
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < V; i++) {
+            if (d[i] == INF) sb.append("INF\n");
+            else sb.append(d[i]).append("\n");
         }
+        System.out.println(sb);
     }
 
-    public static void dijkstra() {
+    public static void findRoute(int start) {
         PriorityQueue<Node> pq = new PriorityQueue<>();
-        pq.add(new Node(k, 0));
-        d[k] = 0;
+        pq.offer(new Node(start, 0));
+        d[start] = 0;
         while (!pq.isEmpty()) {
             Node node = pq.poll();
-            int dist = node.getDistance();
-            int now = node.getIndex();
-            if (d[now] < dist) continue;
+            int now = node.idx;
+
+            // 기록된 최단 경로가 dist보다 짧다 → 최단 경로로 이미 갱신된 것
+            if (d[now] < node.dist) continue;
             for (int i = 0; i < graph.get(now).size(); i++) {
-                int cost = d[now] + graph.get(now).get(i).getDistance();
-                int idx = graph.get(now).get(i).getIndex();
-                if (cost < d[idx]) {
-                    d[idx] = cost;
-                    pq.offer(new Node(idx, cost));
+                int next = graph.get(now).get(i).idx;
+                int cost = d[now] + graph.get(now).get(i).dist;
+                if (cost < d[next]) {
+                    d[next] = cost;
+                    pq.offer(new Node(next, cost));
                 }
             }
         }
     }
-}
 
-class Node implements Comparable<Node> {
-    private int index;
-    private int distance;
+    static class Node implements Comparable<Node> {
+        private int idx;
+        private int dist;
 
-    public Node(int index, int distance) {
-        this.index = index;
-        this.distance = distance;
-    }
+        public Node(int idx, int dist) {
+            this.idx = idx;
+            this.dist = dist;
+        }
 
-    public int getIndex() {
-        return index;
-    }
-
-    public int getDistance() {
-        return distance;
-    }
-
-    @Override
-    public int compareTo(Node other) {
-        if (this.distance < other.distance)
-            return -1;
-        return 1;
+        @Override
+        public int compareTo(Node n) {
+            return this.dist - n.dist;
+        }
     }
 }
