@@ -2,53 +2,48 @@ import java.io.*;
 import java.util.*;
 
 public class Main {
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         int n = Integer.parseInt(br.readLine());
-
-        StringTokenizer st;
-        Meet[] meets = new Meet[n];
+        Lecture[] lectures = new Lecture[n];
         for (int i = 0; i < n; i++) {
-            st = new StringTokenizer(br.readLine(), " ");
-            int start = Integer.parseInt(st.nextToken());
-            int end = Integer.parseInt(st.nextToken());
-            meets[i] = new Meet(start, end);
+            StringTokenizer st = new StringTokenizer(br.readLine(), " ");
+            int s = Integer.parseInt(st.nextToken());
+            int e = Integer.parseInt(st.nextToken());
+            lectures[i] = new Lecture(s, e);
         }
-        // 회의 시작 시간을 기준으로 오름차순 정렬
-        Arrays.sort(meets, new Comparator<Meet>() {
+
+        // 회의실 시작 시간을 기준으로 오름차순 정렬
+        Arrays.sort(lectures, new Comparator<Lecture>() {
             @Override
-            public int compare(Meet o1, Meet o2) {
+            public int compare(Lecture o1, Lecture o2) {
                 if (o1.start == o2.start) return o1.end - o2.end;
                 return o1.start - o2.start;
             }
         });
 
-        // 우선순위 큐는 회의 종료 시간을 기준으로 오름차순 정렬
-        PriorityQueue<Meet> pq = new PriorityQueue<>(new Comparator<Meet>() {
-            @Override
-            public int compare(Meet o1, Meet o2) {
-                return o1.end - o2.end;
-            }
-        });
-        pq.offer(meets[0]);
         int total = 1;
+        PriorityQueue<Integer> pq = new PriorityQueue<>();
+        pq.offer(lectures[0].end);
         for (int i = 1; i < n; i++) {
-            int start = meets[i].start;
-            Meet meet = pq.poll();
-            pq.offer(meets[i]);
-            if (start < meet.end) { //  새로운 회의실을 사용해야 하는 경우
-                pq.offer(meet);
+            Lecture lecture = lectures[i];
+            if (lecture.start >= pq.peek().intValue()) {
+                pq.poll();
+                pq.offer(lecture.end);
+            } else {
                 total++;
+                pq.offer(lecture.end);
             }
         }
         System.out.println(total);
+
     }
 
-    static class Meet {
+    static class Lecture {
         int start;
         int end;
 
-        public Meet(int start, int end) {
+        public Lecture(int start, int end) {
             this.start = start;
             this.end = end;
         }
