@@ -1,25 +1,22 @@
+import java.io.*;
 import java.util.*;
 
 public class Main {
+    static final int MAX = 10_001;
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        int n = Integer.parseInt(br.readLine());
+        int[] arr = new int[MAX];
+        for (int i = 1; i <= n; i++) {
+            arr[i] = Integer.parseInt(br.readLine());
+        }
 
-    public static void main(String[] args) {
-        Scanner scan = new Scanner(System.in);
-        int n = scan.nextInt();
-        int[] ary = new int[n];
-        int[] dp = new int[n];
-        for (int i = 0; i < n; i++) {
-            ary[i] = scan.nextInt();
+        int[] dp = new int[MAX];
+        dp[1] = arr[1];
+        dp[2] = arr[1] + arr[2];
+        for (int i = 3; i <= n; i++) {
+            dp[i] = Math.max(dp[i - 1], Math.max(dp[i - 3] + arr[i - 1] + arr[i], dp[i - 2] + arr[i]));
         }
-        dp[0] = ary[0];
-        for (int i = 1; i < n; i++) {
-            if (i == 1) {
-                dp[i] = ary[0] + ary[1];
-            } else if (i == 2) {
-                dp[i] = Math.max(ary[0] + ary[1], Math.max(ary[0], ary[1]) + ary[2]);
-            } else {
-                dp[i] = Math.max(dp[i - 1], Math.max(dp[i - 3] + ary[i - 1] + ary[i], dp[i - 2] + ary[i]));
-            }
-        }
-        System.out.println(dp[n - 1]);
+        System.out.println(dp[n]);
     }
 }
