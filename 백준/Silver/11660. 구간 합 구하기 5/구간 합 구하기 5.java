@@ -1,42 +1,39 @@
-import java.util.*;
 import java.io.*;
+import java.util.*;
 
 public class Main {
-
-    static int n, m;
+    static int N, M;
+    static int[][] arr, dp;
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
-        StringTokenizer st = new StringTokenizer(br.readLine());
-        n = Integer.parseInt(st.nextToken());
-        m = Integer.parseInt(st.nextToken());
-        int[][] arr = new int[n + 1][n + 1];
-        int[][] dp = new int[n + 1][n + 1];
-        for (int i = 1; i <= n; i++) {
-            st = new StringTokenizer(br.readLine());
-            for (int j = 1; j <= n; j++) {
+        StringTokenizer st = new StringTokenizer(br.readLine(), " ");
+        N = Integer.parseInt(st.nextToken());
+        M = Integer.parseInt(st.nextToken());
+        arr = new int[N + 1][N + 1];
+        for (int i = 1; i <= N; i++) {
+            st = new StringTokenizer(br.readLine(), " ");
+            for (int j = 1; j <= N; j++) {
                 arr[i][j] = Integer.parseInt(st.nextToken());
-                dp[i][j] = dp[i][j - 1] + arr[i][j];
             }
         }
 
-        for (int i = 0; i < m; i++) {
-            st = new StringTokenizer(br.readLine());
-            int sX = Integer.parseInt(st.nextToken());
-            int sY = Integer.parseInt(st.nextToken());
-            int eX = Integer.parseInt(st.nextToken());
-            int eY = Integer.parseInt(st.nextToken());
-            long total = 0L;
-            for (int j = sX; j <= eX; j++) {
-                if (sY > 0) {
-                    total += dp[j][eY] - dp[j][sY - 1];
-                } else {
-                    total += dp[j][eY];
-                }
+        // dp 테이블 채우기
+        dp = new int[N + 1][N + 1];
+        for (int i = 1; i <= N; i++) {
+            for (int j = 1; j <= N; j++) {
+                dp[i][j] = dp[i][j - 1] + dp[i - 1][j] - dp[i - 1][j - 1] + arr[i][j];
             }
-            bw.write(total + "\n");
         }
-        bw.flush();
-        bw.close();
+
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < M; i++) {
+            st = new StringTokenizer(br.readLine(), " ");
+            int sx = Integer.parseInt(st.nextToken());
+            int sy = Integer.parseInt(st.nextToken());
+            int ex = Integer.parseInt(st.nextToken());
+            int ey = Integer.parseInt(st.nextToken());
+            sb.append(dp[ex][ey] - dp[sx - 1][ey] - dp[ex][sy - 1] + dp[sx - 1][sy - 1]).append("\n");
+        }
+        System.out.println(sb);
     }
 }
