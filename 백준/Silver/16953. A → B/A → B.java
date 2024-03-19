@@ -1,44 +1,42 @@
-import java.util.*;
 import java.io.*;
+import java.util.*;
 
 public class Main {
-
-    private static long A, B;
-    private static Queue<Long> queue = new LinkedList<>();
-
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st = new StringTokenizer(br.readLine());
-        A = Long.parseLong(st.nextToken());
-        B = Long.parseLong(st.nextToken());
+        StringTokenizer st = new StringTokenizer(br.readLine(), " ");
+        long A = Long.parseLong(st.nextToken());
+        long B = Long.parseLong(st.nextToken());
 
-        queue.add(A);
-        int count = 0;
+        bfs(A, B);
+    }
+
+    public static void bfs(long A, long B) {
+        Queue<Long> queue = new LinkedList<>();
+        queue.offer(A);
+
+        int cnt = 1;
         while (!queue.isEmpty()) {
             int size = queue.size();
+            cnt++;
             for (int i = 0; i < size; i++) {
-                long num = queue.poll();
-
-                if (num == B) {
-                    System.out.println(count + 1);
+                long x = queue.poll();
+                if ((x * 2 == B) || (x * 10 + 1 == B)) {
+                    System.out.println(cnt);
                     return;
                 }
 
-                if (num * 2 <= B) queue.add(num * 2);
-                if (num * 10 + 1 <= B)queue.add(num * 10 + 1);
+                // 2를 곱하기
+                if (x * 2 <= B) {
+                    queue.offer(x * 2);
+                }
+
+                // 오른쪽에 1을 더하기
+                if (x * 10 + 1 <= B) {
+                    queue.offer(x * 10 + 1);
+                }
             }
-            count++;
         }
         System.out.println(-1);
     }
-
-    private static int countCalc(int n) {
-        int count = 0;
-        while (n != 0) {
-            n /= 2;
-            count++;
-        }
-        return count;
-    }
-
 }
