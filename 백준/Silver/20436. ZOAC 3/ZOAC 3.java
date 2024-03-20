@@ -13,28 +13,20 @@ public class Main {
         Pos rNow = right.get(st.nextToken());
 
         String[] cmd = br.readLine().split("");
-        int total = cmd.length;
+        int total = cmd.length; // 각 키를 누르는 시간
 
         Queue<Pos> lQueue = new LinkedList<>();
         Queue<Pos> rQueue = new LinkedList<>();
         for (String s : cmd) {
-            if (left.containsKey(s)) {
-                lQueue.offer(left.get(s));
-            } else {
-                rQueue.offer(right.get(s));
+            if (left.containsKey(s)) { // 해당 문자를 왼손으로 쳐야 하는 경우
+                Pos next = left.get(s);
+                total += Math.abs(lNow.x - next.x) + Math.abs(lNow.y - next.y); // 거리 계산
+                lNow = next;
+            } else { // 해당 문자를 오른손으로 쳐야 하는 경우
+                Pos next = right.get(s);
+                total += Math.abs(rNow.x - next.x) + Math.abs(rNow.y - next.y); // 거리 계산
+                rNow = next;
             }
-        }
-
-        while (!lQueue.isEmpty()) {
-            Pos next = lQueue.poll();
-            total += Math.abs(lNow.x - next.x) + Math.abs(lNow.y - next.y);
-            lNow = next;
-        }
-
-        while (!rQueue.isEmpty()) {
-            Pos next = rQueue.poll();
-            total += Math.abs(rNow.x - next.x) + Math.abs(rNow.y - next.y);
-            rNow = next;
         }
         System.out.println(total);
     }
