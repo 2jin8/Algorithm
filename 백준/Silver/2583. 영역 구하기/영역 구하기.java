@@ -1,72 +1,70 @@
 import java.io.*;
 import java.util.*;
 
-// 몇 개의 분리된 영역으로 나누어지는지
-// 각 영역의 넓이가 얼마인지
-// 칠하지 않은 영역부터 BFS OR DFS 적용
-// 0, 0부터 해당 값이 FALSE면 탐색 시작 & 지나가면 TRUE로 변경
-
 public class Main {
-    private static int[] dx = {-1, 0, 1, 0}; // 시계 방향
-    private static int[] dy = {0, 1, 0, -1};
-    private static int m, n, k, area;
-    private static boolean[][] square;
+    static int M, N, K;
+    static int[][] map;
+    static boolean[][] visited;
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st = new StringTokenizer(br.readLine());
-        m = Integer.parseInt(st.nextToken());
-        n = Integer.parseInt(st.nextToken());
-        k = Integer.parseInt(st.nextToken());
-        square = new boolean[n][m];
-        for (int i = 0; i < k; i++) {
-            st = new StringTokenizer(br.readLine());
-            int x1 = Integer.parseInt(st.nextToken());
-            int y1 = Integer.parseInt(st.nextToken());
-            int x2 = Integer.parseInt(st.nextToken());
-            int y2 = Integer.parseInt(st.nextToken());
+        StringTokenizer st = new StringTokenizer(br.readLine(), " ");
+        M = Integer.parseInt(st.nextToken());
+        N = Integer.parseInt(st.nextToken());
+        K = Integer.parseInt(st.nextToken());
 
-            for (int j = x1; j < x2; j++) {
-                for (int l = y1; l < y2; l++) {
-                    square[j][l] = true;
+        map = new int[N][M];
+        visited = new boolean[N][M];
+        for (int i = 0; i < K; i++) {
+            st = new StringTokenizer(br.readLine(), " ");
+            int sX = Integer.parseInt(st.nextToken());
+            int sY = Integer.parseInt(st.nextToken());
+            int eX = Integer.parseInt(st.nextToken());
+            int eY = Integer.parseInt(st.nextToken());
+            for (int x = sX; x < eX; x++) {
+                for (int y = sY; y < eY; y++) {
+                    map[x][y] = 1;
                 }
             }
         }
 
-        int total = 0;
-        ArrayList<Integer> areas = new ArrayList<>();
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < m; j++) {
-                if (!square[i][j]) {
-                    area = 0;
-                    total++;
-                    dfs(i, j);
-                    areas.add(area);
+        List<Integer> list = new ArrayList<>();
+        for (int x = 0; x < N; x++) {
+            for (int y = 0; y < M; y++) {
+                if (map[x][y] == 0 && !visited[x][y]) {
+                    list.add(bfs(x, y));
                 }
             }
         }
-
-        System.out.println(total);
-        Collections.sort(areas);
-        for (Integer area : areas) {
-            System.out.print(area+" ");
-        }
+        Collections.sort(list);
+        StringBuilder sb = new StringBuilder();
+        sb.append(list.size()).append("\n");
+        for (int s : list) sb.append(s).append(" ");
+        System.out.println(sb);
     }
 
-    private static void dfs(int x, int y) {
-        square[x][y] = true;
-        area++;
+    public static int bfs(int x, int y) {
+        Queue<int[]> queue = new LinkedList<>();
+        queue.offer(new int[]{x, y});
+        visited[x][y] = true;
 
-        for (int i = 0; i < 4; i++) {
-            int tx = x + dx[i];
-            int ty = y + dy[i];
+        int total = 0; // 영역의 넓이
+        int[] dx = {1, -1, 0, 0};
+        int[] dy = {0, 0, 1, -1};
+        while (!queue.isEmpty()) {
+            int[] now = queue.poll();
+            total++;
 
-            if (tx < 0 || ty < 0 || tx >= n || ty >= m)
-                continue;
+            for (int i = 0; i < 4; i++) {
+                int nx = now[0] + dx[i];
+                int ny = now[1] + dy[i];
+                if (nx < 0 || ny < 0 || nx >= N || ny >= M) continue;
 
-            if (!square[tx][ty]) {
-                dfs(tx, ty);
+                if (map[nx][ny] == 0 && !visited[nx][ny]) {
+                    queue.offer(new int[]{nx, ny});
+                    visited[nx][ny] = true;
+                }
             }
         }
+        return total;
     }
 }
-
