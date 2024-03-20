@@ -3,59 +3,56 @@ import java.util.*;
 
 public class Main {
     static int l;
-    static int[][] board;
+    static int[][] map;
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
-        // 최소 몇 번만에 이동 -> BFS 사용
         int T = Integer.parseInt(br.readLine());
-        for (int t = 0; t < T; t++) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < T; i++) {
             l = Integer.parseInt(br.readLine());
-            board = new int[l][l];
-            String[] start = br.readLine().split(" ");
-            String[] end = br.readLine().split(" ");
-            Point sPoint = new Point(Integer.parseInt(start[0]), Integer.parseInt(start[1]));
-            Point ePoint = new Point(Integer.parseInt(end[0]), Integer.parseInt(end[1]));
-            bw.write(bfs(sPoint, ePoint) + "\n");
+            StringTokenizer st = new StringTokenizer(br.readLine(), " ");
+            Pos start = new Pos(Integer.parseInt(st.nextToken()), Integer.parseInt(st.nextToken()));
+            st = new StringTokenizer(br.readLine(), " ");
+            Pos end = new Pos(Integer.parseInt(st.nextToken()), Integer.parseInt(st.nextToken()));
+            map = new int[l][l];
+            sb.append(bfs(start, end)).append("\n");
         }
-        bw.flush(); bw.close();
+        System.out.println(sb.toString());
     }
 
-    public static int bfs(Point start, Point end) {
-        Queue<Point> queue = new LinkedList<>();
+    public static int bfs(Pos start, Pos end) {
+        Queue<Pos> queue = new LinkedList<>();
         queue.offer(start);
-        board[start.x][start.y] = 1;
+        map[start.x][start.y] = 1;
 
-        int[] dx = {-2, -2, -1, 1, 2, 2, 1, -1};
-        int[] dy = {-1, 1, 2, 2, 1, -1, -2, -2};
+        int[] dx = {-2, -2, -1, -1, 1, 1, 2, 2}; // 8방향 탐색
+        int[] dy = {-1, 1, -2, 2, -2, 2, -1, 1};
         while (!queue.isEmpty()) {
-            Point point = queue.poll();
-            if (point.x == end.x && point.y == end.y)
+            Pos pos = queue.poll();
+            if (pos.x == end.x && pos.y == end.y) {
                 break;
+            }
 
             for (int i = 0; i < 8; i++) {
-                int tx = point.x + dx[i];
-                int ty = point.y + dy[i];
+                int nx = pos.x + dx[i];
+                int ny = pos.y + dy[i];
+                if (nx < 0 || ny < 0 || nx >= l || ny >= l) continue;
 
-                if (tx < 0 || ty < 0 || tx >= l || ty >= l)
-                    continue;
-
-                if (board[tx][ty] == 0) {
-                    queue.offer(new Point(tx, ty));
-                    board[tx][ty] = board[point.x][point.y] + 1;
+                if (map[nx][ny] == 0) {
+                    queue.offer(new Pos(nx, ny));
+                    map[nx][ny] = map[pos.x][pos.y] + 1;
                 }
             }
         }
-        return board[end.x][end.y] - 1;
+        return map[end.x][end.y] - 1;
     }
-}
 
-class Point {
-    int x;
-    int y;
+    static class Pos {
+        int x, y;
 
-    public Point(int x, int y) {
-        this.x = x;
-        this.y = y;
+        public Pos(int x, int y) {
+            this.x = x;
+            this.y = y;
+        }
     }
 }
