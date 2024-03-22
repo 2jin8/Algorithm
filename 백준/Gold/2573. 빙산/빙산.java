@@ -3,92 +3,97 @@ import java.util.*;
 
 public class Main {
     static int N, M;
+    static int[][] map, arr;
+    static boolean[][] visited;
     static int[] dx = {1, -1, 0, 0};
     static int[] dy = {0, 0, 1, -1};
-
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st = new StringTokenizer(br.readLine());
+        StringTokenizer st = new StringTokenizer(br.readLine(), " ");
         N = Integer.parseInt(st.nextToken());
         M = Integer.parseInt(st.nextToken());
-        int[][] mapA = new int[N][M]; // 변경 전 배열
-        int[][] mapB = new int[N][M]; // 변경 후 배열
+        map = new int[N][M];
         for (int i = 0; i < N; i++) {
-            st = new StringTokenizer(br.readLine());
+            st = new StringTokenizer(br.readLine(), " ");
             for (int j = 0; j < M; j++) {
-                mapA[i][j] = Integer.parseInt(st.nextToken());
-                mapB[i][j] = mapA[i][j];
+                map[i][j] = Integer.parseInt(st.nextToken());
             }
         }
 
         int year = 0;
-        while (true) { // 빙산이 분리되어있지 않을 때까지
+        arr = new int[N][M];
+        while (true) {
             year++;
+            clone(arr, map);
+
             for (int i = 0; i < N; i++) {
                 for (int j = 0; j < M; j++) {
-                    if (mapA[i][j] != 0) { // 빙산이 있다면
-                        int zero = 0;
-                        for (int k = 0; k < 4; k++) { // 동서남북에 0이 저장된 개수 세기
-                            int tx = i + dx[k];
-                            int ty = j + dy[k];
-                            if (tx < 0 || ty < 0 || tx >= N || ty >= M) continue;
-
-                            if (mapA[tx][ty] == 0) zero++;
-                        }
-                        mapB[i][j] = Math.max(0, mapB[i][j] - zero); // 주변에 0의 개수만큼 감소
+                    if (map[i][j] != 0) {
+                        arr[i][j] -= checkSea(i, j);
+                        if (arr[i][j] < 0) arr[i][j] = 0;
                     }
                 }
             }
 
-            int total = check(mapB);
-            if (total == 0) { // 빙산이 다 녹은 경우
-                System.out.println(0);
-                return;
-            } else if (total != 1) {
-                System.out.println(year);
-                break;
-            }
-
+            clone(map, arr);
+            int total = 0;
+            visited = new boolean[N][M];
             for (int i = 0; i < N; i++) {
-                mapA[i] = mapB[i].clone();
-            }
-        }
-    }
-
-    public static int check(int[][] map) {
-        boolean[][] visited = new boolean[N][M];
-        int total = 0;
-        // 빙산이 분리되어 있는지 확인
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < M; j++) {
-                if (map[i][j] != 0 && !visited[i][j]) {
-                    total++;
-                    bfs(map, visited, i, j);
+                for (int j = 0; j < M; j++) {
+                    if (map[i][j] != 0 && !visited[i][j]) {
+                        bfs(i, j);
+                        total++;
+                    }
                 }
             }
+            if (total == 0) {
+                year = 0;
+                break;
+            } else if (total > 1) {
+                break;
+            }
         }
-
-        return total;
+        System.out.println(year);
     }
 
-    public static void bfs(int[][] map, boolean[][] visited, int x, int y) {
+    public static void clone(int[][] a, int[][] b) {
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < M; j++) {
+                a[i][j] = b[i][j];
+            }
+        }
+    }
+
+    public static void bfs(int x, int y) {
         Queue<int[]> queue = new LinkedList<>();
         queue.offer(new int[]{x, y});
         visited[x][y] = true;
 
         while (!queue.isEmpty()) {
-            int[] poll = queue.poll();
+            int[] now = queue.poll();
 
             for (int i = 0; i < 4; i++) {
-                int tx = poll[0] + dx[i];
-                int ty = poll[1] + dy[i];
-                if (tx < 0 || ty < 0 || tx >= N || ty >= M) continue;
+                int nx = now[0] + dx[i];
+                int ny = now[1] + dy[i];
+                if (nx < 0 || ny < 0 || nx >= N || ny >= M || visited[nx][ny]) continue;
 
-                if (!visited[tx][ty] && map[tx][ty] != 0) {
-                    visited[tx][ty]=true;
-                    queue.offer(new int[]{tx, ty});
+                if (map[nx][ny] != 0) {
+                    queue.offer(new int[]{nx, ny});
+                    visited[nx][ny] = true;
                 }
             }
         }
+    }
+
+    public static int checkSea(int x, int y) {
+        int total = 0;
+        for (int i = 0; i < 4; i++) {
+            int nx = x + dx[i];
+            int ny = y + dy[i];
+            if (nx < 0 || ny < 0 || nx >= N || ny >= M) continue;
+
+            if (map[nx][ny] == 0) total++;
+        }
+        return total;
     }
 }
