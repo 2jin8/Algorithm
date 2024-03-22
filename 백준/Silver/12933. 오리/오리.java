@@ -1,5 +1,4 @@
 import java.io.*;
-import java.util.*;
 
 public class Main {
     public static void main(String[] args) throws IOException {
@@ -17,38 +16,25 @@ public class Main {
             else ducks[i] = 4;
         }
 
-        int total = 0, cnt = 0;
+        int duck = 0, num = len;
         boolean[] used = new boolean[len];
-        while (true) {
-            if (cnt > (len / 5)) break;
-
-            int idx = 0;
-            List<Integer> list = new ArrayList<>();
+        while (num > 0) { // 각 글자를 탐색할 때까지 반복
+            int idx = 0, total = 0;
             for (int i = 0; i < len; i++) {
-                if (!used[i] && ducks[i] == idx) { // 울음 소리의 순서가 맞는 경우
-                    list.add(i);
-                    idx++;
-                    if (idx == 5) idx = 0;
+                if (!used[i] && ducks[i] == idx) { // 사용하지 않았고 오리 울음 소리의 순서와 일치하는 경우
+                    used[i] = true; // 사용 처리
+                    idx = (idx + 1) % 5; // 다음 울음 소리로 이동
+                    total++; 
                 }
             }
-
-            if (!list.isEmpty() && list.size() % 5 == 0) { // 제대로 된 울음 소리가 저장된 경우
-                total++;
-                for (int l : list) {
-                    used[l] = true;
-                }
+            num -= total;
+            if (total != 0 && total % 5 == 0) { // 올바른 울음 소리인 경우
+                duck++;
+            } else { // 올바르지 않은 울음 소리인 경우, -1 출력하고 종료하기
+                System.out.println(-1);
+                return;
             }
-            cnt++;
         }
-        // 끝났을 때 used에 false가 하나라도 있다면 녹음한 소리가 올바르지 않은 것
-        if (check(len, used)) System.out.println(total);
-        else System.out.printf("-1");
-    }
-
-    public static boolean check(int len, boolean[] used) {
-        for (int i = 0; i < len; i++) {
-            if (!used[i]) return false; // 잘못된 울음 소리가 하나라도 있는 경우
-        }
-        return true;
+        System.out.println(duck);
     }
 }
