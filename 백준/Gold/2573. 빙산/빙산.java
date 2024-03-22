@@ -41,6 +41,10 @@ public class Main {
             for (int i = 0; i < N; i++) {
                 for (int j = 0; j < M; j++) {
                     if (map[i][j] != 0 && !visited[i][j]) {
+                        if (total == 1) { // 이미 빙산이 하나 있는 경우
+                            System.out.println(year);
+                            return;
+                        }
                         bfs(i, j);
                         total++;
                     }
@@ -48,8 +52,6 @@ public class Main {
             }
             if (total == 0) {
                 year = 0;
-                break;
-            } else if (total > 1) {
                 break;
             }
         }
