@@ -38,33 +38,18 @@ public class Main {
     }
 
     public static void rotate() {
-        int rotateCnt = Math.abs(d) / 45;
-        for (int i = 0; i < rotateCnt; i++) {
-            if (d < 0) rotateLeft();
-            else rotateRight();
+        int rotateCnt = (d < 0 ? d + 360 : d) / 45;
+        for (int r = 0; r < rotateCnt; r++) {
+            for (int i = 0; i < n; i++) {
+                rotate[i][mid] = arr[i][i]; // 주 대각선 회전
+                rotate[i][n - 1 - i] = arr[i][mid]; // 가운데 열 회전
+                rotate[mid][i] = arr[n - 1 - i][i]; // 부 대각선 회전
+                rotate[i][i] = arr[mid][i]; // 가운데 행 회전
+            }
 
             arrCopy(arr, rotate); // 이동한 것 복사하기
         }
     }
-
-    public static void rotateLeft() { // 반시계 방향 회전
-        for (int i = 0; i < n; i++) {
-            rotate[mid][i] = arr[i][i]; // 주 대각선 회전
-            rotate[n - 1 - i][i] = arr[mid][i]; // 가운데 행 회전
-            rotate[i][mid] = arr[i][n - 1 - i]; // 부 대각선 회전
-            rotate[i][i] = arr[i][mid]; // 가운데 열 회전
-        }
-    }
-
-    public static void rotateRight() { // 시계 방향 회전
-        for (int i = 0; i < n; i++) {
-            rotate[i][mid] = arr[i][i]; // 주 대각선 회전
-            rotate[i][n - 1 - i] = arr[i][mid]; // 가운데 열 회전
-            rotate[mid][i] = arr[n - 1 - i][i]; // 부 대각선 회전
-            rotate[i][i] = arr[mid][i]; // 가운데 행 회전
-        }
-    }
-
 
     public static void arrCopy(int[][] target, int[][] origin) { // 2차원 배열 복사
         for (int i = 0; i < n; i++) {
