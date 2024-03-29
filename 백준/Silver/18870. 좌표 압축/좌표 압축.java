@@ -6,22 +6,25 @@ public class Main {
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         int n = Integer.parseInt(br.readLine());
-        int[] arr = new int[n];
+        int[] origin = new int[n];
+        int[] sorted = new int[n];
         StringTokenizer st = new StringTokenizer(br.readLine(), " ");
-        HashSet<Integer> hashSet = new HashSet<>();
         for (int i = 0; i < n; i++) {
-            arr[i] = Integer.parseInt(st.nextToken());
-            hashSet.add(arr[i]);
+            origin[i] = Integer.parseInt(st.nextToken());
+            sorted[i] = origin[i];
         }
-        List<Integer> list = hashSet.stream().sorted().collect(Collectors.toList());
+        Arrays.sort(sorted);
         HashMap<Integer, Integer> hashMap = new HashMap<>();
-        for (int i = 0; i < list.size(); i++) {
-            hashMap.put(list.get(i), i);
+        int idx = 0;
+        for (int i = 0; i < n; i++) {
+            if (!hashMap.containsKey(sorted[i])) {
+                hashMap.put(sorted[i], idx++);
+            }
         }
 
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < n; i++) {
-            sb.append(hashMap.get(arr[i])).append(" ");
+            sb.append(hashMap.get(origin[i])).append(" ");
         }
         System.out.println(sb.toString());
     }
