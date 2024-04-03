@@ -1,45 +1,51 @@
-import java.io.*;
 import java.util.*;
+import java.io.*;
 
 public class Main {
-
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
         String str = br.readLine();
-        LinkedList<Character> list = new LinkedList<>();
-        ListIterator<Character> iterator = list.listIterator();
+        int M = Integer.parseInt(br.readLine());
+        LinkedList<String> list = new LinkedList<>();
         for (int i = 0; i < str.length(); i++) {
-            iterator.add(str.charAt(i));
+            list.add(str.charAt(i) + "");
         }
 
-        int n = Integer.parseInt(br.readLine());
-        for (int i = 0; i < n; i++) {
-            String[] cmd = br.readLine().split(" ");
-            switch (cmd[0]) {
-                case "L": // 커서를 왼쪽으로 한 칸 이동
-                    // 역방향으로 순회할 때, 다음 요소를 가지고 있는 경우
-                    if (iterator.hasPrevious()) iterator.previous();
-                    break;
-                case "D": // 커서를 오른쪽으로 한 칸 이동
-                    // 순방향으로 순회할 때, 다음 요소를 가지고 있는 
-                    if (iterator.hasNext()) iterator.next();
-                    break;
-                case "B": // 커서 왼쪽에 있는 문자 삭제
-                    if (iterator.hasPrevious()) {
-                        iterator.previous();
-                        iterator.remove();
+        ListIterator<String> iterator = list.listIterator();
+        while (iterator.hasNext()) { // 커서 맨 뒤로 옮기기
+            iterator.next();
+        }
+        for (int i = 0; i < M; i++) {
+            StringTokenizer st = new StringTokenizer(br.readLine(), " ");
+            String cmd = st.nextToken();
+            switch (cmd) {
+                case "L": // 왼쪽으로 커서 이동
+                    if (iterator.hasPrevious()) { // 이전 요소가 있다면
+                        iterator.previous(); // 커서 위치를 왼쪽으로 이동
                     }
                     break;
-                case "P": // $라는 문자 커서 왼쪽에 추가
-                    iterator.add(cmd[1].charAt(0));
+                case "D": // 오른쪽으로 커서 이동
+                    if (iterator.hasNext()) { // 다음 요소가 있다면
+                        iterator.next(); // 커서 위치를 오른쪽으로 이동
+                    }
+                    break;
+                case "B": // 왼쪽의 문자 삭제
+                    if (iterator.hasPrevious()) { // 왼쪽에 문자가 있다면
+                        iterator.previous(); // 커서를 왼쪽으로 이동하고
+                        iterator.remove(); // 그 위치의 문자 삭제하기
+                    }
+                    break;
+                case "P": // 왼쪽에 문자 추가
+                    String s = st.nextToken();
+                    iterator.add(s);
                     break;
             }
         }
 
-        for (char c : list) {
-            bw.write(c);
+        StringBuilder sb = new StringBuilder();
+        for (String s : list) {
+            sb.append(s);
         }
-        bw.flush(); bw.close();
+        System.out.println(sb.toString());
     }
 }
