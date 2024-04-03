@@ -1,85 +1,91 @@
 import java.util.*;
+import java.io.*;
+import java.util.stream.Collectors;
 
 public class Main {
     static int maxA, maxB, maxC;
-    static Set<Integer> results = new HashSet<>();
-    public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
-        maxA = sc.nextInt();
-        maxB = sc.nextInt();
-        maxC = sc.nextInt();
-
+    static HashSet<Integer> hashSet = new HashSet<>();
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st = new StringTokenizer(br.readLine(), " ");
+        maxA = Integer.parseInt(st.nextToken());
+        maxB = Integer.parseInt(st.nextToken());
+        maxC = Integer.parseInt(st.nextToken());
         bfs();
+        List<Integer> list = hashSet.stream().sorted().collect(Collectors.toList());
         StringBuilder sb = new StringBuilder();
-        results.stream().sorted().forEach(s -> sb.append(s).append(" "));
+        for (int i : list) {
+            sb.append(i).append("\n");
+        }
         System.out.println(sb.toString());
     }
 
     public static void bfs() {
-        boolean[][][] visited = new boolean[maxA + 1][maxB + 1][maxC + 1];
         Queue<Bucket> queue = new LinkedList<>();
+        boolean[][][] visited = new boolean[maxA + 1][maxB + 1][maxC + 1];
         queue.offer(new Bucket(0, 0, maxC));
 
         while (!queue.isEmpty()) {
             Bucket bucket = queue.poll();
-            if (visited[bucket.a][bucket.b][bucket.c])
-                continue;
+            int a = bucket.a, b = bucket.b, c = bucket.c;
+            if (visited[a][b][c]) continue; // 이미 방문했다면 넘어가기
 
-            visited[bucket.a][bucket.b][bucket.c] = true;
-            if (bucket.a == 0) results.add(bucket.c);
-
-
-            // A → B
-            if (bucket.a + bucket.b <= maxB) {
-                queue.offer(new Bucket(0, bucket.a + bucket.b, bucket.c));
-            } else {
-                queue.offer(new Bucket(bucket.a + bucket.b - maxB, maxB, bucket.c));
+            visited[a][b][c] = true; // 방문 처리
+            if (a == 0) {
+                hashSet.add(c); // 물통 A가 0이라면 물통 C의 용량 기록하기
             }
 
-            // A → C
-            if (bucket.a + bucket.c <= maxC) {
-                queue.offer(new Bucket(0, bucket.b, bucket.a + bucket.c));
+            // a → b
+            if (a + b <= maxB) { // 물통 B의 용량을 넘지 않는 경우
+                queue.offer(new Bucket(0, a + b, c));
             } else {
-                queue.offer(new Bucket(bucket.a + bucket.c - maxC, bucket.b, maxC));
+                queue.offer(new Bucket(a + b - maxB, maxB, c));
             }
 
-            // B → A
-            if (bucket.b + bucket.a <= maxA) {
-                queue.offer(new Bucket(bucket.a + bucket.b, 0, bucket.c));
+            // a → c
+            if (a + c <= maxC) {
+                queue.offer(new Bucket(0, b, a + c));
             } else {
-                queue.offer(new Bucket(maxA, bucket.b + bucket.a - maxA, bucket.c));
+                queue.offer(new Bucket(a + c - maxC, b, maxC));
             }
 
-            // B → C
-            if (bucket.b + bucket.c <= maxC) {
-                queue.offer(new Bucket(bucket.a, 0, bucket.b + bucket.c));
+            // b → a
+            if (b + a <= maxA) {
+                queue.offer(new Bucket(b + a, 0, c));
             } else {
-                queue.offer(new Bucket(bucket.a, bucket.b + bucket.c - maxC, maxC));
+                queue.offer(new Bucket(maxA, b + a - maxA, c));
             }
 
-            // C → A
-            if (bucket.c + bucket.a <= maxA) {
-                queue.offer(new Bucket(bucket.a + bucket.c, bucket.b, 0));
+            // b → c
+            if (b + c <= maxC) {
+                queue.offer(new Bucket(a, 0, b + c));
             } else {
-                queue.offer(new Bucket(maxA, bucket.b, bucket.c + bucket.a - maxA));
+                queue.offer(new Bucket(a, b + c - maxC, maxC));
             }
 
-            // C → B
-            if (bucket.c + bucket.b <= maxB) {
-                queue.offer(new Bucket(bucket.a, bucket.b + bucket.c, 0));
+            // c → a
+            if (c + a <= maxA) {
+                queue.offer(new Bucket(c + a, b, 0));
             } else {
-                queue.offer(new Bucket(bucket.a, maxB, bucket.c + bucket.b - maxB));
+                queue.offer(new Bucket(maxA, b, c + a - maxA));
+            }
+
+            // c → b
+            if (c + b <= maxB) {
+                queue.offer(new Bucket(a, c + b, 0));
+            } else {
+                queue.offer(new Bucket(a, maxB, c + b - maxB));
             }
         }
     }
-}
 
-class Bucket {
-    int a; int b; int c;
+    static class Bucket {
+        int a, b, c;
 
-    public Bucket(int a, int b, int c) {
-        this.a = a;
-        this.b = b;
-        this.c = c;
+        public Bucket(int a, int b, int c) {
+            this.a = a;
+            this.b = b;
+            this.c = c;
+        }
     }
 }
