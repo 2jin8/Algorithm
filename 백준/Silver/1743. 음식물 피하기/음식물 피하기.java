@@ -2,73 +2,57 @@ import java.util.*;
 import java.io.*;
 
 public class Main {
-    private static int n, m, k, maxCnt = 0;
-    private static int[][] board;
-    private static boolean[][] visited;
+    static int N, M, K, maxArea;
+    static int[][] map;
+    static boolean[][] visited;
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st = new StringTokenizer(br.readLine());
-        n = Integer.parseInt(st.nextToken());
-        m = Integer.parseInt(st.nextToken());
-        k = Integer.parseInt(st.nextToken());
-
-        board = new int[n + 1][m + 1];
-        Point[] points = new Point[k];
-        for (int i = 0; i < k; i++) {
-            st = new StringTokenizer(br.readLine());
-            int r = Integer.parseInt(st.nextToken());
-            int c = Integer.parseInt(st.nextToken());
-            board[r][c] = 1;
-            points[i] = new Point(r, c);
+        StringTokenizer st = new StringTokenizer(br.readLine(), " ");
+        N = Integer.parseInt(st.nextToken());
+        M = Integer.parseInt(st.nextToken());
+        K = Integer.parseInt(st.nextToken());
+        map = new int[N][M];
+        visited = new boolean[N][M];
+        for (int i = 0; i < K; i++) {
+            st = new StringTokenizer(br.readLine(), " ");
+            int r = Integer.parseInt(st.nextToken()) - 1;
+            int c = Integer.parseInt(st.nextToken()) - 1;
+            map[r][c] = 1;
         }
 
-        visited = new boolean[n + 1][m + 1];
-        for (int i = 0; i < k; i++) { // 음식물 존재하는 위치 탐색
-            Point point = points[i];
-            if (!visited[point.r][point.c]) {
-                bfs(point.r, point.c);
-            }
-        }
-        System.out.println(maxCnt);
-    }
-
-    public static void bfs(int r, int c) {
-        Queue<Point> queue = new LinkedList<>();
-        queue.offer(new Point(r, c));
-        visited[r][c] = true;
-
-        int[] dr = {1, -1, 0, 0};
-        int[] dc = {0, 0, 1, -1};
-        int cnt = 0; // 연속된 음식물 크기
-        while (!queue.isEmpty()) {
-            Point point = queue.poll();
-            r = point.r;
-            c = point.c;
-            cnt++;
-
-            for (int i = 0; i < 4; i++) {
-                int tr = r + dr[i];
-                int tc = c + dc[i];
-
-                if (tr <= 0 || tc <= 0 || tr > n || tc > m)
-                    continue;
-
-                if (board[tr][tc] == 1 && !visited[tr][tc]) {
-                    queue.offer(new Point(tr, tc));
-                    visited[tr][tc] = true;
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < M; j++) {
+                if (map[i][j] == 1 && !visited[i][j]) {
+                    maxArea = Math.max(bfs(i, j), maxArea);
                 }
             }
         }
-        maxCnt = Math.max(maxCnt, cnt);
+        System.out.println(maxArea);
     }
-}
 
-class Point {
-    int r;
-    int c;
+    public static int bfs(int x, int y) {
+        Queue<int[]> queue = new LinkedList<>();
+        visited[x][y] = true;
+        queue.offer(new int[]{x, y});
 
-    public Point(int r, int c) {
-        this.r = r;
-        this.c = c;
+        int area = 0;
+        int[] dx = {1, -1, 0, 0};
+        int[] dy = {0, 0, 1, -1};
+        while (!queue.isEmpty()) {
+            int[] poll = queue.poll();
+            area++;
+
+            for (int i = 0; i < 4; i++) {
+                int nx = poll[0] + dx[i];
+                int ny = poll[1] + dy[i];
+                if (nx < 0 || ny < 0 || nx >= N || ny >= M || visited[nx][ny]) continue;
+
+                if (map[nx][ny] == 1) {
+                    queue.offer(new int[]{nx, ny});
+                    visited[nx][ny] = true;
+                }
+            }
+        }
+        return area;
     }
 }
