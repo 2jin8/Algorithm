@@ -2,60 +2,56 @@ import java.util.*;
 import java.io.*;
 
 public class Main {
-    private static int R, C;
-    private static int sheep, fox, sheepNum, foxNum;
-    private static char[][] board;
-    private static boolean[][] visited;
-
+    static int R, C, sheep, fox, areaSheep, areaFox;
+    static char[][] map;
+    static boolean[][] visited;
+    static int[] dx = {1, -1, 0, 0};
+    static int[] dy = {0, 0, 1, -1};
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st = new StringTokenizer(br.readLine());
+        StringTokenizer st = new StringTokenizer(br.readLine(), " ");
         R = Integer.parseInt(st.nextToken());
         C = Integer.parseInt(st.nextToken());
-        board = new char[R][C];
+
+        map = new char[R][C];
         visited = new boolean[R][C];
         for (int i = 0; i < R; i++) {
-            String str = br.readLine();
+            String s = br.readLine();
             for (int j = 0; j < C; j++) {
-                board[i][j] = str.charAt(j);
-                if (board[i][j] == 'o') sheep++;
-                if (board[i][j] == 'v') fox++;
+                map[i][j] = s.charAt(j);
+                if (map[i][j] == 'v') fox++;
+                else if (map[i][j] == 'o') sheep++;
             }
         }
 
         for (int i = 0; i < R; i++) {
             for (int j = 0; j < C; j++) {
-                if (board[i][j] != '#' && !visited[i][j]) { // 울타리가 아니고 방문하지 않은 경우
-                    sheepNum = 0;
-                    foxNum = 0;
+                if (map[i][j] != '#' && !visited[i][j]) {
+                    areaFox = 0; areaSheep = 0;
                     dfs(i, j);
-                    if (sheepNum > foxNum) fox -= foxNum;
-                    else sheep -= sheepNum;
+                    if (areaSheep > areaFox) fox -= areaFox; // 양이 이긴 경우
+                    else sheep -= areaSheep; // 늑대가 이긴 경우
                 }
             }
         }
         System.out.println(sheep + " " + fox);
     }
 
-    public static void dfs(int r, int c) {
-        visited[r][c] = true;
-        if (board[r][c] == 'o') sheepNum++;
-        else if (board[r][c] == 'v') foxNum++;
+    public static void dfs(int x, int y) {
+        visited[x][y] = true;
+        if (map[x][y] == 'o') areaSheep++; // 영역 내의 양의 수 세기
+        else if (map[x][y] == 'v') areaFox++; // 영역 내의 늑대 수 세기
 
-        int[] dr = {1, -1, 0, 0};
-        int[] dc = {0, 0, 1, -1};
         for (int i = 0; i < 4; i++) {
-            int tr = r + dr[i];
-            int tc = c + dc[i];
+            int nx = x + dx[i];
+            int ny = y + dy[i];
 
-            if (tr < 0 || tc < 0 || tr >= R || tc >= C) // 범위 벗어나는 경우
+            if (nx < 0 || ny < 0 || nx >= R || ny >= C || visited[nx][ny]) {
                 continue;
+            }
 
-            if (board[tr][tc] == '#') // 울타리인 경우
-                continue;
-
-            if (!visited[tr][tc]) {
-                dfs(tr, tc);
+            if (map[nx][ny] != '#') { // 벽이 아니면 이동 가능
+                dfs(nx, ny);
             }
         }
     }
