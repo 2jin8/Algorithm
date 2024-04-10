@@ -2,53 +2,53 @@ import java.util.*;
 import java.io.*;
 
 public class Main {
-    private static int N, M;
-    private static int wNum = 0, bNum = 0, num;
-    private static char[][] board;
-    private static boolean[][] visited;
+    static int N, M;
+    static int white = 0, blue = 0, area;
+    static int[] dx = {1, -1, 0, 0};
+    static int[] dy = {0, 0, 1, -1};
+    static char[][] map;
+    static boolean[][] visited;
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st = new StringTokenizer(br.readLine());
+        StringTokenizer st = new StringTokenizer(br.readLine(), " ");
         N = Integer.parseInt(st.nextToken());
         M = Integer.parseInt(st.nextToken());
-        board = new char[M][N];
+        map = new char[M][N];
         visited = new boolean[M][N];
-
         for (int i = 0; i < M; i++) {
-            String str = br.readLine();
+            String s = br.readLine();
             for (int j = 0; j < N; j++) {
-                board[i][j] = str.charAt(j);
+                map[i][j] = s.charAt(j);
             }
         }
 
         for (int i = 0; i < M; i++) {
             for (int j = 0; j < N; j++) {
                 if (!visited[i][j]) {
-                    num = 0;
-                    dfs(i, j, board[i][j]);
-                    if (board[i][j] == 'W') wNum += Math.pow(num, 2);
-                    else bNum += Math.pow(num, 2);
+                    area = 0;
+                    dfs(i, j, map[i][j]);
+                    area = (int) Math.pow(area, 2);
+                    if (map[i][j] == 'W') white += area;
+                    else blue += area;
                 }
             }
         }
-        System.out.println(wNum + " " + bNum);
+        System.out.println(white + " " + blue);
     }
 
-    public static void dfs(int x, int y, char team) {
+    public static void dfs(int x, int y, char color) {
+        area++;
         visited[x][y] = true;
-        num++;
 
-        int[] dx = {1, -1, 0, 0};
-        int[] dy = {0, 0, 1, -1};
         for (int i = 0; i < 4; i++) {
-            int tx = x + dx[i];
-            int ty = y + dy[i];
-
-            if (tx < 0 || ty < 0 || tx >= M || ty >= N)
+            int nx = x + dx[i];
+            int ny = y + dy[i];
+            if (nx < 0 || ny < 0 || nx >= M || ny >= N || visited[nx][ny]) {
                 continue;
+            }
 
-            if (board[tx][ty] == team && !visited[tx][ty]) {
-                dfs(tx, ty, team);
+            if (map[nx][ny] == color) {
+                dfs(nx, ny, color);
             }
         }
     }
