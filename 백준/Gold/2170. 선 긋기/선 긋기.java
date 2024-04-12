@@ -26,7 +26,7 @@ public class Main {
         int start = line.x, end = line.y, total = 0;
         while (!pq.isEmpty()) {
             line = pq.poll();
-            if (line.x >= start && line.x <= end) { // 그으려는 선이 이미 그어진 선과 겹치는 경우라면
+            if (line.x <= end) { // 그으려는 선이 이미 그어진 선과 겹치는 경우라면
                 end = Math.max(line.y, end); // 두 y값 중 더 큰 값으로 갱신
             } else { // 그렇지 않다면
                 total += end - start; // 이때까지 그은 선의 길이 세기
