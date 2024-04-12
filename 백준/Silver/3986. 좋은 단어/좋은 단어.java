@@ -1,40 +1,23 @@
 import java.util.*;
+import java.io.*;
 
 public class Main {
-
-    public static void main(String[] args) {
-        Scanner scan = new Scanner(System.in);
-        int n = Integer.parseInt(scan.nextLine());
-        String[] words = new String[n];
-        for (int i = 0; i < n; i++) {
-            words[i] = scan.nextLine();
-        }
-
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        int n = Integer.parseInt(br.readLine());
         int total = 0;
         for (int i = 0; i < n; i++) {
-            String word = words[i];
-            if (word.length() % 2 == 1) continue;
-
-            Stack<Character> wordStack = new Stack<>();
-            for (char c : word.toCharArray()) {
-                wordStack.push(c);
-            }
-
-            Stack<Character> ansStack = new Stack<>();
-            while (!wordStack.isEmpty()) {
-                ansStack.push(wordStack.pop());
-
-                int size = ansStack.size();
-                if (size > 1) {
-                    char w1 = ansStack.elementAt(size - 1);
-                    char w2 = ansStack.elementAt(size - 2);
-                    if (w1 == w2) {
-                        ansStack.pop();
-                        ansStack.pop();
-                    }
+            String word = br.readLine();
+            Stack<Character> stack = new Stack<>();
+            for (int j = 0; j < word.length(); j++) {
+                // 스택이 비어있지 않고, 현재 문자와 peek 값이 같다면 pop
+                if (!stack.isEmpty() && stack.peek() == word.charAt(j)) {
+                    stack.pop();
+                } else { // 그렇지 않다면 push
+                    stack.push(word.charAt(j));
                 }
             }
-            if (ansStack.isEmpty()) total++;
+            if (stack.isEmpty()) total++;
         }
         System.out.println(total);
     }
