@@ -33,7 +33,7 @@ public class Main {
                 pq.offer(line);
             }
         }
-        long total = 0;
+        int total = 0;
         while (!pq.isEmpty()) {
             Line line = pq.poll();
             total += line.end - line.start;
