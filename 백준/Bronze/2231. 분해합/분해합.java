@@ -1,20 +1,22 @@
 import java.io.*;
 
 public class Main {
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        int n = Integer.parseInt(br.readLine());
-        for (int i = 1; i <= n; i++) {
-            int total = i, idx = i;
-            while (idx != 0) {
-                total += idx % 10;
-                idx /= 10;
+        int N = Integer.parseInt(br.readLine());
+
+        int ans = 0;
+        for (int i = 1; i < N; i++) {
+            int total = i, num = i;
+            while (num > 0) {
+                total += num % 10;
+                num /= 10;
             }
-            if (total == n) {
-                System.out.println(i);
-                return;
+            if (total == N) {
+                ans = i;
+                break;
             }
         }
-        System.out.println(0);
+        System.out.println(ans);
     }
 }
