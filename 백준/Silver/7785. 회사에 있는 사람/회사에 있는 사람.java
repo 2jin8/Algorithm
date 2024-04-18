@@ -1,32 +1,28 @@
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.util.*;
+import java.io.*;
+import java.util.stream.Collectors;
 
 public class Main {
-
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         int n = Integer.parseInt(br.readLine());
-        // 출근 - list에 저장, 퇴근 - list에서 삭제
-        LinkedList<String> list = new LinkedList<>();
-        HashSet<String> hashSet = new HashSet<>();
-        HashMap<String, Boolean> hashMap = new LinkedHashMap<>();
+
+        HashSet<String> set = new HashSet<>();
         for (int i = 0; i < n; i++) {
             StringTokenizer st = new StringTokenizer(br.readLine(), " ");
             String name = st.nextToken();
-            String status = st.nextToken();
-            if (status.equals("enter")) {
-                hashSet.add(name);
-            } else if (status.equals("leave")) {
-                hashSet.remove(name);
+            String record = st.nextToken();
+            if (record.equals("enter")) {
+                set.add(name);
+            } else {
+                set.remove(name);
             }
         }
-        ArrayList<String> result = new ArrayList<>();
-        hashSet.stream().sorted(Collections.reverseOrder()).forEach(h -> result.add(h));
+        List<String> result = set.stream().sorted(Collections.reverseOrder()).collect(Collectors.toList());
         StringBuilder sb = new StringBuilder();
-        for (String s : result) {
-            sb.append(s).append("\n");
+        for (String r : result) {
+            sb.append(r).append("\n");
         }
-        System.out.println(sb);
+        System.out.println(sb.toString());
     }
 }
