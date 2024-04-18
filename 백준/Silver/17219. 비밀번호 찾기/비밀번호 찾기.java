@@ -17,7 +17,8 @@ public class Main {
 
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < M; i++) {
-            sb.append(password.get(br.readLine())).append("\n");
+            String site = br.readLine();
+            sb.append(password.get(site)).append("\n");
         }
         System.out.println(sb.toString());
     }
