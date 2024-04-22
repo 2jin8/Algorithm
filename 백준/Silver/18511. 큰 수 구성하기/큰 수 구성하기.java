@@ -1,30 +1,30 @@
-import java.io.*;
 import java.util.*;
+import java.io.*;
 
 public class Main {
-    static int n, k, ans;
+    static int n, k, len, max = 0;
     static int[] arr;
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine(), " ");
         n = Integer.parseInt(st.nextToken());
         k = Integer.parseInt(st.nextToken());
         arr = new int[k];
+        len = String.valueOf(n).length();
         st = new StringTokenizer(br.readLine(), " ");
         for (int i = 0; i < k; i++) {
             arr[i] = Integer.parseInt(st.nextToken());
         }
-        Arrays.sort(arr);
-        dfs(0);
-        System.out.println(ans);
+        dfs(0, 0);
+        System.out.println(max);
     }
 
-    public static void dfs(int total) {
-        if (total > n) return; // n보다 크면 종료
-        if (ans < total) ans = total; // 더 큰 값으로 ans 갱신
+    public static void dfs(int depth, int total) {
+        if (total <= n) max = Math.max(max, total);
+        if (depth == len) return;
 
-        for (int i = k - 1; i >= 0; i--) {
-            dfs(total * 10 + arr[i]);
+        for (int i = 0; i < k; i++) {
+            dfs(depth + 1, total * 10 + arr[i]);
         }
     }
 }
