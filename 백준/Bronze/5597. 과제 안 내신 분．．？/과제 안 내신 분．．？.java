@@ -1,18 +1,16 @@
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import java.io.*;
 
 public class Main {
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        boolean[] submit = new boolean[31];
+        boolean[] submit = new boolean[30];
         for (int i = 0; i < 28; i++) {
-            submit[Integer.parseInt(br.readLine())] = true;
+            int num = Integer.parseInt(br.readLine()) - 1;
+            submit[num] = true;
         }
 
-        for (int i = 1; i <= 30; i++) {
-            if (!submit[i]) {
-                System.out.println(i);
-            }
+        for (int i = 0; i < submit.length; i++) {
+            if (!submit[i]) System.out.println(i + 1);
         }
     }
 }
