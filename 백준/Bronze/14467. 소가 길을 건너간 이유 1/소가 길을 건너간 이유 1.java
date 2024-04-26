@@ -1,37 +1,26 @@
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.StringTokenizer;
+import java.util.*;
+import java.io.*;
 
 public class Main {
-    static final int NUM = 10;
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        int n = Integer.parseInt(br.readLine());
-        ArrayList<Integer>[] cows = new ArrayList[NUM + 1];
-        for (int i = 0; i <= NUM; i++) {
-            cows[i] = new ArrayList<>();
-        }
-
-        for (int i = 0; i < n; i++) {
+        int N = Integer.parseInt(br.readLine());
+        HashMap<Integer, Integer> hashMap = new HashMap<>();
+        int total = 0;
+        for (int i = 0; i < N; i++) {
             StringTokenizer st = new StringTokenizer(br.readLine(), " ");
             int cow = Integer.parseInt(st.nextToken());
-            int move = Integer.parseInt(st.nextToken());
-            cows[cow].add(move);
-        }
-
-        int moveCnt = 0;
-        for (int i = 1; i <= NUM; i++) {
-            if (cows[i].size() <= 1) continue;
-            // 배열의 크기가 1보다 큰 경우 건넜는지 확인
-            int before = cows[i].get(0);
-            for (int j = 1; j < cows[i].size(); j++) { 
-                int now = cows[i].get(j);
-                if (before != now) moveCnt++;
-                before = now;
+            int road = Integer.parseInt(st.nextToken());
+            if (hashMap.containsKey(cow)) {
+                int prevRoad = hashMap.get(cow);
+                if (road != prevRoad) {
+                    total++;
+                    hashMap.put(cow, road);
+                }
+            } else {
+                hashMap.put(cow, road);
             }
         }
-        System.out.println(moveCnt);
+        System.out.println(total);
     }
 }
