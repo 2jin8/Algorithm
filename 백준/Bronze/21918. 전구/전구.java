@@ -1,48 +1,48 @@
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.util.Arrays;
-import java.util.StringTokenizer;
+import java.util.*;
+import java.io.*;
 
 public class Main {
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st = new StringTokenizer(br.readLine(), " ");
-        int n = Integer.parseInt(st.nextToken()); // 전구의 개수
-        int m = Integer.parseInt(st.nextToken()); // 명령어의 개수
-        boolean[] lamps = new boolean[n];
+        StringTokenizer st = new StringTokenizer(br.readLine());
+        int N = Integer.parseInt(st.nextToken());
+        int M = Integer.parseInt(st.nextToken());
+        int[] lamp = new int[N + 1]; // 0: false, 1: true
         st = new StringTokenizer(br.readLine(), " ");
-        for (int i = 0; i < n; i++) {
-            // 0: off, 1: on
-            int status = Integer.parseInt(st.nextToken());
-            lamps[i] = status == 1;
+        for (int i = 1; i <= N; i++) {
+            lamp[i] = Integer.parseInt(st.nextToken());
         }
-        for (int t = 0; t < m; t++) {
-            st = new StringTokenizer(br.readLine(), " ");
-            int cmd = Integer.parseInt(st.nextToken());
 
-            if (cmd == 1) {
-                int i = Integer.parseInt(st.nextToken()) - 1;
-                int x = Integer.parseInt(st.nextToken());
-                lamps[i] = x == 1;
-            } else {
-                int l = Integer.parseInt(st.nextToken()) - 1;
-                int r = Integer.parseInt(st.nextToken()) - 1;
-                if (cmd == 2) {
-                    for (int j = l; j <= r; j++) {
-                        lamps[j] = !lamps[j];
+        for (int i = 0; i < M; i++) {
+            st = new StringTokenizer(br.readLine(), " ");
+            int a = Integer.parseInt(st.nextToken());
+            int b = Integer.parseInt(st.nextToken());
+            int c = Integer.parseInt(st.nextToken());
+            switch (a) {
+                case 1: // b번째 전구의 상태를 c로 변경
+                    lamp[b] = c;
+                    break;
+                case 2: // l번째부터 r번째까지의 전구의 상태 변경
+                    for (int j = b; j <= c; j++) {
+                        lamp[j] = (lamp[j] == 0 ? 1 : 0);
                     }
-                } else if (cmd == 3) {
-                    Arrays.fill(lamps, l, r + 1, false);
-                } else {
-                    Arrays.fill(lamps, l, r + 1, true);
-                }
+                    break;
+                case 3:
+                    for (int j = b; j <= c; j++) {
+                        lamp[j] = 0;
+                    }
+                    break;
+                case 4:
+                    for (int j = b; j <= c; j++) {
+                        lamp[j] = 1;
+                    }
+                    break;
             }
         }
-
         StringBuilder sb = new StringBuilder();
-        for (boolean lamp : lamps) {
-            sb.append(lamp ? 1 : 0).append(" ");
+        for (int i = 1; i <= N; i++) {
+            sb.append(lamp[i]).append(" ");
         }
-        System.out.println(sb);
+        System.out.println(sb.toString());
     }
 }
