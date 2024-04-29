@@ -1,55 +1,76 @@
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.StringTokenizer;
 
 public class Main {
-    static int n, total = 0;
-    static int[][] record;
-    public static void main(String[] args) throws Exception {
+    static int answer = 0;
+    static Ask[] asks;
+    static boolean[] used = new boolean[10];
+    public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        n = Integer.parseInt(br.readLine());
-        record = new int[n][3];
+        int n = Integer.parseInt(br.readLine());
+        asks = new Ask[n];
         for (int i = 0; i < n; i++) {
             StringTokenizer st = new StringTokenizer(br.readLine(), " ");
-            for (int j = 0; j < 3; j++) {
-                record[i][j] = Integer.parseInt(st.nextToken());
-            }
+            int number = Integer.parseInt(st.nextToken());
+            int strike = Integer.parseInt(st.nextToken());
+            int ball = Integer.parseInt(st.nextToken());
+            asks[i] = new Ask(number, strike, ball);
+        }
+        makeNumber(0, 0);
+
+        System.out.println(answer);
+    }
+
+    static void makeNumber(int depth, int total) {
+        if (depth == 3) {
+            // 주어진 질문과 비교했을 때 스트라이크, 볼의 개수가 모두 일치하는지 확인하기
+            if (check(String.valueOf(total))) answer++;
+            return;
         }
 
         for (int i = 1; i <= 9; i++) {
-            for (int j = 1; j <= 9; j++) {
-                if (i == j) continue;
-                for (int k = 1; k <= 9; k++) {
-                    if (i == k || j == k) continue;
-                    // 기록이랑 비교하기
-                    check(new int[]{i, j, k});
-                }
+            if (!used[i]) { // 다른 숫자 세 개로 구성된 세자리수
+                used[i] = true;
+                makeNumber(depth + 1, total * 10 + i);
+                used[i] = false;
             }
         }
-        System.out.println(total);
     }
-    public static void check(int[] now) {
-        for (int i = 0; i < n; i++) {
-            String[] nums = String.valueOf(record[i][0]).split("");
-            int s = 0, b = 0;
-            // 스트라이크 체크
-            for (int j = 0; j < 3; j++) {
-                if (Integer.parseInt(nums[j]) == now[j]) { // 각 자리가 같은 경우
-                    s++; // 스트라이크
-                }
-            }
 
-            // 볼 체크
-            for (int j = 0; j < 3; j++) {
-                for (int k = 0; k < 3; k++) {
-                    if (j == k) continue;
-                    if (Integer.parseInt(nums[j]) == now[k]) { // 세 자리수에 있으나 다른 자리에 위치하는 경우
-                        b++; // 볼
+    static boolean check(String num) {
+        for (Ask ask : asks) {
+            int strike = 0, ball = 0;
+            String checkNum = String.valueOf(ask.number);
+            // 한 자리씩 확인하기
+            for (int i = 0; i < 3; i++) {
+                char c = num.charAt(i);
+                if (checkNum.charAt(i) == c) { // 스트라이크 확인
+                    strike++;
+                } else { // 볼 확인
+                    if (checkNum.contains(String.valueOf(c))) {
+                        ball++;
                     }
                 }
             }
-
-            if (record[i][1] != s || record[i][2] != b) return;
+            if (strike != ask.strike || ball != ask.ball) {
+                return false;
+            }
         }
-        total++;
+        return true;
+    }
+
+
+    static class Ask {
+        int number;
+        int strike;
+        int ball;
+
+        Ask(int number, int strike, int ball) {
+            this.number = number;
+            this.strike = strike;
+            this.ball = ball;
+        }
     }
 }
