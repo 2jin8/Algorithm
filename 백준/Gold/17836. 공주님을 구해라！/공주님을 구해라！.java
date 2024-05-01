@@ -1,76 +1,98 @@
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.StringTokenizer;
 
 public class Main {
     static int N, M, T;
     static int[][] castle;
-    static boolean[][][] visited; // 0: 그람 획득 X, 1: 그람 획득 O
-    public static void main(String[] args) throws Exception {
-        // 그람 획득 → 벽 상관없이 이동 가능 → 그람 획득 O / X → 총 2가지 상태
+    static boolean[][][] visited;
+    public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine(), " ");
         N = Integer.parseInt(st.nextToken());
         M = Integer.parseInt(st.nextToken());
         T = Integer.parseInt(st.nextToken());
+
         castle = new int[N][M];
-        visited = new boolean[N][M][2];
+        visited = new boolean[N][M][2]; // [i][j][0]: 그람 획득 X, [i][j][1]: 그람 획득 O
+        Pos gram = null;
         for (int i = 0; i < N; i++) {
             st = new StringTokenizer(br.readLine(), " ");
             for (int j = 0; j < M; j++) {
                 castle[i][j] = Integer.parseInt(st.nextToken());
+                if (castle[i][j] == 2) {
+                    gram = new Pos(i, j, 0,false);
+                }
             }
         }
-        int ans = bfs();
-        System.out.println(ans == -1 || ans > T ? "Fail" : ans);
+
+        int time = bfs(gram);
+        System.out.println(time == -1 ? "Fail" : time);
     }
 
-    public static int bfs() {
-        Queue<Point> queue = new LinkedList<>();
-        queue.offer(new Point(0, 0, 0, false));
+    public static int bfs(Pos gram) {
+        Queue<Pos> queue = new LinkedList<>();
+        queue.offer(new Pos(0, 0, 0, false));
         visited[0][0][0] = true;
 
-        int[] dx = {1, -1, 0, 0};
-        int[] dy = {0, 0, 1, -1};
+        int time = -1;
+        int[][] move = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
         while (!queue.isEmpty()) {
-            Point point = queue.poll();
-            if (point.x == N - 1 && point.y == M - 1) {
-                return point.time;
+            Pos pos = queue.poll();
+            if (pos.x == N - 1 && pos.y == M - 1) {
+                if (pos.time <= T) time = pos.time;
+                break;
             }
 
-            for (int i = 0; i < 4; i++) {
-                int tx = point.x + dx[i];
-                int ty = point.y + dy[i];
-                if (tx < 0 || ty < 0 || tx >= N || ty >= M) continue;
+            // 현재 위치에 그람이 있는 경우, 그람을 획득함
+            if (pos.x == gram.x && pos.y == gram.y) {
+                pos.getGram = true;
+                visited[pos.x][pos.y][1] = true;
+            }
 
-                if (point.gram) { // 그람을 획득한 경우
-                    if (!visited[tx][ty][1]) { // 벽 상관없이 이동 가능
-                        visited[tx][ty][1] = true;
-                        queue.offer(new Point(tx, ty, point.time + 1, true));
+            // T 시간을 넘으면 구하지 못함
+            if (pos.time > T) break;
+
+            // 상하좌우로 이동
+            for (int i = 0; i < 4; i++) {
+                int nx = pos.x + move[i][0];
+                int ny = pos.y + move[i][1];
+                if (nx < 0 || ny < 0 || nx >= N || ny >= M) {
+                    continue;
+                }
+
+                if (pos.getGram) { // 그람을 획득한 경우
+                    // 벽이 있어도 상관없음
+                    if (!visited[nx][ny][1]) {
+                        queue.offer(new Pos(nx, ny, pos.time + 1, true));
+                        visited[nx][ny][1] = true;
                     }
+
                 } else { // 그람을 획득하지 못한 경우
-                    if (castle[tx][ty] == 0 && !visited[tx][ty][0]) {
-                        visited[tx][ty][0] = true;
-                        queue.offer(new Point(tx, ty, point.time + 1, false));
-                    } else if (castle[tx][ty] == 2 && !visited[tx][ty][0]) {
-                        queue.offer(new Point(tx, ty, point.time + 1, true));
+                    // 벽이 있으면 지나가지 못함
+                    if (!visited[nx][ny][0] && castle[nx][ny] != 1) {
+                        queue.offer(new Pos(nx, ny, pos.time + 1, false));
+                        visited[nx][ny][0] = true;
                     }
                 }
             }
         }
-        return -1;
+        return time;
     }
 
-    static class Point {
-        int x;
-        int y;
+    static class Pos {
+        int x, y;
         int time;
-        boolean gram; // 그람 획득 여부
+        boolean getGram;
 
-        public Point(int x, int y, int time, boolean gram) {
+        public Pos(int x, int y, int time, boolean getGram) {
             this.x = x;
             this.y = y;
             this.time = time;
-            this.gram = gram;
+            this.getGram = getGram;
         }
     }
 }
