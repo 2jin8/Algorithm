@@ -1,44 +1,48 @@
-import java.util.Scanner;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Collections;
+import java.util.PriorityQueue;
+import java.util.StringTokenizer;
 
-class Solution
-{
-	public static void main(String args[]) throws Exception
-	{
-		Scanner sc = new Scanner(System.in);
-		int T;
-		T=sc.nextInt();
+class Solution {
+	static int N, M;
+	static int[][] arr;
 
-		for(int test_case = 1; test_case <= T; test_case++)
-		{
-			int n = sc.nextInt();
-			int m = sc.nextInt();
-			int[][] board = new int[n][n];
-			for (int i=0; i<n; i++) {
-				for (int j=0; j<n; j++) {
-					board[i][j] = sc.nextInt();
+	public static void main(String[] args) throws IOException {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		StringBuilder sb = new StringBuilder();
+		int T = Integer.parseInt(br.readLine());
+		for (int t = 1; t <= T; t++) {
+			StringTokenizer st = new StringTokenizer(br.readLine(), " ");
+			N = Integer.parseInt(st.nextToken());
+			M = Integer.parseInt(st.nextToken());
+
+			arr = new int[N][N];
+			for (int i = 0; i < N; i++) {
+				st = new StringTokenizer(br.readLine(), " ");
+				for (int j = 0; j < N; j++) {
+					arr[i][j] = Integer.parseInt(st.nextToken());
 				}
 			}
-			
-			int k = n-m+1;
-			int[][] sum = new int[k][n];
-			for (int i=0; i<k; i++) {
-				for (int j=0; j<n; j++) {
-					for (int l=0; l<m; l++) {
-						sum[i][j] += board[i+l][j];
-					}
+			PriorityQueue<Integer> pq = new PriorityQueue<>(Collections.reverseOrder());
+			for (int i = 0; i <= N - M; i++) {
+				for (int j = 0; j <= N - M; j++) {
+					pq.offer(getSum(i, j));
 				}
 			}
-			int max = 0;
-			for (int i=0; i<k; i++) {
-				for (int j=0; j<k; j++) {
-					int total = 0;
-					for (int l=0; l<m; l++) {
-						total += sum[i][j+l];
-					}
-					max = Math.max(max, total);
-				}
-			}
-			System.out.println("#"+test_case+" "+max);
+			sb.append("#").append(t).append(" ").append(pq.poll()).append("\n");
 		}
+		System.out.println(sb.toString());
+	}
+
+	static int getSum(int x, int y) {
+		int total = 0;
+		for (int i = x; i < x + M; i++) {
+			for (int j = y; j < y + M; j++) {
+				total += arr[i][j];
+			}
+		}
+		return total;
 	}
 }
