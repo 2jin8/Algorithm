@@ -1,57 +1,49 @@
-import java.util.Scanner;
+import java.io.*;
 
 class Solution
 {
-    static int n, num, mid;
-    static int[] dxUp = {-1, 0, 1, 0};
-    static int[] dyUp = {0, 1, 0, -1};
-    static int[] dxDown = {1, 0, -1, 0};
-    static int[] dyDown = {0, -1, 0, 1};
-    
-    public static void main(String args[]) throws Exception
-    {
+    static int n;
+    static boolean finish;
+    static int[][] arr;
+    static boolean[][] visited;
+    static int[][] move = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}};
 
-        Scanner sc = new Scanner(System.in);
-        int T;
-        T = sc.nextInt();
-
-        for(int test_case = 1; test_case <= T; test_case++)
-        {
-            n = sc.nextInt();
-            num = 1;
-            mid = (int) (Math.ceil(n / 2.0));
-            int[][] snail = new int[n][n];
-            dfs(snail, 0, 0);
-            
-            StringBuilder sb = new StringBuilder();
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        int T = Integer.parseInt(br.readLine());
+        StringBuilder sb = new StringBuilder();
+        for (int t = 1; t <= T; t++) {
+            n = Integer.parseInt(br.readLine());
+            arr = new int[n][n];
+            visited = new boolean[n][n];
+            finish = false;
+            dfs(1, 0, 0);
+            sb.append("#").append(t).append("\n");
             for (int i = 0; i < n; i++) {
                 for (int j = 0; j < n; j++) {
-                	sb.append(snail[i][j]+ " ");
+                    sb.append(arr[i][j]).append(" ");
                 }
                 sb.append("\n");
             }
-            System.out.println("#"+test_case);
-            System.out.print(sb.toString());
         }
+        System.out.println(sb.toString());
     }
 
-    public static void dfs(int[][] snail, int x, int y) {
-        snail[x][y] = num++;
+    public static void dfs(int value, int x, int y) {
+        if (value > n * n) {
+            finish = true;
+            return;
+        }
 
-        for (int i = 0; i < 4; i++) {
-            int tx = 0, ty = 0;
-            if (x < mid) {
-                tx = x + dxUp[i];
-                ty = y + dyUp[i];
-            } else {
-                tx = x + dxDown[i];
-                ty = y + dyDown[i];
-            }
-
-            if (tx < 0 || ty < 0 || tx >= n || ty >= n)
-                continue;
-
-            if (snail[tx][ty] == 0) dfs(snail, tx, ty);
+        arr[x][y] = value;
+        visited[x][y] = true;
+        int start = (x <= n / 2) ? 0 : 2;
+        for (int i = start, cnt = 0; cnt < 4; cnt++, i = (i + 1) % 4) {
+            if (finish) break;
+            int nx = x + move[i][0];
+            int ny = y + move[i][1];
+            if (nx < 0 || ny < 0 || nx >= n || ny >= n || visited[nx][ny]) continue;
+            dfs(value + 1, nx, ny);
         }
     }
 }
