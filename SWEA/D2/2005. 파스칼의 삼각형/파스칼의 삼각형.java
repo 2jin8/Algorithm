@@ -1,36 +1,33 @@
-import java.util.Scanner;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 
-class Solution
-{
-	public static void main(String args[]) throws Exception
-	{
-		Scanner sc = new Scanner(System.in);
-		int T;
-		T=sc.nextInt();
-
-		for(int test_case = 1; test_case <= T; test_case++)
-		{
-			int n = sc.nextInt();
-			int[][] dp = new int[10][10];
-			
-			dp[0][0] = 1; dp[1][0] = 1; dp[1][1] = 1;
-			for (int i=2; i<n; i++) {
-				for (int j=0; j<=i; j++) {
-					if (i == j) dp[i][j] = 1;
-					else if (j == 0) dp[i][j] = 1;
-					else dp[i][j] = dp[i-1][j-1] + dp[i-1][j];
+class Solution {
+	public static void main(String[] args) throws IOException {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		StringBuilder sb = new StringBuilder();
+		int T = Integer.parseInt(br.readLine());
+		for (int t = 1; t <= T; t++) {
+			int n = Integer.parseInt(br.readLine());
+			int[][] dp = new int[n][n];
+			dp[0][0] = 1;
+			for (int i = 1; i < n; i++) {
+				for (int j = 0; j <= i; j++) {
+					if (j == 0 || i == j)
+						dp[i][j] = 1;
+					else
+						dp[i][j] = dp[i - 1][j - 1] + dp[i - 1][j];
 				}
 			}
-			StringBuilder sb = new StringBuilder();
-			for (int i=0; i<n; i++) {
-				for (int j=0; j<=i; j++) {
-					sb.append(dp[i][j]+ " ");
+
+			sb.append("#").append(t).append("\n");
+			for (int i = 0; i < n; i++) {
+				for (int j = 0; j <= i; j++) {
+					sb.append(dp[i][j]).append(" ");
 				}
 				sb.append("\n");
 			}
-			
-			System.out.println("#"+test_case);
-			System.out.print(sb.toString());
 		}
+		System.out.println(sb.toString());
 	}
 }
