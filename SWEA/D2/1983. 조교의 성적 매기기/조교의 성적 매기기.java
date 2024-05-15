@@ -1,57 +1,59 @@
-import java.util.Comparator;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.PriorityQueue;
-import java.util.Scanner;
+import java.util.StringTokenizer;
 
-class Solution
-{
-	static String[] scoreList = {"A+", "A0", "A-", "B+", "B0", "B-", "C+", "C0", "C-", "D0"};
-	static PriorityQueue<Score> scores;
-	static int n, k;
-	public static <T> void main(String args[]) throws Exception
-	{
-		Scanner sc = new Scanner(System.in);
-		int T = sc.nextInt();
+class Solution {
 
-		for(int test_case = 1; test_case <= T; test_case++)
-		{
-			n = sc.nextInt(); // 학생 수
-			k = sc.nextInt() - 1; // 알고싶은 학생의 번호
-			scores = new PriorityQueue<>(new Comparator<Score>() {
+	static String[] scores = { "A+", "A0", "A-", "B+", "B0", "B-", "C+", "C0", "C-", "D0" };
 
-				@Override
-				public int compare(Score o1, Score o2) {
-					return o1.total > o2.total? -1 : 1;
+	public static void main(String[] args) throws IOException {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		StringBuilder sb = new StringBuilder();
+		int T = Integer.parseInt(br.readLine());
+		for (int t = 1; t <= T; t++) {
+			StringTokenizer st = new StringTokenizer(br.readLine(), " ");
+			int n = Integer.parseInt(st.nextToken());
+			int k = Integer.parseInt(st.nextToken());
+			PriorityQueue<Student> pq = new PriorityQueue<>();
+			for (int i = 1; i <= n; i++) {
+				st = new StringTokenizer(br.readLine(), " ");
+				int mScore = Integer.parseInt(st.nextToken());
+				int fScore = Integer.parseInt(st.nextToken());
+				int hScore = Integer.parseInt(st.nextToken());
+				double total = mScore * 0.35 + fScore * 0.45 + hScore * 0.2;
+				pq.offer(new Student(i, total));
+			}
+
+			int cnt = 0, div = n / 10;
+			while (!pq.isEmpty()) {
+				Student student = pq.poll();
+				if (student.idx == k) {
+					sb.append("#").append(t).append(" ").append(scores[cnt / div]).append("\n");
+					break;
 				}
-			});
-			
-			for (int i=0; i<n; i++) {
-				double mid = sc.nextInt() * 0.35;
-				double fin = sc.nextInt() * 0.45;
-				double homework = sc.nextInt() * 0.2;
-				scores.offer(new Score(i, mid + fin + homework));
+				cnt++;
 			}
-			
-			System.out.println("#"+test_case+" " +findList(n/10, 0));
-		}	
-	}
-	
-	public static String findList(int sNum, int slistNum) {
-		while (true) {
-			for (int i=0; i<sNum; i++) {
-				Score score = scores.poll();
-				if (score.idx == k) return scoreList[slistNum]; 
-			}
-			slistNum++;
 		}
+		System.out.println(sb.toString());
 	}
-}
 
-class Score {
-	int idx;
-	double total;
-	
-	public Score(int idx, double total) {
-		this.idx = idx;
-		this.total = total;
+	static class Student implements Comparable<Student> {
+		int idx; // 입력 순서
+		double total;
+
+		public Student(int idx, double total) {
+			this.idx = idx;
+			this.total = total;
+		}
+
+		@Override
+		public int compareTo(Student s) {
+			// 점수를 기준으로 내림차순 정렬
+			if (this.total > s.total)
+				return -1;
+			return 1;
+		}
 	}
 }
