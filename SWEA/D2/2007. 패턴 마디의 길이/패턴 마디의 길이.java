@@ -1,29 +1,27 @@
-import java.util.Scanner;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 
-class Solution
-{
-	public static void main(String args[]) throws Exception
-	{
-		Scanner sc = new Scanner(System.in);
-		int T = Integer.parseInt(sc.nextLine());
+class Solution {
+	static int n, m;
 
-		for(int test_case = 1; test_case <= T; test_case++)
-		{
-			String str = sc.nextLine();
-			StringBuilder sb = new StringBuilder();
-			char first = str.charAt(0);
-			sb.append(first);
-			for (int i=1; i<10; i++) {
-				char c = str.charAt(i);
-				if (first == c) {
-					String word = str.substring(i, 2*i);
-					if (sb.toString().equals(word)) break;
-					else sb.append(c);
-				} else {
-					sb.append(c);
+	public static void main(String[] args) throws IOException {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		StringBuilder sb = new StringBuilder();
+		int T = Integer.parseInt(br.readLine());
+		for (int t = 1; t <= T; t++) {
+			String str = br.readLine();
+			int len = 0;
+			for (int i = 1; i <= 10; i++) {
+				String s1 = str.substring(0, i);
+				String s2 = str.substring(i, 2 * i);
+				if (s1.equals(s2)) {
+					len = i;
+					break;
 				}
 			}
-			System.out.println("#"+test_case+" "+(sb.toString()).length());
+			sb.append("#").append(t).append(" ").append(len).append("\n");
 		}
+		System.out.println(sb.toString());
 	}
 }
