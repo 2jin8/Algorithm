@@ -1,52 +1,56 @@
-import java.util.Scanner;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.StringTokenizer;
 
-class Solution
-{
+class Solution {
 	static int n, m;
-	public static void main(String args[]) throws Exception
-	{
-		Scanner sc = new Scanner(System.in);
-		int T = sc.nextInt();
-		for(int tc = 1; tc <= T; tc++)
-		{
-			n = sc.nextInt();
-			m = sc.nextInt();
-			
-			int[] arr1 = new int[n];
-			int[] arr2 = new int[m];
-			for (int i=0; i<n; i++) {
-				arr1[i] = sc.nextInt();
+
+	public static void main(String[] args) throws IOException {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		StringBuilder sb = new StringBuilder();
+		int T = Integer.parseInt(br.readLine());
+		for (int t = 1; t <= T; t++) {
+			StringTokenizer st = new StringTokenizer(br.readLine(), " ");
+			n = Integer.parseInt(st.nextToken());
+			m = Integer.parseInt(st.nextToken());
+			int[] A = new int[n];
+			int[] B = new int[m];
+			st = new StringTokenizer(br.readLine(), " ");
+			for (int i = 0; i < n; i++) {
+				A[i] = Integer.parseInt(st.nextToken());
 			}
-			for (int i=0; i<m; i++) {
-				arr2[i] = sc.nextInt();
+			st = new StringTokenizer(br.readLine(), " ");
+			for (int i = 0; i < m; i++) {
+				B[i] = Integer.parseInt(st.nextToken());
 			}
 			
-			int min = Math.min(n, m);
-			int total = 0;
+
+			int max = Integer.MIN_VALUE;
 			if (n == m) {
-				for (int i=0; i<n; i++) {
-					total += arr1[i] * arr2[i]; 
+				max = 0;
+				for (int i = 0; i < n; i++) {
+					max += A[i] * B[i];
+				}
+			} else if (n < m) {
+				for (int i = 0; i <= m - n; i++) {
+					int idx = 0, total = 0;
+					for (int j = i; j < i + n; j++) {
+						total += A[idx++] * B[j];
+					}
+					max = Math.max(max, total);
 				}
 			} else {
-				if (n < m) {
-					for (int j=0; j<=m-n; j++) {
-						int sum = 0, k = j;
-						for (int i=0; i<n; i++) {
-							sum += arr1[i] * arr2[k++];
-						}
-						total = Math.max(total, sum);
+				for (int i = 0; i <= n - m; i++) {
+					int idx = 0, total = 0;
+					for (int j = i; j < i + m; j++) {
+						total += A[j] * B[idx++];
 					}
-				} else {
-					for (int j=0; j<=n-m; j++) {
-						int sum = 0, k = j;
-						for (int i=0; i<m; i++) {
-							sum += arr1[k++] * arr2[i];
-						}
-						total = Math.max(total, sum);
-					}
+					max = Math.max(max, total);
 				}
 			}
-			System.out.println("#"+tc+" "+total);
+			sb.append("#").append(t).append(" ").append(max).append("\n");
 		}
+		System.out.println(sb.toString());
 	}
 }
