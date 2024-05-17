@@ -1,57 +1,57 @@
-import java.util.Scanner;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.StringTokenizer;
 
-class Solution
-{
+class Solution {
 	static int n;
-	public static void main(String args[]) throws Exception
-	{
-		Scanner sc = new Scanner(System.in);
-		int T = sc.nextInt();
-		for(int tc = 1; tc <= T; tc++)
-		{
-			n = sc.nextInt();
-			int[][] original = new int[n][n]; 
-			for (int i=0; i<n; i++) {
-				for (int j=0; j<n; j++) {
-					original[i][j] = sc.nextInt();
-				}
-			}
-			
-			int[][] rotate90 = new int[n][n]; 
-			rotate(original, rotate90);
-			
-			int[][] rotate180 = new int[n][n]; 
-			rotate(rotate90, rotate180);
+	static int[][] arr, arr90, arr180, arr270;
 
-			int[][] rotate270 = new int[n][n];
-			rotate(rotate180, rotate270);
-			
-			StringBuilder sBuilder = new StringBuilder("#"+tc+"\n");
-			for (int i=0; i<n; i++) {
-				for (int j=0; j<n; j++) {
-					sBuilder.append(rotate90[i][j]);
+	public static void main(String[] args) throws IOException {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		StringBuilder sb = new StringBuilder();
+		int T = Integer.parseInt(br.readLine());
+		for (int t = 1; t <= T; t++) {
+			n = Integer.parseInt(br.readLine());
+			arr = new int[n][n];
+			arr90 = new int[n][n];
+			arr180 = new int[n][n];
+			arr270 = new int[n][n];
+
+			for (int i = 0; i < n; i++) {
+				StringTokenizer st = new StringTokenizer(br.readLine(), " ");
+				for (int j = 0; j < n; j++) {
+					arr[i][j] = Integer.parseInt(st.nextToken());
 				}
-				sBuilder.append(" ");
-				for (int j=0; j<n; j++) {
-					sBuilder.append(rotate180[i][j]);
-				}
-				sBuilder.append(" ");
-				for (int j=0; j<n; j++) {
-					sBuilder.append(rotate270[i][j]);
-				}
-				sBuilder.append("\n");
 			}
-			System.out.print(sBuilder.toString());
+
+			rotation(arr, arr90);
+			rotation(arr90, arr180);
+			rotation(arr180, arr270);
+			sb.append("#").append(t).append("\n");
+			for (int i = 0; i < n; i++) {
+				for (int j = 0; j < n; j++) {
+					sb.append(arr90[i][j]);
+				}
+				sb.append(" ");
+				for (int j = 0; j < n; j++) {
+					sb.append(arr180[i][j]);
+				}
+				sb.append(" ");
+				for (int j = 0; j < n; j++) {
+					sb.append(arr270[i][j]);
+				}
+				sb.append("\n");
+			}
 		}
+		System.out.println(sb.toString());
 	}
-	
-	public static void rotate(int[][] original, int[][] newAry) {
-		int k = n - 1;
-		for (int i=0; i<n; i++) {
-			for (int j=0; j<n; j++) {
-				newAry[j][k] = original[i][j];
+
+	public static void rotation(int[][] arr1, int[][] arr2) {
+		for (int i = 0; i < n; i++) {
+			for (int j = 0; j < n; j++) {
+				arr2[j][n - i - 1] = arr1[i][j];
 			}
-			k--;
 		}
 	}
 }
