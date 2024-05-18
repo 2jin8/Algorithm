@@ -1,6 +1,7 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Arrays;
 import java.util.StringTokenizer;
 
 class Solution {
@@ -20,25 +21,26 @@ class Solution {
 			}
 
 			// 덤프하기
-			int diff = -1;
 			for (int d = 0; d < dump; d++) {
-				findMinMax();
-				heights[minIdx]++;
-				heights[maxIdx]--;
-				diff = heights[maxIdx] - heights[minIdx];
+				Arrays.sort(heights);
+				heights[0]++;
+				heights[N - 1]--;
+				int diff = heights[N - 1] - heights[0];
 				if (diff == 0 || diff == 1) { // 주어진 덤프 횟수 이내에 평탄화가 완료된 경우
 					break;
 				}
 			}
-			findMinMax();
-			sb.append('#').append(t).append(' ').append(max - min).append('\n');
+			Arrays.sort(heights);
+			sb.append('#').append(t).append(' ').append(heights[N - 1] - heights[0]).append('\n');
 		}
 		System.out.println(sb.toString());
 	}
 
 	static void findMinMax() { // 최고점, 최저점 찾기
-		min = heights[0]; minIdx = 0; 
-		max = heights[0]; maxIdx = 0;
+		min = heights[0];
+		minIdx = 0;
+		max = heights[0];
+		maxIdx = 0;
 		for (int i = 1; i < N; i++) {
 			if (heights[i] < min) {
 				min = heights[i];
