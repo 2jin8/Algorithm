@@ -1,52 +1,70 @@
-import java.util.Scanner;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Base64;
+import java.util.HashSet;
+import java.util.StringTokenizer;
 
-class Solution
-{
-	static int max, chance;
-	static String[] list;
-	public static void main(String args[]) throws Exception
-	{
-		Scanner sc = new Scanner(System.in);
+import javax.swing.plaf.basic.BasicInternalFrameTitlePane.MaximizeAction;
+
+class Solution {
+	static int[] numbers;
+	static int moveCnt, result;
+	static HashSet<String> hashSet;
+
+	public static void main(String[] args) throws IOException {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		StringBuilder sb = new StringBuilder();
-		int T=sc.nextInt();
-		for(int test_case = 1; test_case <= T; test_case++)
-		{
-			sb.append("#").append(test_case).append(" ");
-			list = String.valueOf(sc.nextInt()).split("");
-			chance = sc.nextInt();
-			
-			if (list.length < chance) { // swap 횟수 > 자릿수
-				chance = list.length; // 자릿수만큼만 옮겨도 전부 옮길 수 있음
+		int T = Integer.parseInt(br.readLine());
+		for (int t = 1; t <= T; t++) {
+			StringTokenizer st = new StringTokenizer(br.readLine(), " ");
+			String str = st.nextToken();
+			moveCnt = Integer.parseInt(st.nextToken()); // 교환 횟수
+			numbers = new int[str.length()];
+			for (int i = 0; i < str.length(); i++) {
+				numbers[i] = str.charAt(i) - '0';
 			}
-			max = 0;
-			dfs(0, 0);
-			sb.append(max).append("\n");
-		}	
+
+			// 카드의 개수만큼 교환할 수 있다면, 모든 조합을 만들 수 있음
+//			if (moveCnt > str.length()) moveCnt = str.length();
+			hashSet = new HashSet<>();
+			result = 0;
+			dfs(0);
+			sb.append('#').append(t).append(' ').append(result).append('\n');
+		}
 		System.out.println(sb.toString());
-	}	
-	
-	public static void dfs(int start, int cnt) {
-		if (chance == cnt) {
-			StringBuilder sb = new StringBuilder();
-			for (String s: list) {
-				sb.append(s);
-			}
-			max = Math.max(max, Integer.parseInt(sb.toString()));
+	}
+
+	public static void dfs(int move) {
+		if (move == moveCnt) {
+			result = Math.max(result, getTotal());
 			return;
 		}
-		
-		for (int i=start; i<list.length; i++) {
-			for (int j=i+1; j<list.length; j++) {
+
+		for (int i = 0; i < numbers.length - 1; i++) {
+			for (int j = i + 1; j < numbers.length; j++) {
 				swap(i, j);
-				dfs(i, cnt+1);
+				String check = getTotal() + ":" + move; // 획득할 수 있는 상금 : 교환 횟수
+				if (!hashSet.contains(check)) { // "상금 : 교환 횟수"를 확인하지 않은 경우에만 계속 dfs 탐색
+					hashSet.add(check);
+					dfs(move + 1);
+				}
 				swap(i, j);
 			}
 		}
 	}
-	
-	public static void swap(int i, int j) {
-		String tmp = list[i];
-		list[i] = list[j];
-		list[j] = tmp;
+
+	public static int getTotal() {
+		int total = 0;
+		for (int number : numbers) {
+			total = total * 10 + number;
+		}
+		return total;
+	}
+
+	public static void swap(int a, int b) {
+		int tmp = numbers[a];
+		numbers[a] = numbers[b];
+		numbers[b] = tmp;
 	}
 }
