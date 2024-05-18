@@ -20,10 +20,15 @@ class Solution {
 			}
 
 			// 덤프하기
+			int diff = -1;
 			for (int d = 0; d < dump; d++) {
 				findMinMax();
 				heights[minIdx]++;
 				heights[maxIdx]--;
+				diff = heights[maxIdx] - heights[minIdx];
+				if (diff == 0 || diff == 1) { // 주어진 덤프 횟수 이내에 평탄화가 완료된 경우
+					break;
+				}
 			}
 			findMinMax();
 			sb.append('#').append(t).append(' ').append(max - min).append('\n');
