@@ -1,33 +1,31 @@
-import java.util.Scanner;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Base64;
+import java.util.StringTokenizer;
 
-class Solution
-{
-	public static void main(String args[]) throws Exception
-	{
-		Scanner sc = new Scanner(System.in);
-
-		for(int test_case = 1; test_case <= 10; test_case++)
-		{
-			int n = sc.nextInt();
+class Solution {
+	public static void main(String[] args) throws IOException {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		StringBuilder sb = new StringBuilder();
+		for (int t = 1; t <= 10; t++) {
+			int n = Integer.parseInt(br.readLine());
+			StringTokenizer st = new StringTokenizer(br.readLine(), " ");
 			int[] height = new int[n];
-			for (int i=0; i<n; i++) {
-				height[i] = sc.nextInt();
+			for (int i = 0; i < n; i++) {
+				height[i] = Integer.parseInt(st.nextToken());
 			}
-			
-			int total = 0; // 조망권이 확보된 세대의 수
-			for (int i=2; i<n-2; i++) {
-				int now = height[i]; // 현재 빌딩의 높이
-				int left = -1, right = -1;
-				if (now > height[i-1] && now > height[i-2]) {
-					left = Math.min(now - height[i-1], now - height[i-2]);
+
+			int total = 0;
+			for (int i = 2; i < n - 2; i++) {
+				int h = height[i];
+				if (h > height[i - 1] && h > height[i - 2] && h > height[i + 1] && h > height[i + 2]) {
+					int max = Math.max(Math.max(height[i - 1], height[i - 2]), Math.max(height[i + 1], height[i + 2]));
+					total += h - max;
 				}
-				if (now > height[i+1] && now > height[i+2]) {
-					right = Math.min(now - height[i+1], now - height[i+2]);
-				}
-				int cnt = Math.min(left, right);
-				if (cnt != -1) total += cnt;
 			}
-			System.out.println("#" + test_case + " " + total);
+			sb.append('#').append(t).append(' ').append(total).append('\n');
 		}
+		System.out.println(sb.toString());
 	}
 }
