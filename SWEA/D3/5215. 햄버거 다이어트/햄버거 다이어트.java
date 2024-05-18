@@ -1,37 +1,44 @@
-import java.util.Scanner;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.StringTokenizer;
 
-class Solution
-{
-	static int n, l, max;
+class Solution {
+	static int N, L, maxTaste;
 	static int[] tastes, kcals;
-	public static void main(String args[]) throws Exception
-	{
-		Scanner sc = new Scanner(System.in);
-		int T=sc.nextInt();
-		for(int test_case = 1; test_case <= T; test_case++)
-		{
-			n = sc.nextInt();
-			l = sc.nextInt();
-			tastes = new int[n];
-			kcals = new int[n];
-			for (int i=0; i<n; i++) {
-				tastes[i] = sc.nextInt();
-				kcals[i] = sc.nextInt(); 
+
+	public static void main(String[] args) throws IOException {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		StringBuilder sb = new StringBuilder();
+		int T = Integer.parseInt(br.readLine());
+		for (int t = 1; t <= T; t++) {
+			StringTokenizer stringTokenizer = new StringTokenizer(br.readLine());
+			N = Integer.parseInt(stringTokenizer.nextToken());
+			L = Integer.parseInt(stringTokenizer.nextToken());
+			tastes = new int[N];
+			kcals = new int[N];
+			for (int i = 0; i < N; i++) {
+				stringTokenizer = new StringTokenizer(br.readLine(), " ");
+				tastes[i] = Integer.parseInt(stringTokenizer.nextToken());
+				kcals[i] = Integer.parseInt(stringTokenizer.nextToken());
 			}
-			max = 0;
+
+			maxTaste = 0;
 			dfs(0, 0, 0);
-			System.out.println("#"+test_case+" "+max);
+			sb.append('#').append(t).append(' ').append(maxTaste).append('\n');
 		}
+		System.out.println(sb.toString());
 	}
-	public static void dfs(int cnt, int taste, int kcal) {
-		if (kcal > l) // 칼로리를 초과하면 종료
+
+	static void dfs(int idx, int totalKcal, int totalTaste) {
+		if (totalKcal > L)
 			return;
-		if (cnt == n) { // cnt가 n이면 탐색 완료
-			max = Math.max(max, taste);
+		if (idx == N) {
+			maxTaste = Math.max(maxTaste, totalTaste);
 			return;
 		}
-		
-		dfs(cnt+1, taste + tastes[cnt], kcal + kcals[cnt]); // 선택 O
-		dfs(cnt+1, taste, kcal); // 선택 x
+
+		dfs(idx + 1, totalKcal, totalTaste); // 현재 재료를 선택하지 않는 경우
+		dfs(idx + 1, totalKcal + kcals[idx], totalTaste + tastes[idx]); // 현재 재료를 선택하는 경우
 	}
 }
