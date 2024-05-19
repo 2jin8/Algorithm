@@ -1,56 +1,52 @@
-import java.util.ArrayList;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.Scanner;
+import java.util.StringTokenizer;
 
-class Solution
-{
-	static int n, m, max;
-	static int[] count;
+class Solution {
+	static int N, M, maxLen;
+	static int[][] graph;
 	static boolean[] visited;
-	static ArrayList<ArrayList<Integer>> graph;
-	public static void main(String args[]) throws Exception
-	{
-		Scanner sc = new Scanner(System.in);
-		int T = sc.nextInt();
-		for (int tc=1; tc<=T; tc++) {
-			n = sc.nextInt();
-			m = sc.nextInt();
-			
-			count = new int[n+1];
-			visited = new boolean[n+1];
-			graph = new ArrayList<>();
-			for (int i=0; i<=n; i++) {
-				graph.add(new ArrayList<Integer>());
+
+	public static void main(String[] args) throws IOException {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		StringBuilder sb = new StringBuilder();
+		int T = Integer.parseInt(br.readLine());
+		for (int t = 1; t <= T; t++) {
+			StringTokenizer stringTokenizer = new StringTokenizer(br.readLine(), " ");
+			N = Integer.parseInt(stringTokenizer.nextToken());
+			M = Integer.parseInt(stringTokenizer.nextToken());
+
+			graph = new int[N + 1][N + 1];
+
+			for (int i = 0; i < M; i++) {
+				stringTokenizer = new StringTokenizer(br.readLine(), " ");
+				int u = Integer.parseInt(stringTokenizer.nextToken());
+				int v = Integer.parseInt(stringTokenizer.nextToken());
+				graph[u][v] = 1;
+				graph[v][u] = 1;
 			}
-			
-			for (int i=0; i<m; i++) {
-				int x = sc.nextInt();
-				int y = sc.nextInt();
-				graph.get(x).add(y);
-				graph.get(y).add(x);
-			}
-		
-			max = 0;
-			for (int i=1; i<=n; i++) {
-				visited = new boolean[n+1];
+			maxLen = 0;
+			for (int i = 1; i <= N; i++) { // 각 노드에서 DFS 탐색
+				visited = new boolean[N + 1];
 				dfs(i, 1);
 			}
-			System.out.println("#"+ tc+" "+max);
+			sb.append("#").append(t).append(" ").append(maxLen).append("\n");
 		}
+		System.out.println(sb.toString());
 	}
-	public static void dfs(int x, int cnt) {
-		visited[x]=true;
-		
-		// 해당 점에서 갈 수 있는 거 없으면 종료
-		for (int i=0; i<graph.get(x).size(); i++) {
-			int tx = graph.get(x).get(i);
-			if (!visited[tx]) {
-				dfs(tx, cnt+1);
-				visited[tx]=false; // 다시 돌아오면 방문 처리 취소
+
+	static void dfs(int node, int len) {
+		visited[node] = true;
+
+		for (int i = 1; i <= N; i++) {
+			if (!visited[i] && graph[node][i] == 1) {
+				dfs(i, len + 1);
+				visited[i] = false;
 			}
 		}
-		
-		max = Math.max(max, cnt);
+		maxLen = Math.max(maxLen, len);
 	}
 }
