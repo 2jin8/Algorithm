@@ -1,23 +1,21 @@
-import java.util.*;
+import java.io.*;
 
+/**
+ * 단위가 큰 동전부터 거슬러주기
+ */
 public class Main {
+    static int[] coins = {500, 100, 50, 10, 5, 1};
+    public static void main(String[] args) throws Exception {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        int money = 1000 - Integer.parseInt(br.readLine());
 
-    private static int[] coins = {500, 100, 50, 10, 5, 1};
-    public static void main(String[] args) {
-        Scanner scan = new Scanner(System.in);
-        int money = 1000 - scan.nextInt();
+        int total = 0;
+        for (int coin : coins) {
+            if (money == 0) break;
 
-        int idx = 0, cnt = 0;
-        while (money != 0) {
-            if (money < coins[idx]) { // 거스름돈 < 동전의 값
-                idx++;
-                continue;
-            }
-
-            int div = money / coins[idx];
-            money -= div * coins[idx++];
-            cnt += div;
+            total += money / coin;
+            money %= coin;
         }
-        System.out.println(cnt);
+        System.out.println(total);
     }
 }
