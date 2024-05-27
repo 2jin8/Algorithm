@@ -1,24 +1,27 @@
-import java.util.*;
 import java.io.*;
+import java.util.*;
 
+/**
+ * 곱해서 가장 작게 만든다 ⇒ 큰 값을 작은 값이랑 곱한다
+ */
 public class Main {
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         int n = Integer.parseInt(br.readLine());
-        Integer[] A = new Integer[n];
+        int[] A = new int[n];
+        Integer[] B = new Integer[n];
         StringTokenizer st = new StringTokenizer(br.readLine(), " ");
         for (int i = 0; i < n; i++) {
             A[i] = Integer.parseInt(st.nextToken());
         }
-        Arrays.sort(A); // A는 오름차순으로 정렬
-        
-        Integer[] B = new Integer[n];
+        Arrays.sort(A); // 오름차순 정렬
+
         st = new StringTokenizer(br.readLine(), " ");
-        for (int i = 0; i< n; i++) {
+        for (int i = 0; i < n; i++) {
             B[i] = Integer.parseInt(st.nextToken());
         }
-        Arrays.sort(B, (b1, b2) -> b2 - b1); // B는 내림차순으로 정렬
-        
+        Arrays.sort(B, Collections.reverseOrder());
+
         int total = 0;
         for (int i = 0; i < n; i++) {
             total += A[i] * B[i];
