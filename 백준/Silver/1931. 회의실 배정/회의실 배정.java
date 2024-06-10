@@ -2,108 +2,46 @@ import java.io.*;
 import java.util.*;
 
 public class Main {
-    private static int[][] buff;
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
-        StringTokenizer st;
-
-        int n = Integer.parseInt(br.readLine());
-
-        int[][] ary = new int[n][2];
-
+        // 회의 종료 시간을 기준으로 오름차순 정렬!!!
+        int n = Integer.parseInt(br.readLine()); // 회의의 수
+        PriorityQueue<Meeting> pq = new PriorityQueue<>();
         for (int i = 0; i < n; i++) {
-            st = new StringTokenizer(br.readLine());
-            int a = Integer.parseInt(st.nextToken());
-            int b = Integer.parseInt(st.nextToken());
-            ary[i][0] = a;
-            ary[i][1] = b;
+            StringTokenizer st = new StringTokenizer(br.readLine(), " ");
+            int start = Integer.parseInt(st.nextToken());
+            int end = Integer.parseInt(st.nextToken());
+            pq.offer(new Meeting(start, end));
         }
 
-        merge_sort(ary, n);
-
-        int fi = ary[0][1]; // 끝나는 시간
-        int count = 1;
-
-        for (int i = 1; i < n; i++) {
-            if (ary[i][0] == ary[i][1]) {
-                fi = ary[i][1];
-                count++;
-                continue;
-            }
-            if (ary[i][0] >= fi) {
-                fi = ary[i][1];
-                count++;
+        Meeting firstMeeting = pq.poll();
+        int end = firstMeeting.end;
+        int meetingCnt = 1;
+        while (!pq.isEmpty()) {
+            Meeting meeting = pq.poll();
+            // 현재 회의 종료 시간보다 다음 회의 시작 시간이 크거나 같으면 회의실 사용 가능
+            if (meeting.start >= end) {
+                meetingCnt++;
+                end = meeting.end;
             }
         }
-
-        bw.write(String.valueOf(count));
-        bw.flush(); bw.close();
-        br.close();
+        System.out.println(meetingCnt);
     }
 
-    private static void merge_sort(int[][] ary, int n) {
-        buff = new int[n][2];
-        merge_sort(ary, 0, n - 1);
-        buff = null;
-    }
+    static class Meeting implements Comparable<Meeting> {
+        int start, end;
 
-    // 두 구역으로 분할
-    private static void merge_sort(int[][] ary, int left, int right) {
-        if (left == right) return;
-
-        int mid = (left + right) / 2;
-
-        merge_sort(ary, left, mid);
-        merge_sort(ary, mid + 1, right);
-
-        merge(ary, left, mid, right);
-    }
-
-    // 분할된 구역 오름차순 정렬
-    private static void merge(int[][] ary, int left, int mid, int right) {
-        int l = left, r = mid + 1;
-        int idx = left;
-
-        while (l <= mid && r <= right) {
-            if (ary[l][1] < ary[r][1]) {
-                buff[idx][0] = ary[l][0];
-                buff[idx][1] = ary[l][1];
-                idx++; l++;
-            } else if (ary[l][1] == ary[r][1]) {
-                if (ary[l][0] <= ary[r][0]) {
-                    buff[idx][0] = ary[l][0];
-                    buff[idx][1] = ary[l][1];
-                    idx++; l++;
-                } else {
-                    buff[idx][0] = ary[r][0];
-                    buff[idx][1] = ary[r][1];
-                    idx++; r++;
-                }
-            } else {
-                buff[idx][0] = ary[r][0];
-                buff[idx][1] = ary[r][1];
-                idx++; r++;
-            }
+        public Meeting(int start, int end) {
+            this.start = start;
+            this.end = end;
         }
 
-        if (l > mid) {
-            while (r <= right) {
-                buff[idx][0] = ary[r][0];
-                buff[idx][1] = ary[r][1];
-                idx++; r++;
-            }
-        } else {
-            while (l <= mid) {
-                buff[idx][0] = ary[l][0];
-                buff[idx][1] = ary[l][1];
-                idx++; l++;
-            }
-        }
-
-        for (int i = left; i <= right; i++) {
-            ary[i][0] = buff[i][0];
-            ary[i][1] = buff[i][1];
+        @Override
+        public int compareTo(Meeting meeting) {
+            // 미팅의 종료 시간을 기준으로 오름차순 정렬
+            // 종료 시간이 같다면 시작 시간을 기준으로 오름차순 정렬
+            if (meeting.end == this.end) return this.start - meeting.start;
+            return this.end - meeting.end;
         }
     }
 }
