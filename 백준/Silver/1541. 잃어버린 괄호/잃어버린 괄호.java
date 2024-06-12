@@ -1,25 +1,25 @@
 import java.io.*;
-import java.util.StringTokenizer;
+import java.util.*;
 
 public class Main {
-
     public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer minus = new StringTokenizer(br.readLine(), "-");
-        int count = minus.countTokens();
-        int[] totals = new int[count];
-        for (int i = 0; i < count; i++) {
-            StringTokenizer plus = new StringTokenizer(minus.nextToken(), "+");
-            int c = plus.countTokens();
-            for (int j = 0; j < c; j++) {
-                totals[i] += Integer.parseInt(plus.nextToken());
+        // '-'로 식 나누기
+        StringTokenizer minusTokenizer = new StringTokenizer(br.readLine(), "-");
+        Queue<Integer> queue = new LinkedList<>();
+        while (minusTokenizer.hasMoreTokens()) {
+            // '+'로 식 한번 더 나누기
+            StringTokenizer plusTokenizer = new StringTokenizer(minusTokenizer.nextToken(), "+");
+            int total = 0;
+            while (plusTokenizer.hasMoreTokens()) {
+                total += Integer.parseInt(plusTokenizer.nextToken());
             }
+            queue.offer(total);
         }
-
-        int total = totals[0];
-        for (int i = 1; i < count; i++) {
-            total -= totals[i];
+        int answer = queue.poll();
+        while (!queue.isEmpty()) {
+            answer -= queue.poll();
         }
-        System.out.println(total);
+        System.out.println(answer);
     }
 }
