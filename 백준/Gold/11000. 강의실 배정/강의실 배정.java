@@ -1,31 +1,42 @@
-import java.util.*;
 import java.io.*;
+import java.util.*;
 
 public class Main {
-
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st;
         int n = Integer.parseInt(br.readLine());
-        int[][] lectures = new int[n][2];
+        Lecture[] lectures = new Lecture[n];
         for (int i = 0; i < n; i++) {
-            st = new StringTokenizer(br.readLine());
-            lectures[i][0] = Integer.parseInt(st.nextToken());
-            lectures[i][1] = Integer.parseInt(st.nextToken());
+            StringTokenizer st = new StringTokenizer(br.readLine(), " ");
+            int start = Integer.parseInt(st.nextToken());
+            int end = Integer.parseInt(st.nextToken());
+            lectures[i] = new Lecture(start, end);
         }
 
-        // 시작 시간 기준 정렬(같으면 종료 시간 기준 정렬)
-        Arrays.sort(lectures, ((o1, o2) -> o1[0] == o2[0] ? o1[1] - o2[1] : o1[0] - o2[0]));
+        // 시작 시간을 기준으로 오름차순 정렬
+        Arrays.sort(lectures, (l1, l2) -> {
+            if (l1.start == l2.start) return l1.end - l2.end;
+            return l1.start - l2.start;
+        });
 
-        PriorityQueue<Integer> endTime = new PriorityQueue<>();
-        endTime.offer(lectures[0][1]);
+        PriorityQueue<Integer> pq = new PriorityQueue<>();
+        pq.offer(lectures[0].end);
         for (int i = 1; i < n; i++) {
-            int end = endTime.peek(); // 가장 빨리 끝나는 시간이랑만 비교하면 됨
-            if (end <= lectures[i][0]) {
-                endTime.poll();
+            int end = pq.peek(); // 가장 빨리 끝나는 시간만 비교하면 됨
+            if (end <= lectures[i].start) { // 현재 강의의 종료 시간 <= 다음 강의의 시작 시간
+                pq.poll();
             }
-            endTime.offer(lectures[i][1]);
+            pq.offer(lectures[i].end);
         }
-        System.out.println(endTime.size());
+        System.out.println(pq.size());
+    }
+
+    static class Lecture {
+        int start, end;
+
+        public Lecture(int start, int end) {
+            this.start = start;
+            this.end = end;
+        }
     }
 }
