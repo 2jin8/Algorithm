@@ -1,13 +1,12 @@
 import java.io.*;
-import java.util.StringTokenizer;
+import java.util.*;
 
 public class Main {
-
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        String s = br.readLine();
-        StringTokenizer zero = new StringTokenizer(s, "1");
-        StringTokenizer one = new StringTokenizer(s, "0");
-        System.out.println(Math.min(zero.countTokens(), one.countTokens()));
+        String str = br.readLine();
+        StringTokenizer zeroTokenizer = new StringTokenizer(str, "0");
+        StringTokenizer oneTokenizer = new StringTokenizer(str, "1");
+        System.out.println(Math.min(zeroTokenizer.countTokens(), oneTokenizer.countTokens()));
     }
 }
