@@ -1,23 +1,21 @@
-import java.util.*;
 import java.io.*;
 
 public class Main {
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        int n = Integer.parseInt(br.readLine());
-        int[] score = new int[n];
+        int n =Integer.parseInt(br.readLine());
+        int[] scores = new int[n];
         for (int i = 0; i < n; i++) {
-            score[i] = Integer.parseInt(br.readLine());
+            scores[i] = Integer.parseInt(br.readLine());
         }
 
-        int answer = 0;
-        for (int i = n - 2; i >= 0; i--) {
-            if (score[i + 1] <= score[i]) {
-                int tmp = score[i];
-                score[i] = score[i + 1] - 1;
-                answer += tmp - score[i];
+        int total = 0;
+        for (int i = n - 1; i > 0; i--) {
+            if (scores[i - 1] >= scores[i]) { // 점수가 증가하는 형태가 아닌 경우
+                total += scores[i - 1] - scores[i] + 1;
+                scores[i - 1] = scores[i] - 1;
             }
         }
-        System.out.println(answer);
+        System.out.println(total);
     }
 }
