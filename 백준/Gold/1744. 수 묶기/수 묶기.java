@@ -1,69 +1,43 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.*;
 
-
 public class Main {
-
-    private static int[] num;
-    private static boolean[] visited;
-    private static int sum = 0;
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        int N = Integer.parseInt(br.readLine());
-
-        num = new int[N];
-        visited = new boolean[N];
-
-        for (int i = 0; i < N; i++) {
-            num[i] = Integer.parseInt(br.readLine());
-        }
-
-        Arrays.sort(num);
-
-//        int sum = 0;
-        for (int i = N - 1; i > 0; i--) {
-            if (num[i] <= 0) {
-                countM(i);
-                break;
-            }
-
-            if (!visited[i] && !visited[i - 1]) {
-                int mul = num[i] * num[i - 1];
-                int add = num[i] + num[i - 1];
-                if (mul > add) {
-                    sum += mul;
-                    visited[i] = true;
-                    visited[--i] = true;
-                } else {
-                    sum += num[i];
-                    visited[i] = true;
-                }
+        int n =Integer.parseInt(br.readLine());
+        PriorityQueue<Integer> negativePq = new PriorityQueue<>();
+        PriorityQueue<Integer> positivePq = new PriorityQueue<>(Collections.reverseOrder());
+        for (int i = 0; i < n; i++) {
+            int num = Integer.parseInt(br.readLine());
+            if (num <= 0) {
+                negativePq.offer(num);
+            } else {
+                positivePq.offer(num);
             }
         }
 
-        if (!visited[0])
-            sum += num[0];
-        
-        System.out.println(sum);
-    }
-
-    private static void countM(int idx) {
-        for (int i = 0; i < idx; i++) {
-            if (!visited[i] && !visited[i + 1]) {
-                int mul = num[i] * num[i + 1];
-                int add = num[i] + num[i + 1];
-                if (mul > add) {
-                    sum += mul;
-                    visited[i] = true;
-                    visited[++i] = true;
-                } else {
-                    sum += num[i];
-                }
-            }
+        int total = 0;
+        while (positivePq.size() > 1) { // 두 개씩 뽑기
+            int a = positivePq.poll();
+            int b = positivePq.poll();
+            total += Math.max(a + b, a * b);
         }
-        if (!visited[idx])
-            sum += num[idx];
+
+        while (negativePq.size() > 1) { // 두 개씩 뽑기
+            int a = negativePq.poll();
+            int b = negativePq.poll();
+            total += Math.max(a + b, a * b);
+        }
+
+        if (!positivePq.isEmpty() && !negativePq.isEmpty()) { // 양수 큐와 음수 큐에 값이 아직 존재하는 경우
+            int a = positivePq.poll();
+            int b = negativePq.poll();
+            total += Math.max(a + b, a * b);
+        } else if (!positivePq.isEmpty()) { // 양수 큐에만 값이 존재하는 경우
+            total += positivePq.poll();
+        } else if (!negativePq.isEmpty()) { // 음수 큐에만 값이 존재하는 경우
+            total += negativePq.poll();
+        }
+        System.out.println(total);
     }
 }
