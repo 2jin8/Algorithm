@@ -1,74 +1,62 @@
-import java.util.*;
 import java.io.*;
+import java.util.*;
 
 public class Main {
-
-    static int n, m;
-    public static void main(String[] args) throws IOException {
+    static int n, m, maxArea = 0, pictureNum = 0;
+    static int[][] picture;
+    static boolean[][] visited;
+    public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st = new StringTokenizer(br.readLine());
+        StringTokenizer st = new StringTokenizer(br.readLine(), " ");
         n = Integer.parseInt(st.nextToken());
         m = Integer.parseInt(st.nextToken());
-        int[][] board = new int[n][m];
-        boolean[][] visited = new boolean[n][m];
+        picture = new int[n][m];
+        visited = new boolean[n][m];
         for (int i = 0; i < n; i++) {
-            st = new StringTokenizer(br.readLine());
+            st = new StringTokenizer(br.readLine(), " ");
             for (int j = 0; j < m; j++) {
-                board[i][j] = Integer.parseInt(st.nextToken());
+                picture[i][j] = Integer.parseInt(st.nextToken());
             }
         }
 
-        int cnt = 0, max = 0;
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < m; j++) {
-                if (!visited[i][j] && board[i][j] == 1) {
-                    max = Math.max(max, bfs(board, visited, i, j));
-                    cnt++;
+                if (picture[i][j] == 1 && !visited[i][j]) {
+                    maxArea = Math.max(maxArea, bfs(i, j));
+                    pictureNum++;
                 }
             }
         }
-        System.out.println(cnt);
-        System.out.println(max);
+        System.out.println(pictureNum);
+        System.out.println(maxArea);
     }
 
-    static int bfs(int[][] board, boolean[][] visited, int x, int y) {
+    static int bfs(int x, int y) {
+        Queue<int[]> queue = new LinkedList<>();
         visited[x][y] = true;
-        Queue<Point> queue = new LinkedList<>();
-        queue.offer(new Point(x, y));
+        queue.offer(new int[]{x, y});
 
-        int[] dx = {-1, 1, 0, 0}; // 상, 하, 좌, 우
-        int[] dy = {0, 0, -1, 1};
         int area = 0;
+        int[][] move = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
         while (!queue.isEmpty()) {
-            Point point = queue.poll();
+            int[] now = queue.poll();
             area++;
-            x = point.x;
-            y = point.y;
 
             for (int i = 0; i < 4; i++) {
-                int tx = x + dx[i];
-                int ty = y + dy[i];
-
-                if (tx < 0 || ty < 0 || tx >= n || ty >= m)
+                int nx = now[0] + move[i][0];
+                int ny = now[1] + move[i][1];
+                // 범위 벗어나거나 이미 방문한 위치면 넘어가기
+                if (nx < 0 || ny < 0 || nx >= n || ny >= m || visited[nx][ny]) {
                     continue;
+                }
 
-                if (!visited[tx][ty] && board[tx][ty] == 1) {
-                    visited[tx][ty] = true;
-                    board[tx][ty] = board[x][y] + 1;
-                    queue.offer(new Point(tx, ty));
+                // 그림이 그려진 곳이면 큐에 넣기 (다음 탐색을 위해)
+                if (picture[nx][ny] == 1) {
+                    queue.offer(new int[]{nx, ny});
+                    visited[nx][ny] = true;
                 }
             }
         }
         return area;
-    }
-}
-
-class Point {
-    int x;
-    int y;
-
-    public Point(int x, int y) {
-        this.x = x;
-        this.y = y;
     }
 }
