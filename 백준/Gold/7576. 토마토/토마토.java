@@ -1,74 +1,59 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.StringTokenizer;
+import java.io.*;
+import java.util.*;
 
 public class Main {
-
-    private static int N, M;
-    private static int[][] box;
-    private static int[] dx = {1, 0, -1, 0};
-    private static int[] dy = {0, -1, 0, 1};
-    private static Queue<int[]> queue = new LinkedList<>();
-
-    public static void main(String[] args) throws IOException {
+    static int n, m, tomatoNum = 0;
+    static int[][] box;
+    static boolean[][] visited;
+    static Queue<int[]> queue = new LinkedList<>();
+    public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st = new StringTokenizer(br.readLine());
-        N = Integer.parseInt(st.nextToken());
-        M = Integer.parseInt(st.nextToken());
-
-        box = new int[M][N];
-
-        for (int i = 0; i < M; i++) {
-            st = new StringTokenizer(br.readLine());
-            for (int j = 0; j < N; j++) {
+        StringTokenizer st = new StringTokenizer(br.readLine(), " ");
+        m = Integer.parseInt(st.nextToken());
+        n = Integer.parseInt(st.nextToken());
+        box = new int[n][m];
+        visited = new boolean[n][m];
+        for (int i = 0; i < n; i++) {
+            st = new StringTokenizer(br.readLine(), " ");
+            for (int j = 0; j < m; j++) {
                 box[i][j] = Integer.parseInt(st.nextToken());
                 if (box[i][j] == 1) {
-                    queue.add(new int[]{i, j});
+                    queue.offer(new int[]{i, j});
+                    visited[i][j] = true;
+                } else if (box[i][j] == 0) {
+                    tomatoNum++;
                 }
             }
         }
-
-        BFS();
-        checkBox();
+        System.out.println(bfs());
     }
-    
-    private static void BFS() {
+
+    static int bfs() {
+        int day = 0;
+        int checkTomato = 0;
+        int[][] move = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
         while (!queue.isEmpty()) {
-            int[] point = queue.poll();
-            int x = point[0];
-            int y = point[1];
+            int size = queue.size();
+            for (int i = 0; i < size; i++) {
+                int[] now = queue.poll();
 
-            for (int i = 0; i < 4; i++) {
-                int cx = x + dx[i];
-                int cy = y + dy[i];
+                for (int j = 0; j < 4; j++) {
+                    int nx = now[0] + move[j][0];
+                    int ny = now[1] + move[j][1];
+                    if (nx < 0 || ny < 0 || nx >= n || ny >= m || visited[nx][ny]) {
+                        continue;
+                    }
 
-                if (cx < 0 || cy < 0 || cx >= M || cy >= N) {
-                    continue;
-                }
-
-                if (box[cx][cy] == 0) { // 토마토가 익지 않은 경우
-                    queue.add(new int[]{cx, cy});
-                    box[cx][cy] = box[x][y] + 1;
+                    if (box[nx][ny] == 0) {
+                        visited[nx][ny] = true;
+                        queue.offer(new int[]{nx, ny});
+                        checkTomato++;
+                    }
                 }
             }
+            day++;
         }
-    }
-
-    private static void checkBox() {
-        int ans = 0;
-
-        for (int i = 0; i < M; i++) {
-            for (int j = 0; j < N; j++) {
-                if (box[i][j] == 0) {
-                    System.out.println(-1);
-                    return;
-                }
-                ans = Math.max(ans, box[i][j]);
-            }
-        }
-        System.out.println(ans - 1);
+        if (checkTomato == tomatoNum) return day - 1; // 보관 후 하루가 지난 뒤부터 토마토가 익음
+        return -1;
     }
 }
