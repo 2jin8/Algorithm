@@ -1,96 +1,82 @@
-import java.util.*;
 import java.io.*;
+import java.util.*;
 
 public class Main {
-
-    static char[][] board; // 미로
-    static int[][] moves; // 탈출 시간 기록
-    static boolean[][] visited; // 불 방문 기록
     static int r, c;
-    static Queue<Point> fireQ = new LinkedList<>();
-    public static void main(String[] args) throws IOException {
+    static char[][] map;
+    static boolean[][] visited;
+    static Queue<int[]> fireQueue = new LinkedList<>();
+    static Queue<int[]> jhQueue = new LinkedList<>();
+    public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st = new StringTokenizer(br.readLine());
+        StringTokenizer st = new StringTokenizer(br.readLine(), " ");
         r = Integer.parseInt(st.nextToken());
         c = Integer.parseInt(st.nextToken());
-        board = new char[r][c];
+        map = new char[r][c];
         visited = new boolean[r][c];
-        moves = new int[r][c];
-        Point person = null;
+        int startX = 0, startY = 0; // 지훈이의 초기 위치
         for (int i = 0; i < r; i++) {
-            String str = br.readLine();
+            String line = br.readLine();
             for (int j = 0; j < c; j++) {
-                board[i][j] = str.charAt(j);
-                if (board[i][j] == 'J') person = new Point(i, j);
-                if (board[i][j] == 'F') fireQ.offer(new Point(i, j)); // 불은 여러 곳에서 날 수 있다..!
+                map[i][j] = line.charAt(j);
+                if (map[i][j] == 'F') {
+                    fireQueue.offer(new int[]{i, j});
+                    visited[i][j] = true;
+                } else if (map[i][j] == 'J') {
+                    jhQueue.offer(new int[]{i, j});
+                    visited[i][j] = true;
+                }
             }
         }
-        System.out.println(bfs(person));
+        int bfs = bfs(startX, startY);
+        System.out.println(bfs == -1 ? "IMPOSSIBLE" : bfs);
     }
-    public static String bfs(Point person) {
-        Queue<Point> personQ = new LinkedList<>();
-        personQ.offer(person);
 
-        int[] dx = {-1, 1, 0, 0};
-        int[] dy = {0, 0, -1, 1};
-        while (!personQ.isEmpty()) {
-            // 불 먼저 이동
-            int size = fireQ.size();
-            for (int s = 0; s < size; s++) {
-                Point fire = fireQ.poll();
-                visited[fire.x][fire.y] = true;
+    static int bfs(int x, int y) {
+        int[][] dist = new int[r][c];
+        int[][] move = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+        while (!jhQueue.isEmpty()) {
+            // 불 이동
+            int size = fireQueue.size();
+            for (int i = 0; i < size; i++) {
+                int[] now = fireQueue.poll();
 
-                for (int i = 0; i < 4; i++) {
-                    int tx = fire.x + dx[i];
-                    int ty = fire.y + dy[i];
-
-                    if (tx < 0 || ty < 0 || tx >= r || ty >= c)
+                for (int j = 0; j < 4; j++) {
+                    int nx = now[0] + move[j][0];
+                    int ny = now[1] + move[j][1];
+                    if (nx < 0 || ny < 0 || nx >= r || ny >= c || visited[nx][ny]) {
                         continue;
+                    }
 
-                    if (board[tx][ty] == '#') // 벽이면 이동 불가
-                        continue;
-
-                    if (!visited[tx][ty]) { // 불이 번지지 않은 경우 이동 가능
-                        visited[tx][ty] = true;
-                        fireQ.offer(new Point(tx, ty));
+                    if (map[nx][ny] != '#') { // 벽이 아니면 불이 퍼질 수 있음
+                        visited[nx][ny] = true;
+                        fireQueue.offer(new int[]{nx, ny});
                     }
                 }
             }
 
-            // 지훈 이동
-            size = personQ.size();
-            for (int s = 0; s < size; s++) {
-                person = personQ.poll();
-                for (int i = 0; i < 4; i++) {
-                    int tx = person.x + dx[i];
-                    int ty = person.y + dy[i];
+            // 지훈이 이동
+            size = jhQueue.size();
+            for (int i = 0; i < size; i++) {
+                int[] now = jhQueue.poll();
 
-                    if (tx < 0 || ty < 0 || tx >= r || ty >= c) // 탈출하면 탈출 시간 반환
-                        return String.valueOf(moves[person.x][person.y] + 1);
+                for (int j = 0; j < 4; j++) {
+                    int nx = now[0] + move[j][0];
+                    int ny = now[1] + move[j][1];
+                    // 미로 범위를 벗어나면 탈출한 것
+                    if (nx < 0 || ny < 0 || nx >= r || ny >= c) {
+                        return dist[now[0]][now[1]] + 1;
+                    }
 
-                    if (board[tx][ty] == '#') // 벽이면 이동 불가
-                        continue;
-
-                    if (moves[tx][ty] != 0) // 이미 방문한 곳이면 이동 불가
-                        continue;
-
-                    if (!visited[tx][ty]) { // 불이 번지지 않은 경우 이동 가능
-                        moves[tx][ty] = moves[person.x][person.y] + 1;
-                        personQ.offer(new Point(tx, ty));
+                    // 불이 퍼지지 않았고 지나갈 수 있는 공간인 경우
+                    if (!visited[nx][ny] && map[nx][ny] == '.') {
+                        jhQueue.offer(new int[]{nx, ny});
+                        visited[nx][ny] = true;
+                        dist[nx][ny] = dist[now[0]][now[1]] + 1;
                     }
                 }
             }
         }
-        return "IMPOSSIBLE";
-    }
-}
-
-class Point {
-    int x;
-    int y;
-
-    public Point(int x, int y) {
-        this.x = x;
-        this.y = y;
+        return -1;
     }
 }
