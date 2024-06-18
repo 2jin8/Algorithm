@@ -1,56 +1,69 @@
 import java.io.*;
+import java.util.*;
 
 public class Main {
-    static int n;
-    static int[] dx = {1, -1, 0, 0};
-    static int[] dy = {0, 0, 1, -1};
+    static int N;
+    static char[][] pictureO, pictureX; // O: 적록색약 O, X: 적록색약 X
+    static boolean[][] visited;
     public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        // 적록색약 X - 빨 / 파 / 초
-        // 적록색약 O - 빨, 초 / 파
-        n = Integer.parseInt(br.readLine());
-        char[][] areaO = new char[n][n]; // 적록색약 O
-        char[][] areaX = new char[n][n]; // 적록색약 X
-        for (int i = 0; i < n; i++) {
-            String str = br.readLine();
-            for (int j = 0; j < n; j++) {
-                areaX[i][j] = str.charAt(j);
-                if (areaX[i][j] == 'B') areaO[i][j] = areaX[i][j];
-                else areaO[i][j] = 'R'; // R, G -> R로 저장
+        N = Integer.parseInt(br.readLine());
+        pictureO = new char[N][N]; // R == G
+        pictureX = new char[N][N];
+        for (int i = 0; i < N; i++) {
+            String line = br.readLine();
+            for (int j = 0; j < N; j++) {
+                pictureO[i][j] = line.charAt(j);
+                pictureX[i][j] = line.charAt(j);
+                if (pictureO[i][j] == 'G') pictureO[i][j] = 'R';
             }
         }
 
-        boolean[][] visitedO = new boolean[n][n];
-        boolean[][] visitedX = new boolean[n][n];
-        int cntO = 0, cntX = 0;
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
-                // 적록색약 O
-                if (!visitedO[i][j]) {
-                    dfs(areaO, visitedO, i, j);
-                    cntO++;
-                }
-                // 적록색약 X
-                if (!visitedX[i][j]) {
-                    dfs(areaX, visitedX, i, j);
-                    cntX++;
+        int totalO = 0;
+        visited = new boolean[N][N];
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < N; j++) {
+                if (!visited[i][j]) {
+                    totalO++;
+                    bfs(i, j, pictureO);
                 }
             }
         }
-        System.out.println(cntX + " " + cntO);
+
+        int totalX = 0;
+        visited = new boolean[N][N];
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < N; j++) {
+                if (!visited[i][j]) {
+                    totalX++;
+                    bfs(i, j, pictureX);
+                }
+            }
+        }
+        System.out.println(totalX + " " + totalO);
     }
 
-    public static void dfs(char[][] area, boolean[][] visited, int x, int y) {
+    static void bfs(int x, int y, char[][] picture) {
+        Queue<int[]> queue = new LinkedList<>();
+        queue.offer(new int[]{x, y});
         visited[x][y] = true;
 
-        for (int i = 0; i < 4; i++) {
-            int tx = x + dx[i];
-            int ty = y + dy[i];
-            if (tx < 0 || ty < 0 || tx >= n || ty >= n)
-                continue;
+        int[][] move = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+        while (!queue.isEmpty()) {
+            int[] now = queue.poll();
 
-            if (area[x][y] == area[tx][ty] && !visited[tx][ty])
-                dfs(area, visited, tx, ty);
+            for (int i = 0; i < 4; i++) {
+                int nx = now[0] + move[i][0];
+                int ny = now[1] + move[i][1];
+                if (nx < 0 || ny < 0 || nx >= N || ny >= N || visited[nx][ny]) {
+                    continue;
+                }
+
+                if (picture[nx][ny] == picture[x][y]) {
+                    queue.offer(new int[]{nx, ny});
+                    visited[nx][ny] = true;
+                }
+            }
         }
     }
 }
