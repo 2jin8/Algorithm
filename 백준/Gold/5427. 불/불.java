@@ -1,108 +1,87 @@
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.InputStreamReader;
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.StringTokenizer;
+import java.io.*;
+import java.util.*;
 
 public class Main {
     static int w, h;
-    static int[][] route;
-    static char[][] building;
+    static char[][] map;
     static boolean[][] visited;
-    static Queue<Point> fireQ, personQ;
+    static Queue<int[]> fireQueue, sgQueue;
     public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         int T = Integer.parseInt(br.readLine());
         StringBuilder sb = new StringBuilder();
-        for (int tc = 0; tc < T; tc++) {
-            StringTokenizer st = new StringTokenizer(br.readLine());
+        for (int t = 0; t < T; t++) {
+            StringTokenizer st = new StringTokenizer(br.readLine(), " ");
             w = Integer.parseInt(st.nextToken());
             h = Integer.parseInt(st.nextToken());
-            init();
+            map = new char[h][w];
+            visited = new boolean[h][w];
+            fireQueue = new LinkedList<>();
+            sgQueue = new LinkedList<>();
             for (int i = 0; i < h; i++) {
                 String line = br.readLine();
                 for (int j = 0; j < w; j++) {
-                    building[i][j] = line.charAt(j);
-                    if (building[i][j] == '*') {
-                        fireQ.add(new Point(i, j));
+                    map[i][j] = line.charAt(j);
+                    if (map[i][j] == '*') { // 불의 시작 위치 저장하기
+                        fireQueue.offer(new int[]{i, j});
                         visited[i][j] = true;
-                    } else if (building[i][j] == '@') {
-                        personQ.add(new Point(i, j));
-                        route[i][j] = 1;
+                    } else if (map[i][j] == '@') { // 상근이의 초기 위치 저장하기
+                        sgQueue.offer(new int[]{i, j});
+                        visited[i][j] = true;
                     }
                 }
             }
-            int result = bfs();
-            sb.append(result == -1 ? "IMPOSSIBLE" : result).append("\n");
+            int bfs = bfs();
+            sb.append(bfs == -1 ? "IMPOSSIBLE" : bfs).append("\n");
         }
-        System.out.println(sb);
+        System.out.println(sb.toString());
     }
 
-    public static int bfs() {
-        int[] dx = {1, -1, 0, 0};
-        int[] dy = {0, 0, 1, -1};
-        while (!personQ.isEmpty()) {
-            int size = fireQ.size();
+    static int bfs() {
+        int time = 0;
+        int[][] move = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+        while (!sgQueue.isEmpty()) { // 상근이가 더 이상 이동할 수 없는 경우 종료
+            time++;
+
+            // 불 먼저 이동하기
+            int size = fireQueue.size();
             for (int i = 0; i < size; i++) {
-                Point fire = fireQ.poll();
+                int[] now = fireQueue.poll();
 
                 for (int j = 0; j < 4; j++) {
-                    int tx = fire.x + dx[j];
-                    int ty = fire.y + dy[j];
-                    if (tx < 0 || ty < 0 || tx >= h || ty >= w)
+                    int nx = now[0] + move[j][0];
+                    int ny = now[1] + move[j][1];
+                    if (nx < 0 || ny < 0 || nx >= h || ny >= w || visited[nx][ny]) {
                         continue;
+                    }
 
-                    // 벽이 아니고 아직 불이 번지지 않은 곳인 경우
-                    if (building[tx][ty] != '#' && !visited[tx][ty]) {
-                        fireQ.offer(new Point(tx, ty));
-                        visited[tx][ty] = true;
+                    if (map[nx][ny] != '#') { // 불은 벽을 제외하고 모두 번질 수 있음
+                        fireQueue.offer(new int[]{nx, ny});
+                        visited[nx][ny] = true;
                     }
                 }
             }
-
-            size = personQ.size();
+            // 상근이 이동하기
+            size = sgQueue.size();
             for (int i = 0; i < size; i++) {
-                Point person = personQ.poll();
-                int x = person.x;
-                int y = person.y;
-                if (x == 0 || x == h - 1 || y == 0 || y == w - 1) {
-                    return route[x][y];
-                }
+                int[] now = sgQueue.poll();
+                int x = now[0], y = now[1];
 
                 for (int j = 0; j < 4; j++) {
-                    int tx = x + dx[j];
-                    int ty = y + dy[j];
-                    if (tx < 0 || ty < 0 || tx >= h || ty >= w)
-                        continue;
+                    int nx = x + move[j][0];
+                    int ny = y + move[j][1];
+                    if (nx < 0 || ny < 0 || nx >= h || ny >= w) { // 지도 범위를 벗어나면 탈출한 것
+                        return time;
+                    }
 
-                    // 벽이 아니고 불이 번지지 않았고 방문하지 않은 곳인 경우
-                    if (building[tx][ty] != '#' && !visited[tx][ty] && route[tx][ty] == 0) {
-                        route[tx][ty] = route[x][y] + 1;
-                        personQ.offer(new Point(tx, ty));
-                        visited[tx][ty] = true;
+                    // 방문하지 않았거나 불이 붙지 않았고 빈 공간인 경우 이동 가능
+                    if (!visited[nx][ny] && map[nx][ny] == '.') {
+                        sgQueue.offer(new int[]{nx, ny});
+                        visited[nx][ny] = true;
                     }
                 }
             }
         }
         return -1;
-    }
-
-    public static void init() {
-        route = new int[h][w];
-        building = new char[h][w];
-        visited = new boolean[h][w];
-        fireQ = new LinkedList<>();
-        personQ = new LinkedList<>();
-    }
-}
-
-class Point {
-    int x;
-    int y;
-
-    public Point(int x, int y) {
-        this.x = x;
-        this.y = y;
     }
 }
