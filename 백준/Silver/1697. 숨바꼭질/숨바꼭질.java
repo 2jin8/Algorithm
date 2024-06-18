@@ -1,9 +1,9 @@
-import java.util.*;
 import java.io.*;
+import java.util.*;
 
 public class Main {
     static int N, K;
-    static final int MAX = 100000;
+    static final int MAX = 100_000;
     public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine(), " ");
@@ -12,32 +12,35 @@ public class Main {
         System.out.println(bfs());
     }
 
-    public static int bfs() {
-        int[] point = new int[MAX + 1];
-        boolean[] visited = new boolean[MAX + 1];
+    static int bfs() {
         Queue<Integer> queue = new LinkedList<>();
+        int[] dist = new int[MAX + 1];
+        dist[N] = 1;
         queue.offer(N);
-        visited[N] = true;
-        while (!queue.isEmpty()) {
-            int p = queue.poll();
-            if (p == K) break;
 
-            if (p >= 1 && !visited[p - 1]) {
-                queue.offer(p - 1);
-                visited[p - 1] = true;
-                point[p - 1] = point[p] + 1;
+        while (!queue.isEmpty()) {
+            int x = queue.poll();
+            if (x == K) break;
+
+            // x - 1
+            int nx = x - 1;
+            if (nx >= 0 && dist[nx] == 0) {
+                dist[nx] = dist[x] + 1;
+                queue.offer(nx);
             }
-            if (p + 1 <= MAX && !visited[p + 1]) {
-                queue.offer(p + 1);
-                visited[p + 1] = true;
-                point[p + 1] = point[p] + 1;
+
+            nx = x + 1;
+            if (nx <= MAX && dist[nx] == 0) {
+                dist[nx] = dist[x] + 1;
+                queue.offer(nx);
             }
-            if (2 * p <= MAX && !visited[2 * p]) {
-                queue.offer(2 * p);
-                visited[2 * p] = true;
-                point[2 * p] = point[p] + 1;
+
+            nx = 2 * x;
+            if (nx <= MAX && dist[nx] == 0) {
+                dist[nx] = dist[x] + 1;
+                queue.offer(nx);
             }
         }
-        return point[K];
+        return dist[K] - 1;
     }
 }
