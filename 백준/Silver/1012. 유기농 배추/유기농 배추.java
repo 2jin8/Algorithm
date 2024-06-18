@@ -1,82 +1,62 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.StringTokenizer;
+import java.io.*;
+import java.util.*;
 
 public class Main {
-
-    private static boolean[][] visited;
-    private static int[][] land;
-    private static int count = 0;
-    public static void main(String[] args) throws IOException {
+    static int N, M;
+    static int[][] map;
+    static boolean[][] visited;
+    public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st;
-        int t = Integer.parseInt(br.readLine());
-        for (int r = 0; r < t; r++) {
-            st = new StringTokenizer(br.readLine());
-            int m = Integer.parseInt(st.nextToken());
-            int n = Integer.parseInt(st.nextToken());
-            int k = Integer.parseInt(st.nextToken());
+        int T = Integer.parseInt(br.readLine()); // 테스트 케이스의 수
 
-            init(m, n);
-
-            for (int i = 0; i < k; i++) {
-                st = new StringTokenizer(br.readLine());
-                int a = Integer.parseInt(st.nextToken());
-                int b = Integer.parseInt(st.nextToken());
-
-                land[b][a] = 1;
+        StringBuilder sb = new StringBuilder();
+        for (int t = 0; t < T; t++) {
+            StringTokenizer st = new StringTokenizer(br.readLine(), " ");
+            M = Integer.parseInt(st.nextToken());
+            N = Integer.parseInt(st.nextToken());
+            int K = Integer.parseInt(st.nextToken());
+            map = new int[N][M];
+            visited = new boolean[N][M];
+            for (int k = 0; k < K; k++) {
+                st = new StringTokenizer(br.readLine(), " ");
+                int y = Integer.parseInt(st.nextToken());
+                int x = Integer.parseInt(st.nextToken());
+                map[x][y] = 1;
             }
 
-            for (int i = 0; i < n; i++) {
-                for (int j = 0; j < m; j++) {
-                    if (land[i][j] == 1 && !visited[i][j]) {
-                        DFS(i, j);
-                        count++;
+            int total = 0;
+            for (int i = 0; i < N; i++) {
+                for (int j = 0; j < M; j++) {
+                    if (map[i][j] == 1 && !visited[i][j]) {
+                        total++;
+                        bfs(i, j);
                     }
                 }
             }
-            System.out.println(count);
-            count = 0;
+            sb.append(total).append("\n");
         }
-
-        br.close();
+        System.out.println(sb.toString());
     }
 
-    private static void init(int m, int n) {
-        visited = new boolean[n][m];
-        land = new int[n][m];
-    }
+    static void bfs(int x, int y) {
+        Queue<int[]> queue = new LinkedList<>();
+        queue.offer(new int[]{x, y});
+        visited[x][y] = true;
 
-    private static void DFS(int i, int j) {
-        visited[i][j] = true;
+        int[][] move = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+        while (!queue.isEmpty()) {
+            int[] now = queue.poll();
 
-        // 위(i + 1)
-        if (i != land.length - 1) {
-            if (land[i + 1][j] == 1 && !visited[i + 1][j]) {
-                DFS(i + 1, j);
-            }
-        }
+            for (int i = 0; i < 4; i++) {
+                int nx = now[0] + move[i][0];
+                int ny = now[1] + move[i][1];
+                // 범위 벗어나는 경우 or 방문한 경우 or 배추가 없는 경우 넘어가기
+                if (nx < 0 || ny < 0 || nx >= N || ny >= M || visited[nx][ny] || map[nx][ny] == 0) {
+                    continue;
+                }
 
-        // 아래(i - 1)
-        if (i != 0) {
-            if (land[i - 1][j] == 1 && !visited[i - 1][j]) {
-                DFS(i - 1, j);
-            }
-        }
-        // 오른쪽(j + 1)
-        if (j != land[0].length - 1) {
-            if (land[i][j + 1] == 1 && !visited[i][j + 1]) {
-                DFS(i, j + 1);
-            }
-        }
-
-        // 왼쪽(j - 1)
-        if (j != 0) {
-            if (land[i][j - 1] == 1 && !visited[i][j - 1]) {
-                DFS(i, j - 1);
+                queue.offer(new int[]{nx, ny});
+                visited[nx][ny] = true;
             }
         }
     }
