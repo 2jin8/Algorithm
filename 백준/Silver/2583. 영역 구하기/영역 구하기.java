@@ -3,43 +3,45 @@ import java.util.*;
 
 public class Main {
     static int M, N, K;
-    static int[][] map;
+    static int[][] board;
     static boolean[][] visited;
-    public static void main(String[] args) throws IOException {
+    static ArrayList<Integer> areas = new ArrayList<>();
+    public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine(), " ");
         M = Integer.parseInt(st.nextToken());
         N = Integer.parseInt(st.nextToken());
         K = Integer.parseInt(st.nextToken());
 
-        map = new int[N][M];
+        board = new int[N][M];
         visited = new boolean[N][M];
-        for (int i = 0; i < K; i++) {
+        for (int k= 0; k < K; k++) {
             st = new StringTokenizer(br.readLine(), " ");
-            int sX = Integer.parseInt(st.nextToken());
-            int sY = Integer.parseInt(st.nextToken());
-            int eX = Integer.parseInt(st.nextToken());
-            int eY = Integer.parseInt(st.nextToken());
-            for (int x = sX; x < eX; x++) {
-                for (int y = sY; y < eY; y++) {
-                    map[x][y] = 1;
+            int startX = Integer.parseInt(st.nextToken());
+            int startY = Integer.parseInt(st.nextToken());
+            int endX = Integer.parseInt(st.nextToken());
+            int endY = Integer.parseInt(st.nextToken());
+            for (int i = startX; i < endX; i++) {
+                for (int j = startY; j < endY; j++) {
+                    board[i][j] = 1;
                 }
             }
         }
 
-        List<Integer> list = new ArrayList<>();
-        for (int x = 0; x < N; x++) {
-            for (int y = 0; y < M; y++) {
-                if (map[x][y] == 0 && !visited[x][y]) {
-                    list.add(bfs(x, y));
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < M; j++) {
+                if (board[i][j] == 0 && !visited[i][j]) {
+                    areas.add(bfs(i, j));
                 }
             }
         }
-        Collections.sort(list);
+        Collections.sort(areas);
         StringBuilder sb = new StringBuilder();
-        sb.append(list.size()).append("\n");
-        for (int s : list) sb.append(s).append(" ");
-        System.out.println(sb);
+        sb.append(areas.size()).append("\n");
+        for (int area : areas) {
+            sb.append(area).append(" ");
+        }
+        System.out.println(sb.toString());
     }
 
     public static int bfs(int x, int y) {
@@ -47,24 +49,25 @@ public class Main {
         queue.offer(new int[]{x, y});
         visited[x][y] = true;
 
-        int total = 0; // 영역의 넓이
-        int[] dx = {1, -1, 0, 0};
-        int[] dy = {0, 0, 1, -1};
+        int area = 0;
+        int[][] move = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
         while (!queue.isEmpty()) {
             int[] now = queue.poll();
-            total++;
+            area++;
 
             for (int i = 0; i < 4; i++) {
-                int nx = now[0] + dx[i];
-                int ny = now[1] + dy[i];
-                if (nx < 0 || ny < 0 || nx >= N || ny >= M) continue;
+                int nx = now[0] + move[i][0];
+                int ny = now[1] + move[i][1];
+                if (nx < 0 || ny < 0 || nx >= N || ny >= M) {
+                    continue;
+                }
 
-                if (map[nx][ny] == 0 && !visited[nx][ny]) {
+                if (board[nx][ny] == 0 && !visited[nx][ny]) {
                     queue.offer(new int[]{nx, ny});
                     visited[nx][ny] = true;
                 }
             }
         }
-        return total;
+        return area;
     }
 }
