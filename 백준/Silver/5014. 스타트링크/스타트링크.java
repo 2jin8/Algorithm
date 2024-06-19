@@ -3,41 +3,44 @@ import java.util.*;
 
 public class Main {
     static int F, S, G, U, D;
-    static int[] dist;
-    static boolean[] visited;
+    static int[] building;
     public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        String[] str = br.readLine().split(" ");
-        F = Integer.parseInt(str[0]); // 총 F층
-        S = Integer.parseInt(str[1]); // 현재 S층
-        G = Integer.parseInt(str[2]); // 스타트링크 G층
-        U = Integer.parseInt(str[3]); // U만큼 업
-        D = Integer.parseInt(str[4]); // D만큼 다운
-        dist = new int[F + 1];
-        visited = new boolean[F + 1];
+        StringTokenizer st = new StringTokenizer(br.readLine(), " ");
+        F = Integer.parseInt(st.nextToken()); // 총 F층
+        S = Integer.parseInt(st.nextToken()); // 현재 강호가 있는 층
+        G = Integer.parseInt(st.nextToken()); // 스타트링크가 있는 층
+        U = Integer.parseInt(st.nextToken()); // 위로 이동하는 층 수
+        D = Integer.parseInt(st.nextToken()); // 아래로 이동하는 층 수
 
+        building = new int[F + 1]; // F층 건물
         int bfs = bfs(S);
-        System.out.println(bfs == -1? "use the stairs" : bfs);;
+        System.out.println(bfs == -1 ? "use the stairs" : bfs);
     }
 
     public static int bfs(int x) {
         Queue<Integer> queue = new LinkedList<>();
         queue.offer(x);
-        visited[x] = true;
+        building[x] = 1;
 
         while (!queue.isEmpty()) {
-            x = queue.poll();
-            if (x == G) return dist[x];
-
-            if (x + U <= F && !visited[x + U]) {
-                dist[x + U] = dist[x] + 1;
-                visited[x + U] = true;
-                queue.offer(x + U);
+            int now = queue.poll();
+            if (now == G) {
+                return building[G] - 1;
             }
-            if (x - D > 0 && !visited[x - D]) {
-                dist[x - D] = dist[x] + 1;
-                visited[x - D] = true;
-                queue.offer(x - D);
+
+            // U만큼 위로 이동
+            int next = now + U;
+            if (next <= F && building[next] == 0) {
+                queue.offer(next);
+                building[next] = building[now] + 1;
+            }
+
+            // D만큼 아래로 이동
+            next = now - D;
+            if (next >= 1 && building[next] == 0) {
+                queue.offer(next);
+                building[next] = building[now] + 1;
             }
         }
         return -1;
