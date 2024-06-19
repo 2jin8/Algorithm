@@ -7,74 +7,69 @@ public class Main {
     static boolean[][][] visited;
     public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-
         StringBuilder sb = new StringBuilder();
         while (true) {
-            String[] s = br.readLine().split(" ");
-            L = Integer.parseInt(s[0]);
-            R = Integer.parseInt(s[1]);
-            C = Integer.parseInt(s[2]);
+            StringTokenizer st = new StringTokenizer(br.readLine(), " ");
+            L = Integer.parseInt(st.nextToken());
+            R = Integer.parseInt(st.nextToken());
+            C = Integer.parseInt(st.nextToken());
             if (L == 0 && R == 0 && C == 0) break;
 
             building = new char[R][C][L];
             visited = new boolean[R][C][L];
-            Point start = null;
-            for (int k = 0; k < L; k++) {
-                for (int i = 0; i < R; i++) {
-                    String str = br.readLine();
-                    for (int j = 0; j < C; j++) {
-                        building[i][j][k] = str.charAt(j);
-                        if (building[i][j][k] == 'S') start = new Point(i, j, k, 0);
+
+            int x = 0, y = 0, z = 0;
+            for (int l = 0; l < L; l++) {
+                for (int r = 0; r < R; r++) {
+                    String line = br.readLine();
+                    for (int c = 0; c < C; c++) {
+                        building[r][c][l] = line.charAt(c);
+                        if (building[r][c][l] == 'S') { // 시작 위치
+                            x = r;
+                            y = c;
+                            z = l;
+                        }
                     }
                 }
                 br.readLine();
             }
-            int bfs = bfs(start);
-            sb.append(bfs == -1 ? "Trapped!" : "Escaped in " + bfs + " minute(s).").append("\n");
+            int bfs = bfs(x, y, z);
+            if (bfs == -1) sb.append("Trapped!\n");
+            else sb.append("Escaped in ").append(bfs).append(" minute(s).\n");
         }
-        System.out.println(sb);
+        System.out.println(sb.toString());
     }
 
-    public static int bfs(Point start) {
-        Queue<Point> queue = new LinkedList<>();
-        queue.offer(start);
-        visited[start.x][start.y][start.z] = true;
+    public static int bfs(int x, int y, int z) {
+        Queue<int[]> queue = new LinkedList<>();
+        queue.offer(new int[]{x, y, z});
+        visited[x][y][z] = true;
 
-        int[] dx = {1, -1, 0, 0, 0, 0};
-        int[] dy = {0, 0, 1, -1, 0, 0};
-        int[] dz = {0, 0, 0, 0, 1, -1};
+        int[][][] dist = new int[R][C][L];
+        int[][] move = {{1, 0, 0}, {-1, 0, 0}, {0, 1, 0}, {0, -1, 0}, {0, 0, 1}, {0, 0, -1}};
         while (!queue.isEmpty()) {
-            Point point = queue.poll();
-            if (building[point.x][point.y][point.z] == 'E')
-                return point.time;
+            int[] now = queue.poll();
+            x = now[0]; y = now[1]; z = now[2];
+            if (building[x][y][z] == 'E') { // 출구에 도착한 경우
+                return dist[x][y][z];
+            }
 
             for (int i = 0; i < 6; i++) {
-                int tx = point.x + dx[i];
-                int ty = point.y + dy[i];
-                int tz = point.z + dz[i];
-                if (tx < 0 || ty < 0 || tz < 0 || tx >= R || ty >= C || tz >= L)
+                int nx = x + move[i][0];
+                int ny= y + move[i][1];
+                int nz = z + move[i][2];
+                if (nx < 0 || ny < 0 || nz < 0 || nx >= R || ny >= C || nz >= L) {
                     continue;
+                }
 
-                if (building[tx][ty][tz] != '#' && !visited[tx][ty][tz]) {
-                    queue.offer(new Point(tx, ty, tz, point.time + 1));
-                    visited[tx][ty][tz] = true;
+                // 벽이 아니고 이미 방문한 지점이 아니면 이동 가능
+                if (building[nx][ny][nz] != '#' && !visited[nx][ny][nz]) {
+                    queue.offer(new int[]{nx, ny, nz});
+                    visited[nx][ny][nz] = true;
+                    dist[nx][ny][nz] = dist[x][y][z] + 1;
                 }
             }
         }
         return -1;
-    }
-
-    static class Point {
-        int x;
-        int y;
-        int z;
-        int time; // 탈출 소요 시간
-
-        public Point(int x, int y, int z, int time) {
-            this.x = x;
-            this.y = y;
-            this.z = z;
-            this.time = time;
-        }
     }
 }
