@@ -1,70 +1,60 @@
-import java.util.*;
 import java.io.*;
+import java.util.*;
 
 public class Main {
-
-    private static int N;
-    private static int MAX = 0, MIN = 101;
-    private static int[][] region;
-    private static int[] dx = {-1, 0, 1, 0}, dy = {0, -1, 0, 1};
-    public static void main(String[] args) throws IOException {
+    static int N;
+    static int[][] map;
+    static boolean[][] visited;
+    public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st;
         N = Integer.parseInt(br.readLine());
-        region = new int[N][N];
-
-        int minH = MIN, maxH = MAX;
+        map = new int[N][N];
+        int maxHeight = 0;
         for (int i = 0; i < N; i++) {
-            st = new StringTokenizer(br.readLine());
+            StringTokenizer st = new StringTokenizer(br.readLine(), " ");
             for (int j = 0; j < N; j++) {
-                region[i][j] = Integer.parseInt(st.nextToken());
-                minH = Math.min(minH, region[i][j]);
-                maxH = Math.max(maxH, region[i][j]);
+                map[i][j] = Integer.parseInt(st.nextToken());
+                maxHeight = Math.max(maxHeight, map[i][j]);
             }
         }
 
-        // 높이는 minH - 1 ~ maxH까지 계산
-        int result = 0;
-        for (int i = minH - 1; i <= maxH; i++) {
-            int[][] tmp = new int[N][N];
-            for (int j = 0; j < N; j++) {
-                for (int k = 0; k < N; k++) {
-                    if (region[j][k] <= i) {
-                        tmp[j][k] = -1;
-                    } else {
-                        tmp[j][k] = region[j][k];
+        int maxSafeArea = 0;
+        for (int h = 0; h < maxHeight; h++) { // 내리는 비의 양
+            visited = new boolean[N][N];
+            int safeArea = 0;
+            for (int i = 0; i < N; i++) {
+                for (int j = 0; j < N; j++) {
+                    if (map[i][j] > h && !visited[i][j]) {
+                        safeArea++;
+                        bfs(i, j, h);
                     }
                 }
             }
-
-            int cnt = 0;
-            for (int j = 0; j < N; j++) {
-                for (int k = 0; k < N; k++) {
-                    if (tmp[j][k] != -1) {
-                        bfs(tmp, j, k);
-                        cnt++;
-                    }
-                }
-            }
-            result = Math.max(result, cnt);
+            maxSafeArea = Math.max(maxSafeArea, safeArea);
         }
-
-        System.out.println(result);
+        System.out.println(maxSafeArea);
     }
 
-    private static void bfs(int[][] ary, int i, int j) {
-        ary[i][j] = -1;
+    public static void bfs(int x, int y, int h) {
+        Queue<int[]> queue = new LinkedList<>();
+        queue.offer(new int[]{x, y});
+        visited[x][y] = true;
 
-        // 양방향 체크
-        for (int k = 0; k < 4; k++) {
-            int tx = i + dx[k];
-            int ty = j + dy[k];
+        int[][] move = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+        while (!queue.isEmpty()) {
+            int[] now = queue.poll();
 
-            if (tx < 0 || tx >= N || ty < 0 || ty >= N)
-                continue;
+            for (int i = 0; i < 4; i++) {
+                int nx = now[0] + move[i][0];
+                int ny= now[1] + move[i][1];
+                if (nx < 0 || ny < 0 || nx >= N || ny >= N || visited[nx][ny]) {
+                    continue;
+                }
 
-            if (ary[tx][ty] != -1) {
-               bfs(ary, tx, ty);
+                if (map[nx][ny] > h) { // 내리는 비의 양보다 높아야 안전 구역에 속함
+                    queue.offer(new int[]{nx, ny});
+                    visited[nx][ny] = true;
+                }
             }
         }
     }
