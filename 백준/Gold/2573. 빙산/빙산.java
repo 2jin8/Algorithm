@@ -3,99 +3,81 @@ import java.util.*;
 
 public class Main {
     static int N, M;
-    static int[][] map, arr;
+    static int[][] ice, tmpIce;
     static boolean[][] visited;
-    static int[] dx = {1, -1, 0, 0};
-    static int[] dy = {0, 0, 1, -1};
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine(), " ");
         N = Integer.parseInt(st.nextToken());
         M = Integer.parseInt(st.nextToken());
-        map = new int[N][M];
+        ice = new int[N][M];
+        tmpIce = new int[N][M]; // 다음 연도의 빙하 상태
         for (int i = 0; i < N; i++) {
             st = new StringTokenizer(br.readLine(), " ");
             for (int j = 0; j < M; j++) {
-                map[i][j] = Integer.parseInt(st.nextToken());
+                ice[i][j] = Integer.parseInt(st.nextToken());
             }
         }
+        System.out.println(melting());
+    }
 
+    static int melting() {
         int year = 0;
-        arr = new int[N][M];
         while (true) {
-            year++;
-            clone(arr, map);
-
-            for (int i = 0; i < N; i++) {
-                for (int j = 0; j < M; j++) {
-                    if (map[i][j] != 0) {
-                        arr[i][j] -= checkSea(i, j);
-                        if (arr[i][j] < 0) arr[i][j] = 0;
-                    }
-                }
-            }
-
-            clone(map, arr);
-            int total = 0;
             visited = new boolean[N][M];
+            copyArray(ice, tmpIce);
+            int callBfs = 0; // bfs 메소드 호출 횟수 (두 번째 호출이라면 빙산이 쪼개진 것)
             for (int i = 0; i < N; i++) {
                 for (int j = 0; j < M; j++) {
-                    if (map[i][j] != 0 && !visited[i][j]) {
-                        if (total == 1) { // 이미 빙산이 하나 있는 경우
-                            System.out.println(year);
-                            return;
-                        }
+                    if (ice[i][j] != 0 && !visited[i][j]) {
+                        callBfs++;
+                        if (callBfs >= 2) return year;
+
                         bfs(i, j);
-                        total++;
                     }
                 }
             }
-            if (total == 0) {
-                year = 0;
-                break;
-            }
-        }
-        System.out.println(year);
-    }
-
-    public static void clone(int[][] a, int[][] b) {
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < M; j++) {
-                a[i][j] = b[i][j];
-            }
+            copyArray(tmpIce, ice);
+            year++;
+            if (callBfs == 0) return 0; // 전부 다 녹을 때까지 두 덩어리 이상으로 분리되지 않는 경우
         }
     }
 
-    public static void bfs(int x, int y) {
+    static void bfs(int x, int y) {
         Queue<int[]> queue = new LinkedList<>();
         queue.offer(new int[]{x, y});
         visited[x][y] = true;
 
+        int[][] move = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
         while (!queue.isEmpty()) {
             int[] now = queue.poll();
+            x = now[0]; y = now[1];
 
+            // 네 방향에 바다가 몇 개인지 세기
+            int sea = 0;
             for (int i = 0; i < 4; i++) {
-                int nx = now[0] + dx[i];
-                int ny = now[1] + dy[i];
-                if (nx < 0 || ny < 0 || nx >= N || ny >= M || visited[nx][ny]) continue;
+                int nx = x + move[i][0];
+                int ny = y + move[i][1];
+                if (nx < 0 || ny < 0 || nx >= N || ny >= M) {
+                    continue;
+                }
 
-                if (map[nx][ny] != 0) {
+                if (ice[nx][ny] == 0) { // 바다인 경우
+                    sea++;
+                } else if (ice[nx][ny] != 0 && !visited[nx][ny]) { // 다음에 BFS 탐색을 할 빙산인 경우
                     queue.offer(new int[]{nx, ny});
                     visited[nx][ny] = true;
                 }
             }
+            tmpIce[x][y] = Math.max(0, ice[x][y] - sea);
         }
     }
 
-    public static int checkSea(int x, int y) {
-        int total = 0;
-        for (int i = 0; i < 4; i++) {
-            int nx = x + dx[i];
-            int ny = y + dy[i];
-            if (nx < 0 || ny < 0 || nx >= N || ny >= M) continue;
-
-            if (map[nx][ny] == 0) total++;
+    static void copyArray(int[][] from, int[][] to) {
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < M; j++) {
+                to[i][j] = from[i][j];
+            }
         }
-        return total;
     }
 }
