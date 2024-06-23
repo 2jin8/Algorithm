@@ -2,99 +2,97 @@ import java.io.*;
 import java.util.*;
 
 public class Main {
-    static int N;
-    static int[][] map;
+    static int N, minDist = Integer.MAX_VALUE;
+    static int[][] map, dist;
     static boolean[][] visited;
-    static int[] dx = {1, -1, 0, 0};
-    static int[] dy = {0, 0, 1, -1};
-
+    static int[][] move = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
     public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         N = Integer.parseInt(br.readLine());
         map = new int[N][N];
+        dist = new int[N][N];
+        visited = new boolean[N][N];
+
         for (int i = 0; i < N; i++) {
-            StringTokenizer st = new StringTokenizer(br.readLine());
+            StringTokenizer st = new StringTokenizer(br.readLine(), " ");
             for (int j = 0; j < N; j++) {
                 map[i][j] = Integer.parseInt(st.nextToken());
             }
         }
 
         // 그룹 나누기
-        visited = new boolean[N][N];
-        int group = 0;
+        int group = 1;
         for (int i = 0; i < N; i++) {
             for (int j = 0; j < N; j++) {
-                if (!visited[i][j] && map[i][j] != 0) {
-                    bfs(i, j, ++group);
+                if (map[i][j] == 1) {
+                    makeGroup(i, j, ++group);
                 }
             }
         }
 
-        // 각 그룹에서 다른 그룹까지 최단 거리 구하기
-        int minV = Integer.MAX_VALUE;
         for (int i = 0; i < N; i++) {
             for (int j = 0; j < N; j++) {
                 if (map[i][j] != 0) {
-                    minV = Math.min(minV, findRoute(i, j));
+                    visited = new boolean[N][N];
+                    dist = new int[N][N];
+                    bfs(i, j);
                 }
             }
         }
-        System.out.println(minV);
+        System.out.println(minDist);
     }
 
-    public static int findRoute(int x, int y) {
+    static void bfs(int x, int y) {
         Queue<int[]> queue = new LinkedList<>();
-        int[][] dist = new int[N][N];
-        visited = new boolean[N][N];
         queue.offer(new int[]{x, y});
         visited[x][y] = true;
 
-        int group = map[x][y], min = Integer.MAX_VALUE;
+        int group = map[x][y];
         while (!queue.isEmpty()) {
-            int[] poll = queue.poll();
-            x = poll[0];
-            y = poll[1];
+            int[] now = queue.poll();
+            x = now[0]; y = now[1];
 
-            if (dist[x][y] > min) continue; // 현재 최단 거리보다 길면 탐색 X
+            // 현재 최소 길이보다 길면 최소 거리가 되지 않으므로 탐색 중단
+            if (dist[x][y] > minDist) break;
             for (int i = 0; i < 4; i++) {
-                int tx = x + dx[i];
-                int ty = y + dy[i];
-                if (tx < 0 || ty < 0 || tx >= N || ty >= N) continue;
+                int nx = x + move[i][0];
+                int ny = y + move[i][1];
+                // 범위 벗어나거나 이미 방문했거나 같은 섬을 탐색하려고 하는 경우라면 그냥 넘어가기
+                if (nx < 0 || ny < 0 || nx >= N || ny >= N || visited[nx][ny] || map[nx][ny] == group) {
+                    continue;
+                }
 
-                // 다른 육지 만난 경우
-                if (map[tx][ty] != 0 && map[tx][ty] != group) {
-                    min = dist[x][y];
+                if (map[nx][ny] == 0) { // 바다인 경우
+                    queue.offer(new int[]{nx, ny});
+                    visited[nx][ny] = true;
+                    dist[nx][ny] = dist[x][y] + 1;
+                } else if (map[nx][ny] != map[x][y]) { // 다른 섬에 닿은 경우
+                    minDist = Math.min(minDist, dist[x][y]);
                     break;
                 }
-
-                if (map[tx][ty] == 0 && !visited[tx][ty]) {
-                    queue.offer(new int[]{tx, ty});
-                    visited[tx][ty] = true;
-                    dist[tx][ty] = dist[x][y] + 1;
-                }
             }
         }
-        return min;
     }
 
-    public static void bfs(int x, int y, int value) {
+    static void makeGroup(int x, int y, int group) {
         Queue<int[]> queue = new LinkedList<>();
         queue.offer(new int[]{x, y});
         visited[x][y] = true;
-        map[x][y] = value;
+        map[x][y] = group;
 
         while (!queue.isEmpty()) {
-            int[] poll = queue.poll();
+            int[] now = queue.poll();
 
             for (int i = 0; i < 4; i++) {
-                int tx = poll[0] + dx[i];
-                int ty = poll[1] + dy[i];
-                if (tx < 0 || ty < 0 || tx >= N || ty >= N) continue;
+                int nx = now[0] + move[i][0];
+                int ny = now[1] + move[i][1];
+                if (nx < 0 || ny < 0 || nx >= N || ny >= N || map[nx][ny] == 0) {
+                    continue;
+                }
 
-                if (!visited[tx][ty] && map[tx][ty] != 0) {
-                    queue.offer(new int[]{tx, ty});
-                    visited[tx][ty] = true;
-                    map[tx][ty] = value;
+                if (map[nx][ny] == 1) {
+                    map[nx][ny] = group;
+                    queue.offer(new int[]{nx, ny});
                 }
             }
         }
