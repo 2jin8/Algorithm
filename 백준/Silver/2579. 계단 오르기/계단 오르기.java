@@ -1,28 +1,21 @@
-import java.util.*;
+import java.io.*;
 
 public class Main {
-
-    public static void main(String[] args) {
-        Scanner scan = new Scanner(System.in);
-        int n = scan.nextInt();
-        int[] stair = new int[n];
-        for (int i = 0; i < n; i++) {
-            stair[i] = scan.nextInt();
+    public static void main(String[] args) throws Exception {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        int n = Integer.parseInt(br.readLine());
+        int[] arr = new int[n + 1];
+        int[] dp = new int[n + 1];
+        for (int i = 1; i <= n; i++) {
+            arr[i] = Integer.parseInt(br.readLine());
         }
 
-        int[] score = new int[n];
-
-        for (int i = 0; i < n; i++) {
-            if (i == 0) {
-                score[0] = stair[0];
-            } else if (i == 1) {
-                score[1] = stair[0] + stair[1];
-            } else if (i == 2) {
-                score[2] = Math.max(stair[0], stair[1]) + stair[2];
-            } else {
-                score[i] = Math.max(score[i - 2], score[i - 3] + stair[i - 1]) + stair[i];
-            }
+        for (int i = 1; i <= n; i++) {
+            if (i == 1) dp[i] = arr[1];
+            else if (i == 2) dp[i] = arr[1] + arr[2];
+            else if (i == 3) dp[i] = Math.max(arr[1], arr[2]) + arr[3];
+            else dp[i] = Math.max(dp[i - 3] + arr[i - 1], dp[i - 2]) + arr[i];
         }
-        System.out.println(score[n - 1]);
+        System.out.println(dp[n]);
     }
 }
