@@ -1,15 +1,16 @@
 import java.io.*;
 
 public class Main {
-    public static void main(String[] args) throws IOException {
+    static final int MAX = 1_000;
+    static final int DIV = 10_007;
+    public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        int[] dp = new int[1001];
         int n = Integer.parseInt(br.readLine());
-        for (int i = 1; i <= 3; i++) {
-            dp[i] = i;
-        }
-        for (int i = 4; i <= n; i++) {
-            dp[i] = (dp[i - 1] + dp[i - 2]) % 10007;
+        int[] dp = new int[MAX + 1];
+        dp[1] = 1;
+        dp[2] = 2;
+        for (int i = 3; i <= n; i++) {
+            dp[i] = (dp[i - 1] + dp[i - 2]) % DIV;
         }
         System.out.println(dp[n]);
     }
