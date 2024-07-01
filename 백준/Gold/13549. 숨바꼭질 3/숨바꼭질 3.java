@@ -1,44 +1,47 @@
-import java.util.*;
 import java.io.*;
+import java.util.*;
 
 public class Main {
-
-    private static int N, K;
-    private static int[] visited = new int[100001];
-    public static void main(String[] args) throws IOException {
+    static final int MAX = 100_000;
+    public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st = new StringTokenizer(br.readLine());
-        N = Integer.parseInt(st.nextToken());
-        K = Integer.parseInt(st.nextToken());
-
-        System.out.println(bfs());
+        StringTokenizer st = new StringTokenizer(br.readLine(), " ");
+        int N = Integer.parseInt(st.nextToken());
+        int K = Integer.parseInt(st.nextToken());
+        System.out.println(bfs(N, K));
     }
 
-    private static int bfs() {
+    static int bfs(int n, int k) {
+        int[] time = new int[MAX + 1];
         Queue<Integer> queue = new LinkedList<>();
-        queue.add(N);
-        visited[N] = 1;
+        queue.offer(n);
+        time[n] = 1;
 
         while (!queue.isEmpty()) {
-            int n = queue.poll();
+            int now = queue.poll();
+            if (now == k) break;
 
-            if (n == K) {
-                return visited[n] - 1;
+            // 순간이동은 0초가 걸리므로 가장 먼저 수행하기
+            int next = now * 2;
+            if (next <= MAX && time[next] == 0) {
+                time[next] = time[now];
+                queue.offer(next);
             }
-            if (2 * n <= 100000 && visited[2 * n] == 0) {
-                visited[2 * n] = visited[n];
-                queue.add(2 * n);
+
+            // X-1로 이동하는 것은 1초가 걸림
+            next = now - 1;
+            if (next >= 0 && time[next] == 0) {
+                time[next] = time[now] + 1;
+                queue.offer(next);
             }
-            if (n - 1 >= 0 && visited[n - 1] == 0) {
-                visited[n - 1] = visited[n] + 1;
-                queue.add(n - 1);
-            }
-            if (n + 1 <= 100000 && visited[n + 1] == 0) {
-                visited[n + 1] = visited[n] + 1;
-                queue.add(n + 1);
+
+            // X+1로 이동하는 것은 1초가 걸림
+            next = now + 1;
+            if (next <= MAX && time[next] == 0) {
+                time[next] = time[now] + 1;
+                queue.offer(next);
             }
         }
-
-        return -1;
+        return time[k] - 1;
     }
 }
