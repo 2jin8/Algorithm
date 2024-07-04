@@ -1,8 +1,5 @@
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.StringTokenizer;
+import java.io.*;
+import java.util.*;
 
 public class Main {
     static int N, M, K;
@@ -10,9 +7,7 @@ public class Main {
     static boolean[][][] visited;
     public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st = new StringTokenizer(br.readLine());
-        // 최단 경로 - BFS
-        // 최대 K개 벽 부술 수 있다 -> 상태 변경! 차원 추가
+        StringTokenizer st = new StringTokenizer(br.readLine(), " ");
         N = Integer.parseInt(st.nextToken());
         M = Integer.parseInt(st.nextToken());
         K = Integer.parseInt(st.nextToken());
@@ -27,54 +22,50 @@ public class Main {
         System.out.println(bfs());
     }
 
-    public static int bfs() {
-        Queue<Point> queue = new LinkedList<>();
-        queue.offer(new Point(0, 0, 0, 0));
+    static int bfs() {
+        Queue<Node> queue = new LinkedList<>();
+        queue.offer(new Node(0, 0, 0, 0));
         visited[0][0][0] = true;
 
-        int[] dx = {1, -1, 0, 0};
-        int[] dy = {0, 0, 1, -1};
+        int[][] move = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
         while (!queue.isEmpty()) {
-            Point point = queue.poll();
-            if (point.x == N - 1 && point.y == M - 1) {
-                return point.move + 1;
+            Node now = queue.poll();
+            int x = now.x, y = now.y;
+            if (x == N - 1 && y == M - 1) {
+                return now.dist + 1;
             }
 
             for (int i = 0; i < 4; i++) {
-                int tx = point.x + dx[i];
-                int ty = point.y + dy[i];
-                if (tx < 0 || ty < 0 || tx >= N || ty >= M) continue;
+                int nx = x + move[i][0];
+                int ny = y + move[i][1];
+                if (nx < 0 || ny < 0 || nx >= N || ny >= M) {
+                    continue;
+                }
 
-                if (map[tx][ty] == 1) { // 다음이 벽인 경우
-                    if (point.crash < K) { // 벽을 부술 기회가 남은 경우
-                        if (!visited[tx][ty][point.crash + 1]) {
-                            queue.offer(new Point(tx, ty, point.crash + 1, point.move + 1));
-                            visited[tx][ty][point.crash + 1] = true;
-                        }
+                if (map[nx][ny] == 1) { // 이동하려는 지점이 벽인 경우
+                    if (now.crash < K && !visited[nx][ny][now.crash + 1]) {
+                        queue.offer(new Node(nx, ny, now.crash + 1, now.dist + 1));
+                        visited[nx][ny][now.crash + 1] = true;
                     }
-                } else { // 다음이 벽이 아닌 경우(= 이동 가능)
-                    if (!visited[tx][ty][point.crash]) {
-                        queue.offer(new Point(tx, ty, point.crash, point.move + 1));
-                        visited[tx][ty][point.crash] = true;
-                    }
+                } else if (map[nx][ny] == 0 && !visited[nx][ny][now.crash]) {
+                    queue.offer(new Node(nx, ny, now.crash, now.dist + 1));
+                    visited[nx][ny][now.crash] = true;
                 }
             }
         }
         return -1;
     }
 
+    static class Node {
+        int x, y;
+        int crash; // 벽을 부순 횟수
+        int dist; // 이동 횟수
 
-    private static class Point {
-        int x;
-        int y;
-        int crash; // 부순 벽의 개수
-        int move; // 이동 횟수
-
-        public Point(int x, int y, int crash, int move) {
+        public Node(int x, int y, int crash, int dist) {
             this.x = x;
             this.y = y;
             this.crash = crash;
-            this.move = move;
+            this.dist = dist;
         }
     }
 }
