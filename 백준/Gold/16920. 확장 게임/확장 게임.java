@@ -1,39 +1,44 @@
-import java.io.*;
 import java.util.*;
+import java.io.*;
 
 public class Main {
     static int N, M, P;
     static char[][] map;
     static boolean[][] visited;
     static Player[] players;
+    static int[][] record, after;
     public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        String[] str = br.readLine().split(" ");
-        N = Integer.parseInt(str[0]);
-        M = Integer.parseInt(str[1]);
-        P = Integer.parseInt(str[2]);
+        StringTokenizer st = new StringTokenizer(br.readLine(), " ");
+        N = Integer.parseInt(st.nextToken());
+        M = Integer.parseInt(st.nextToken());
+        P = Integer.parseInt(st.nextToken());
         map = new char[N][M];
         visited = new boolean[N][M];
-        players = new Player[P + 1]; // 1 ~ P번
-        for (int i = 0; i <= P; i++) {
-            players[i] = new Player(0);
-        }
+        players = new Player[P + 1];
 
-        str = br.readLine().split(" ");
-        for (int i = 0; i < P; i++) {
-            players[i + 1].move = Integer.parseInt(str[i]);
+        st = new StringTokenizer(br.readLine(), " ");
+        for (int i = 1; i <= P; i++) {
+            int move = Integer.parseInt(st.nextToken());
+            players[i] = new Player(move);
         }
+        record = new int[N][M];
+
         for (int i = 0; i < N; i++) {
-            String s = br.readLine();
+            String str = br.readLine();
             for (int j = 0; j < M; j++) {
-                map[i][j] = s.charAt(j);
-                if (map[i][j] != '#' && map[i][j] != '.') {
-                    players[map[i][j] - '0'].queue.offer(new int[]{i, j});
-                    players[map[i][j] - '0'].castle++;
+                map[i][j] = str.charAt(j);
+                if (map[i][j] != '.' && map[i][j] != '#') {
+                    int player = map[i][j] - '0';
+                    players[player].queue.offer(new int[]{i, j});
+                    players[player].castle++;
+                    visited[i][j] = true;
+                    record[i][j] = player;
                 }
             }
         }
-        expandCastle();
+
+        bfs();
         StringBuilder sb = new StringBuilder();
         for (int i = 1; i <= P; i++) {
             sb.append(players[i].castle).append(" ");
@@ -41,54 +46,53 @@ public class Main {
         System.out.println(sb);
     }
 
-    public static void expandCastle() {
-
-        while (canMove()) {
-            for (int i = 1; i <= P; i++) {
-                int move = players[i].move;
-                for (int j = 0; j < move; j++) {
-                    if (players[i].queue.isEmpty()) break;
-                    bfs(players[i]);
-                }
+    static boolean checkComplete() {
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < M; j++) {
+                
             }
         }
+        return true;
     }
 
-    public static boolean canMove() {
-        for (int i = 1; i <= P; i++) {
-            // 큐가 모두 비어야지 게임 종료
-            if (!players[i].queue.isEmpty()) return true; 
-        }
-        return false;
-    }
+    static void bfs() {
+        int[][] move = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+        boolean isChange = true;
+        while (isChange) {
+            isChange = false;
+            for (int p = 1; p <= P; p++) {
+                Queue<int[]> queue = players[p].queue;
+                int moveCnt = 0;
+                while (!queue.isEmpty()) {
+                    moveCnt++;
+                    int size = queue.size();
+                    for (int s = 0; s < size; s++) {
+                        int[] now = queue.poll();
 
-    public static void bfs(Player player) {
-        int size = player.queue.size();
-        int[] dx = {1, -1, 0, 0};
-        int[] dy = {0, 0, 1, -1};
-        for (int i = 0; i < size; i++) {
-            int[] poll = player.queue.poll();
+                        for (int i = 0; i < 4; i++) {
+                            int nx = now[0] + move[i][0];
+                            int ny = now[1] + move[i][1];
+                            if (nx < 0 || ny < 0 || nx >= N || ny >= M || visited[nx][ny] || map[nx][ny] == '#') {
+                                continue;
+                            }
 
-            for (int j = 0; j < 4; j++) {
-                int tx = poll[0] + dx[j];
-                int ty = poll[1] + dy[j];
-                if (tx < 0 || ty < 0 || tx >= N || ty >= M)
-                    continue;
-
-                if (map[tx][ty] == '.' && !visited[tx][ty]) {
-                    player.queue.offer(new int[]{tx, ty});
-                    player.castle++;
-                    visited[tx][ty] = true;
+                            queue.offer(new int[]{nx, ny});
+                            visited[nx][ny] = true;
+                            record[nx][ny] = p;
+                            players[p].castle++;
+                            isChange = true;
+                        }
+                    }
+                    if (moveCnt == players[p].move) break;
                 }
             }
-
         }
     }
 
     static class Player {
-        int move; // 한 번에 이동할 수 있는 횟수
-        int castle; // 가진 성의 수
-        Queue<int[]> queue = new LinkedList<>(); // BFS 탐색을 위한 큐
+        int move; // 이동 가능 횟수
+        int castle; // 가진 성의 개수
+        Queue<int[]> queue = new LinkedList<>();
 
         public Player(int move) {
             this.move = move;
