@@ -1,41 +1,28 @@
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.StringTokenizer;
 
 public class Main {
-    static int N, max = 0;
-    static Schedule[] schedules;
-    public static void main(String[] args) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        N = Integer.parseInt(br.readLine());
-        schedules = new Schedule[N];
-        for (int i = 0; i < N; i++) {
-            StringTokenizer st = new StringTokenizer(br.readLine(), " ");
-            int time = Integer.parseInt(st.nextToken());
-            int pay = Integer.parseInt(st.nextToken());
-            schedules[i] = new Schedule(time, pay);
-        }
-        for (int i = 0; i < N; i++) {
-            dfs(i, schedules[i].pay); // 0일부터 시작
-        }
-        System.out.println(max);
-    }
 
-    public static void dfs(int day, int total) {
-        if (day + schedules[day].time <= N) { // 회사에 있을 때 상담이 가능한 경우 
-            max = Math.max(max, total); // 최댓값 갱신
-        }
-        for (int i = schedules[day].time; day + i < N; i++) { 
-            dfs(day + i, total + schedules[day + i].pay);
-        }
-    }
+	public static void main(String[] args) throws Exception {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		int n = Integer.parseInt(br.readLine());
+		int[] time = new int[n + 1];
+		int[] pay = new int[n + 1];
+		int[] dp = new int[n + 1];
 
-    static class Schedule {
-        int time;
-        int pay;
+		for (int i = 0; i < n; i++) {
+			StringTokenizer st = new StringTokenizer(br.readLine());
+			time[i] = Integer.parseInt(st.nextToken());
+			pay[i] = Integer.parseInt(st.nextToken());
+		}
 
-        public Schedule(int time, int pay) {
-            this.time = time;
-            this.pay = pay;
-        }
-    }
+		for (int i = 0; i < n; i++) {
+			if (i + time[i] <= n) {
+				dp[i + time[i]] = Math.max(dp[i + time[i]], dp[i] + pay[i]);
+			}
+			dp[i + 1] = Math.max(dp[i], dp[i + 1]);
+		}
+		System.out.println(dp[n]);
+	}
 }
