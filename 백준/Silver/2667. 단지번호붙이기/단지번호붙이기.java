@@ -5,20 +5,22 @@ public class Main {
     static int N;
     static int[][] map;
     static boolean[][] visited;
-    static ArrayList<Integer> apartments = new ArrayList<>();
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        // 연결 == 상하좌우 연결
+        // 단지수, 각 단지에 속하는 집의 수 출력
+        // 단지수 = BFS 탐색 횟수
         N = Integer.parseInt(br.readLine());
-
         map = new int[N][N];
         visited = new boolean[N][N];
         for (int i = 0; i < N; i++) {
-            String line = br.readLine();
+            String str = br.readLine();
             for (int j = 0; j < N; j++) {
-                map[i][j] = line.charAt(j) - '0';
+                map[i][j] = str.charAt(j) - '0';
             }
         }
 
+        ArrayList<Integer> apartments = new ArrayList<>();
         for (int i = 0; i < N; i++) {
             for (int j = 0; j < N; j++) {
                 if (map[i][j] == 1 && !visited[i][j]) {
@@ -26,26 +28,26 @@ public class Main {
                 }
             }
         }
-        Collections.sort(apartments); // 단지내 집의 수 오름차순으로 정렬
-
+        // 집의 수를 오름차순으로 정렬
+        Collections.sort(apartments);
         StringBuilder sb = new StringBuilder();
         sb.append(apartments.size()).append("\n");
         for (int apartment : apartments) {
             sb.append(apartment).append("\n");
         }
-        System.out.println(sb.toString());
+        System.out.println(sb);
     }
 
-    public static int bfs(int x, int y) {
+    static int bfs(int x, int y) {
         Queue<int[]> queue = new LinkedList<>();
         queue.offer(new int[]{x, y});
         visited[x][y] = true;
 
-        int house = 0;
+        int total = 0;
         int[][] move = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
         while (!queue.isEmpty()) {
             int[] now = queue.poll();
-            house++;
+            total++;
 
             for (int i = 0; i < 4; i++) {
                 int nx = now[0] + move[i][0];
@@ -54,12 +56,13 @@ public class Main {
                     continue;
                 }
 
-                if (map[nx][ny] == 1 && !visited[nx][ny]) {
+                // 방문하지 않았고 집이 있는 곳인 경우
+                if (!visited[nx][ny] && map[nx][ny] == 1) {
                     queue.offer(new int[]{nx, ny});
                     visited[nx][ny] = true;
                 }
             }
         }
-        return house;
+        return total;
     }
 }
