@@ -2,7 +2,7 @@ import java.io.*;
 import java.util.*;
 
 public class Main {
-    static int N;
+    static int N, total;
     static boolean[] visited;
     static ArrayList<Integer>[] computers;
     public static void main(String[] args) throws IOException {
@@ -26,27 +26,19 @@ public class Main {
             computers[c1].add(c2);
             computers[c2].add(c1);
         }
-        System.out.println(bfs(1));
+        dfs(1);
+        System.out.println(total);
     }
 
-    static int bfs(int x) {
-        Queue<Integer> queue = new LinkedList<>();
-        queue.offer(x);
+    static void dfs(int x) {
         visited[x] = true;
 
-        int total = 0; // 바이러스에 걸리는 컴퓨터의 수
-        while (!queue.isEmpty()) {
-            int now = queue.poll();
-
-            for (int i = 0; i < computers[now].size(); i++) {
-                int next = computers[now].get(i);
-                if (!visited[next]) {
-                    queue.offer(next);
-                    visited[next] = true;
-                    total++;
-                }
+        for (int i = 0; i < computers[x].size(); i++) {
+            int next = computers[x].get(i);
+            if (!visited[next]) {
+                total++;
+                dfs(next);
             }
         }
-        return total;
     }
 }
