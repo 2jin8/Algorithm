@@ -6,8 +6,8 @@ public class Main {
 
     static final int MAX = 999_999;
     static int N, total, diff = MAX;
-    static int[] people; // people: 각 구역 인구수를 저장하기 위한 배열, area: 나눈 선거구를 기록할 배열
-    static boolean[] areaInfo;
+    static int[] people; // people: 각 구역 인구수를 저장하기 위한 배열
+    static boolean[] areaInfo; // 선거구를 구분하기 위한 배열
     static ArrayList<Integer>[] graph; // 각 구역 연결 정보를 저장하기 위한 배열
 
     public static void main(String[] args) throws Exception {
@@ -43,17 +43,19 @@ public class Main {
             return;
         }
 
-        // 한 선거구,, 1개 ~ N - 1개
-        for (int i = 1; i < N - 1; i++) {
+        // 한 선거구에 포함되는 지역의 개수를 1개 ~ N/2개로 설정하기
+        // nCm = nCn-m
+        for (int i = 1; i <= N / 2; i++) {
             dfs(0, i, 1, 0);
         }
         System.out.println(diff == MAX ? -1 : diff);
     }
 
     static void dfs(int depth, int area, int start, int sum) {
+        // 한 선거구에 포함되는 지역을 다 고른 경우
         if (depth == area) {
             // 각 선거구가 연결되었는지 확인하기
-            if (isConnected()) {
+            if (isConnected()) { // 연결되었으면 최소 차이값으로 갱신
                 diff = Math.min(diff, Math.abs(2 * sum - total)); // sum - (total - sum)
             }
             return;
@@ -85,6 +87,7 @@ public class Main {
                 }
             }
         }
+        // 연결된 지역의 수와 선거구에 포함된 지역의 수가 다르면 불가능한 방법
         if (connectionArea != group.size()) return false;
         return true;
     }
