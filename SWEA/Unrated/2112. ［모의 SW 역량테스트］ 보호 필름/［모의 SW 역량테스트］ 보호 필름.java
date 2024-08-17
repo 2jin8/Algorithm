@@ -28,23 +28,25 @@ public class Solution {
 			}
 
 			minCnt = Integer.MAX_VALUE;
-			dfs(0, 0);
+			// 합격 기준이 1이면 약품을 투입하지 않아도 됨
+			if (K == 1) minCnt = 0;
+			else dfs(0, 0);
 			sb.append("#").append(t).append(" ").append(minCnt).append("\n");
 		}
 		System.out.println(sb);
 	}
 
 	private static void dfs(int depth, int cnt) {
+		// 현재까지의 투입 횟수가 최소 투입 횟수보다 크거나 같다면 답이 아니므로 종료하기
+		if (cnt >= minCnt) {
+			return;
+		}
+		
 		if (depth == D) { // 보호 필름 두께만큼 다 탐색한 경우
 			// 검사를 통과한 경우
 			if (checkFilm()) {
-				minCnt = Math.min(minCnt, cnt); // 최소 투입 횟수 갱신
+				minCnt = cnt; // 최소 투입 횟수 갱신
 			}
-			return;
-		}
-
-		// 최소 투입 횟수보다 크다면 답이 아니므로 종료하기
-		if (cnt > minCnt) {
 			return;
 		}
 
