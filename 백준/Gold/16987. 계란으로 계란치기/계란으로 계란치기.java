@@ -1,62 +1,63 @@
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.StringTokenizer;
 
 public class Main {
-    static int n;
-    static int[] dura;
-    static int[] weight;
-    static int max = Integer.MIN_VALUE;
 
-    public static void main(String[] args) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st;
-        n = Integer.parseInt(br.readLine());
-        dura = new int[n];
-        weight = new int[n];
-        for (int i=0; i<n; i++) {
-            st = new StringTokenizer(br.readLine());
-            dura[i] = Integer.parseInt(st.nextToken());
-            weight[i] = Integer.parseInt(st.nextToken());
-        }
+	static int N, ans;
+	static int[] S, W;
 
-        dfs(0, 0); // 0번째 계란부터 시작, 깨진 계란 0개
-        System.out.println(max);
-    }
+	public static void main(String[] args) throws Exception {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		N = Integer.parseInt(br.readLine());
+		S = new int[N];
+		W = new int[N];
+		for (int i = 0; i < N; i++) {
+			StringTokenizer st = new StringTokenizer(br.readLine());
+			S[i] = Integer.parseInt(st.nextToken());
+			W[i] = Integer.parseInt(st.nextToken());
+		}
 
-    static void dfs(int idx, int cnt) {
-        // 가장 오른쪽에 위치한 계란을 든 경우
-        if (idx == n) {
-            max = Math.max(cnt, max);
-            return;
-        }
+		ans = 0;
+		if (N != 1)
+			dfs(0, 0);
+		System.out.println(ans);
+	}
 
-        // 손에 든 계란이 깨지거나 깨지지 않은 다른 계란이 없는 경우
-        if (dura[idx] <= 0 || cnt == n-1) {
-            dfs(idx + 1, cnt);
-            return;
-        }
+	static void dfs(int depth, int cnt) { // cnt: 깨진 계란의 수
+		// 가장 최근에 든 계란이 가장 오른쪽에 위치한 계란이면 종료하기
+		if (depth == N) {
+			ans = Math.max(ans, cnt);
+			return;
+		}
 
-        int nCnt = cnt;
-        for (int i=0; i<n; i++) {
-            if (idx == i) continue; // 치려는 계란이 들고 있는 계란인 경우
-            if (dura[i] <= 0) continue; // 치려는 계란이 이미 깨진 계란인 경우
+		// 현재 계란이 깨져있는 경우거나 깰 수 있는 계란이 없는 경우
+		if (S[depth] <= 0 || cnt >= N - 1) {
+			dfs(depth + 1, cnt);
+			return;
+		}
 
-            // 계란 치기(내구도 감소)
-            dura[i] -= weight[idx];
-            dura[idx] -= weight[i];
+		// 손에 있는 계란으로 다른 계란 중 하나를 한 번 치기
+		for (int i = 0; i < N; i++) {
+			// 현재 계란을 깨려는 경우 또는 이미 깨진 계란인 경우는 넘어가기
+			if (depth == i || S[i] <= 0)
+				continue;
 
-            if (dura[i] <= 0) cnt++;
-            if (dura[idx] <= 0) cnt++;
+			// 다른 계란의 무게만큼 내구도 감소
+			S[i] -= W[depth];
+			S[depth] -= W[i];
 
-            // 다음 계란 들기
-            dfs(idx + 1, cnt);
-
-            // 원상복구(return되지 않고 돌아왔을 경우)
-            dura[i] += weight[idx];
-            dura[idx] += weight[i];
-            cnt = nCnt;
-        }
-    }
+			if (S[i] <= 0 && S[depth] <= 0) { // 계란이 2개 깨진 경우
+				dfs(depth + 1, cnt + 2);
+			} else if (S[i] <= 0 || S[depth] <= 0) { // 계란이 1개 깨진 경우
+				dfs(depth + 1, cnt + 1);
+			} else { // 계란이 깨지지 않은 경우
+				dfs(depth + 1, cnt);
+			}
+			
+			// 내구도 원복
+			S[i] += W[depth];
+			S[depth] += W[i];
+		}
+	}
 }
