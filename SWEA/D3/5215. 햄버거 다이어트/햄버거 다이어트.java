@@ -1,44 +1,52 @@
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.StringTokenizer;
 
-class Solution {
-	static int N, L, maxTaste;
-	static int[] tastes, kcals;
+public class Solution {
 
-	public static void main(String[] args) throws IOException {
+	static int N, L, maxScore; // N: 재료의 수, L: 제한 칼로리
+	static int[] tastes;
+	static int[] kcals;
+
+	public static void main(String[] args) throws Exception {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		StringBuilder sb = new StringBuilder();
 		int T = Integer.parseInt(br.readLine());
 		for (int t = 1; t <= T; t++) {
-			StringTokenizer stringTokenizer = new StringTokenizer(br.readLine());
-			N = Integer.parseInt(stringTokenizer.nextToken());
-			L = Integer.parseInt(stringTokenizer.nextToken());
+			StringTokenizer st = new StringTokenizer(br.readLine());
+			N = Integer.parseInt(st.nextToken());
+			L = Integer.parseInt(st.nextToken());
+
+			maxScore = 0;
 			tastes = new int[N];
 			kcals = new int[N];
 			for (int i = 0; i < N; i++) {
-				stringTokenizer = new StringTokenizer(br.readLine(), " ");
-				tastes[i] = Integer.parseInt(stringTokenizer.nextToken());
-				kcals[i] = Integer.parseInt(stringTokenizer.nextToken());
+				st = new StringTokenizer(br.readLine());
+				tastes[i] = Integer.parseInt(st.nextToken());
+				kcals[i] = Integer.parseInt(st.nextToken());
 			}
-
-			maxTaste = 0;
 			dfs(0, 0, 0);
-			sb.append('#').append(t).append(' ').append(maxTaste).append('\n');
+			sb.append("#").append(t).append(" ").append(maxScore).append("\n");
 		}
-		System.out.println(sb.toString());
+		System.out.println(sb);
 	}
 
-	static void dfs(int idx, int totalKcal, int totalTaste) {
-		if (totalKcal > L)
-			return;
-		if (idx == N) {
-			maxTaste = Math.max(maxTaste, totalTaste);
+	static void dfs(int depth, int taste, int kcal) {
+		// 칼로리 제한을 넘어가면 종료하기
+		if (kcal > L) {
 			return;
 		}
 
-		dfs(idx + 1, totalKcal, totalTaste); // 현재 재료를 선택하지 않는 경우
-		dfs(idx + 1, totalKcal + kcals[idx], totalTaste + tastes[idx]); // 현재 재료를 선택하는 경우
+		if (depth == N) {
+			if (taste > maxScore)
+				maxScore = taste;
+			return;
+		}
+
+		// 현재 재료 선택 O
+		dfs(depth + 1, taste + tastes[depth], kcal + kcals[depth]);
+
+		// 현재 재료 선택 X
+		dfs(depth + 1, taste, kcal);
 	}
 }
