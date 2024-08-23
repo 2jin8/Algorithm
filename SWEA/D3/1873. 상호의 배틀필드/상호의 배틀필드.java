@@ -48,7 +48,15 @@ public class Solution {
 					move(3);
 					break;
 				case 'S': // 포탄 발사
-					shoot();
+					char d = map[x][y];
+					if (d == '^')
+						shoot(-1, 0);
+					else if (d == 'v')
+						shoot(1, 0);
+					else if (d == '<')
+						shoot(0, -1);
+					else if (d == '>')
+						shoot(0, 1);
 					break;
 				}
 			}
@@ -80,50 +88,23 @@ public class Solution {
 		}
 	}
 
-	static void shoot() {
-		switch (map[x][y]) {
-		case '^':
-			for (int sx = x - 1; sx >= 0; sx--) {
-				if (map[sx][y] == '*') { // 부딪힌 곳이 벽돌 벽이라면 부숴짐
-					map[sx][y] = '.';
-					break;
-				} else if (map[sx][y] == '#') { // 부딪힌 곳이 강철 벽이라면 아무일도 일어나지 않음
-					break;
-				}
-			}
-			break;
-		case 'v':
-			for (int sx = x + 1; sx < H; sx++) {
-				if (map[sx][y] == '*') { // 부딪힌 곳이 벽돌 벽이라면 부숴짐
-					map[sx][y] = '.';
-					break;
-				} else if (map[sx][y] == '#') { // 부딪힌 곳이 강철 벽이라면 아무일도 일어나지 않음
-					break;
-				}
-			}
+	// 포탄을 쏘는 방향을 정했으면 해당 방향으로 쏘기
+	static void shoot(int dx, int dy) {
+		int sx = x, sy = y;
+		while (true) {
+			sx += dx;
+			sy += dy;
 
-			break;
-		case '<':
-			for (int sy = y - 1; sy >= 0; sy--) {
-				if (map[x][sy] == '*') { // 부딪힌 곳이 벽돌 벽이라면 부숴짐
-					map[x][sy] = '.';
-					break;
-				} else if (map[x][sy] == '#') { // 부딪힌 곳이 강철 벽이라면 아무일도 일어나지 않음
-					break;
-				}
-			}
+			// 범위를 벗어나면 종료
+			if (sx < 0 || sy < 0 || sx >= H || sy >= W)
+				break;
 
-			break;
-		case '>':
-			for (int sy = y + 1; sy < W; sy++) {
-				if (map[x][sy] == '*') { // 부딪힌 곳이 벽돌 벽이라면 부숴짐
-					map[x][sy] = '.';
-					break;
-				} else if (map[x][sy] == '#') { // 부딪힌 곳이 강철 벽이라면 아무일도 일어나지 않음
-					break;
-				}
+			if (map[sx][sy] == '*') { // 부딪힌 곳이 벽돌 벽이라면 부숴짐
+				map[sx][sy] = '.';
+				break;
+			} else if (map[sx][sy] == '#') { // 부딪힌 곳이 강철 벽이라면 아무일도 일어나지 않음
+				break;
 			}
-			break;
 		}
 	}
 }
