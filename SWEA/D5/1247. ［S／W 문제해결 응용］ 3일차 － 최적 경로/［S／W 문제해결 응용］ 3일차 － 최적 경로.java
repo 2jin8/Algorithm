@@ -10,12 +10,6 @@ public class Solution {
 
 	public static void main(String[] args) throws Exception {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		// 두 위치 사이 거리: Math.abs(x1 - x2) + Math.abs(y1 - y2);
-		// N 명의 고객을 모두 방문하고 집으로 돌아오는 경로 중 가장 짧은 것 찾기
-		// 회사 > 고객 > 집
-
-		// N이 최대 10 & 방문 순서 O ,, 순열인가?
-
 		int T = Integer.parseInt(br.readLine());
 		StringBuilder sb = new StringBuilder();
 		for (int t = 1; t <= T; t++) {
@@ -31,20 +25,20 @@ public class Solution {
 			for (int i = 0; i < N; i++) {
 				customer[i] = new Point(Integer.parseInt(st.nextToken()), Integer.parseInt(st.nextToken()));
 			}
-			dfs(1);
+			dfs(1, 0);
 			sb.append("#").append(t).append(" ").append(minDist).append("\n");
 		}
 		System.out.println(sb);
 	}
 
-	static void dfs(int depth) { // depth: 1 ~ N
+	static void dfs(int depth, int dist) { // depth: 1 ~ N
+		// 현재 경로가 최단 경로보다 크다면 종료
+		if (dist > minDist)
+			return;
+
+		// 고객의 집(N개)을 다 방문한 경우
 		if (depth > N) {
-			int dist = 0;
-			for (int i = 0; i < N + 1; i++) {
-				dist += Math.abs(visit[i].x - visit[i + 1].x) + Math.abs(visit[i].y - visit[i + 1].y);
-				if (dist > minDist)
-					return;
-			}
+			dist += Math.abs(visit[depth].x - visit[depth - 1].x) + Math.abs(visit[depth].y - visit[depth - 1].y);
 			if (minDist > dist)
 				minDist = dist;
 			return;
@@ -57,8 +51,8 @@ public class Solution {
 
 			used[i] = true;
 			visit[depth] = customer[i];
-			dfs(depth + 1);
-//			dfs(depth + 1, Math.abs(visit[depth-1].x - visit[depth].x) + visit[depth]);
+			int newDist = Math.abs(visit[depth].x - visit[depth - 1].x) + Math.abs(visit[depth].y - visit[depth - 1].y);
+			dfs(depth + 1, dist + newDist);
 			used[i] = false;
 		}
 	}
