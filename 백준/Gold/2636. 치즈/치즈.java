@@ -1,66 +1,96 @@
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.ArrayDeque;
+import java.util.Queue;
+import java.util.StringTokenizer;
 
 public class Main {
-    static int H, W, total = 0, time = 0;
-    static boolean flag = true;
-    static int[][] map, arr;
-    static boolean[][] visited;
-    public static void main(String[] args) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st = new StringTokenizer(br.readLine(), " ");
-        H = Integer.parseInt(st.nextToken());
-        W = Integer.parseInt(st.nextToken());
-        map = new int[H][W];
-        for (int i = 0; i < H; i++) {
-            st = new StringTokenizer(br.readLine(), " ");
-            for (int j = 0; j < W; j++) {
-                map[i][j] = Integer.parseInt(st.nextToken());
-                if (map[i][j] == 1) total++;
-            }
-        }
-        
-        while (flag) {
-            visited = new boolean[H][W];
-            time++;
-            flag = bfs(0, 0);
-        }
-        System.out.println(time);
-        System.out.println(total);
-    }
 
-    public static boolean bfs(int x, int y) {
-        Queue<int[]> queue = new LinkedList<>();
-        queue.offer(new int[]{x, y});
-        visited[x][y] = true;
+	static int N, M, cheese;
+	static int[][] map, tmpMap;
+	static boolean[][] visited;
+	static int[] dx = { 1, -1, 0, 0 }, dy = { 0, 0, 1, -1 };
+	static Queue<Point> queue = new ArrayDeque<>();
 
-        arr = map.clone(); // 한 시간 후의 판 상태
-        int cnt = 0; // 녹은 치즈의 수
-        int[] dx = {1, -1, 0, 0};
-        int[] dy = {0, 0, 1, -1};
-        while (!queue.isEmpty()) {
-            int[] poll = queue.poll();
+	public static void main(String[] args) throws Exception {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		StringTokenizer st = new StringTokenizer(br.readLine());
+		N = Integer.parseInt(st.nextToken());
+		M = Integer.parseInt(st.nextToken());
+		map = new int[N][M];
+		tmpMap = new int[N][M];
+		for (int i = 0; i < N; i++) {
+			st = new StringTokenizer(br.readLine());
+			for (int j = 0; j < M; j++) {
+				map[i][j] = Integer.parseInt(st.nextToken());
+				// 치즈 개수 세기
+				if (map[i][j] == 1)
+					cheese++;
+			}
+		}
 
-            for (int i = 0; i < 4; i++) {
-                int nx = poll[0] + dx[i];
-                int ny = poll[1] + dy[i];
-                if (nx < 0 || ny < 0 || nx >= H || ny >= W) continue;
+		int hour = 0;
+		while (true) {
+			hour++;
+			// 초기화
+			visited = new boolean[N][M];
+			queue.clear();
+			copyArray(map, tmpMap);
 
-                if (visited[nx][ny]) continue;
+			int melt = bfs();
+			if (cheese - melt == 0) { // 치즈가 다 녹은 경우
+				System.out.println(hour);
+				System.out.println(melt);
+				break;
+			}
 
-                if (map[nx][ny] == 1) { // 치즈가 공기와 맞닿은 경우
-                    arr[nx][ny] = 0; // 치즈가 녹음
-                    visited[nx][ny] = true;
-                    cnt++;
-                } else { // 치즈가 없으면 큐에 넣어서 탐색하기
-                    queue.offer(new int[]{nx, ny});
-                    visited[nx][ny] = true;
-                }
-            }
-        }
-        map = arr.clone();
-        if (total == cnt) return false;
-        total -= cnt;
-        return true;
-    }
+			cheese -= melt;
+			copyArray(tmpMap, map);
+		}
+	}
+
+	static int bfs() {
+		// (0, 0)에서 탐색 시작 (공기 영역을 탐색)
+		queue.offer(new Point(0, 0));
+		visited[0][0] = true;
+
+		int melt = 0;
+		while (!queue.isEmpty()) {
+			Point now = queue.poll();
+
+			for (int i = 0; i < 4; i++) {
+				int nx = now.x + dx[i];
+				int ny = now.y + dy[i];
+				if (nx < 0 || ny < 0 || nx >= N || ny >= M || visited[nx][ny])
+					continue;
+
+				if (map[nx][ny] == 1) { // 공기와 닿은 치즈는 녹음
+					melt++;
+					tmpMap[nx][ny] = 0;
+					visited[nx][ny] = true;
+				} else {
+					queue.offer(new Point(nx, ny));
+					visited[nx][ny] = true;
+				}
+			}
+		}
+		return melt;
+	}
+
+	static void copyArray(int[][] from, int[][] to) {
+		for (int i = 0; i < N; i++) {
+			for (int j = 0; j < M; j++) {
+				to[i][j] = from[i][j];
+			}
+		}
+	}
+
+	static class Point {
+		int x, y;
+
+		public Point(int x, int y) {
+			this.x = x;
+			this.y = y;
+		}
+	}
 }
