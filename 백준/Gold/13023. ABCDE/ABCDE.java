@@ -1,48 +1,62 @@
-import java.util.*;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.StringTokenizer;
 
 public class Main {
-    private static int n, m;
-    private static ArrayList<ArrayList<Integer>> graph = new ArrayList<>();
-    private static boolean[] visited;
-    public static void main(String[] args) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st = new StringTokenizer(br.readLine());
-        n = Integer.parseInt(st.nextToken()); // 사람의 수
-        m = Integer.parseInt(st.nextToken()); // 친구 관계의 수
-        for (int i = 0; i < n; i++) {
-            graph.add(new ArrayList<>());
-        }
 
-        for (int i = 0; i < m; i++) {
-            st = new StringTokenizer(br.readLine());
-            int a = Integer.parseInt(st.nextToken());
-            int b = Integer.parseInt(st.nextToken());
-            // 양방향 관계
-            graph.get(a).add(b);
-            graph.get(b).add(a);
-        }
+	static int N, M;
+	static boolean exist;
+	static boolean[] visited;
+	static ArrayList<Integer>[] graph;
 
-        for (int i = 0; i < n; i++) {
-            visited = new boolean[n];
-            dfs(i, 0);
-        }
-        System.out.println(0);
-    }
+	public static void main(String[] args) throws Exception {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		StringTokenizer st = new StringTokenizer(br.readLine());
+		N = Integer.parseInt(st.nextToken());
+		M = Integer.parseInt(st.nextToken());
+		graph = new ArrayList[N];
+		for (int i = 0; i < N; i++) {
+			graph[i] = new ArrayList<Integer>();
+		}
 
-    private static void dfs(int v, int depth) {
-        if (depth >= 5) {  // 깊이 5보다 크면 탐색할 필요 없음 → 바로 종료
-            System.out.println(1);
-            System.exit(0);
-        }
+		for (int i = 0; i < M; i++) {
+			st = new StringTokenizer(br.readLine());
+			int a = Integer.parseInt(st.nextToken());
+			int b = Integer.parseInt(st.nextToken());
+			// 양방향 연결
+			graph[a].add(b);
+			graph[b].add(a);
+		}
 
-        for (int i = 0; i < graph.get(v).size(); i++) {
-            int x = graph.get(v).get(i);
-            if (!visited[x]) { // 아직 방문하지 않았으면
-                visited[x] = true; // 방문 처리 하기
-                dfs(x, depth + 1); // 탐색 시작
-                visited[x] = false; // 탐색 종료 후, 방문 처리 취소
-            }
-        }
-    }
+		for (int i = 0; i < N; i++) {
+			// 조건에 맞는게 존재하면 더 이상 탐색할 필요 X
+			if (exist) break;
+			visited = new boolean[N];
+			dfs(0, i);
+		}
+		
+		// 조건에 맞는게 존재하면 1 출력 
+		if (exist) System.out.println(1);
+		else System.out.println(0);
+	}
+
+	static void dfs(int depth, int now) {
+		// 조건에 맞는게 존재하면 더 이상 탐색할 필요 X
+		if (exist) return;
+
+		// 깊이가 5면 조건에 맞는 것
+		if (depth == 5) {
+			exist = true;
+			return;
+		}
+
+		for (int next : graph[now]) {
+			if (!visited[next]) {
+				visited[next] = true;
+				dfs(depth + 1, next);
+				visited[next] = false;
+			}
+		}
+	}
 }
