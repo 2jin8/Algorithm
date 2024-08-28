@@ -8,7 +8,6 @@ public class Main {
 
 	static int M, N, tomato; // M: 가로, N: 세로
 	static int[][] arr;
-	static boolean[][] visited;
 	static Queue<Point> queue = new ArrayDeque<>();
 
 	public static void main(String[] args) throws Exception {
@@ -18,7 +17,6 @@ public class Main {
 		M = Integer.parseInt(st.nextToken());
 		N = Integer.parseInt(st.nextToken());
 		arr = new int[N][M];
-		visited = new boolean[N][M];
 		for (int i = 0; i < N; i++) {
 			st = new StringTokenizer(br.readLine());
 			for (int j = 0; j < M; j++) {
@@ -27,7 +25,7 @@ public class Main {
 					tomato++;
 				} else if (arr[i][j] == 1) {
 					queue.offer(new Point(i, j));
-					visited[i][j] = true;
+					arr[i][j] = 2;
 				}
 			}
 		}
@@ -55,9 +53,9 @@ public class Main {
 					if (nx < 0 || ny < 0 || nx >= N || ny >= M)
 						continue;
 
-					if (!visited[nx][ny] && arr[nx][ny] == 0) {
+					if (arr[nx][ny] == 0) {
 						queue.offer(new Point(nx, ny));
-						visited[nx][ny] = true;
+						arr[nx][ny] = 2;
 						change++; // 익게 되는 토마토의 수 세기
 					}
 				}
