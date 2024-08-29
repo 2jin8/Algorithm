@@ -8,7 +8,6 @@ public class Main {
 
 	static int R, C;
 	static char[][] map;
-	static boolean[][] waterVisited, dochiVisited; // 물 전용 방문 체크 배열
 	static Queue<Point> water = new ArrayDeque<>();
 	static Queue<Point> dochi = new ArrayDeque<>();
 
@@ -18,8 +17,6 @@ public class Main {
 		R = Integer.parseInt(st.nextToken());
 		C = Integer.parseInt(st.nextToken());
 		map = new char[R][C];
-		waterVisited = new boolean[R][C];
-		dochiVisited = new boolean[R][C];
 
 		Point goal = null;
 		for (int i = 0; i < R; i++) {
@@ -30,10 +27,8 @@ public class Main {
 					goal = new Point(i, j);
 				} else if (map[i][j] == 'S') { // 고슴도치
 					dochi.offer(new Point(i, j));
-					dochiVisited[i][j] = true;
 				} else if (map[i][j] == '*') { // 물
 					water.offer(new Point(i, j));
-					waterVisited[i][j] = true;
 				}
 			}
 		}
@@ -43,7 +38,7 @@ public class Main {
 
 	static int dfs(Point goal) {
 		int[] dx = { 1, -1, 0, 0 }, dy = { 0, 0, 1, -1 };
-		
+
 		int time = 0;
 		while (!dochi.isEmpty()) { // 고슴도치 큐가 비면 -1 출력
 			// 물 이동
@@ -55,13 +50,12 @@ public class Main {
 					int nx = now.x + dx[j];
 					int ny = now.y + dy[j];
 					// 범위 벗어나거나 이미 방문
-					if (nx < 0 || ny < 0 || nx >= R || ny >= C || waterVisited[nx][ny])
+					if (nx < 0 || ny < 0 || nx >= R || ny >= C || map[nx][ny] == '*')
 						continue;
 
 					// 돌이 아니거나 비버 굴이 아니면 이동 가능
 					if (map[nx][ny] != 'X' && map[nx][ny] != 'D') {
 						water.offer(new Point(nx, ny));
-						waterVisited[nx][ny] = true;
 						map[nx][ny] = '*';
 					}
 				}
@@ -78,13 +72,13 @@ public class Main {
 					int nx = now.x + dx[j];
 					int ny = now.y + dy[j];
 					// 범위 벗어나거나 이미 방문한 경우
-					if (nx < 0 || ny < 0 || nx >= R || ny >= C || dochiVisited[nx][ny])
+					if (nx < 0 || ny < 0 || nx >= R || ny >= C || map[nx][ny] == 'S')
 						continue;
 
 					// 돌이 아니고 물이 없는 경우
 					if (map[nx][ny] != 'X' && map[nx][ny] != '*') {
 						dochi.offer(new Point(nx, ny));
-						dochiVisited[nx][ny] = true;
+						map[nx][ny] = 'S';
 					}
 				}
 			}
