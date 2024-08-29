@@ -31,11 +31,12 @@ public class Solution {
 			// 가중치를 기준으로 오름차순 정렬
 			Arrays.sort(edges);
 
-			long totalWeight = 0L;
+			long totalWeight = 0L, cnt = 0;
 			for (Edge edge : edges) {
 				// 정점 x, y가 다른 집합에 포함된 경우
 				if (union(edge.x, edge.y)) {
 					totalWeight += edge.weight;
+					if (++cnt == V - 1) break;
 				}
 			}
 			sb.append("#").append(t).append(" ").append(totalWeight).append("\n");
