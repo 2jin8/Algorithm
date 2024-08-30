@@ -6,7 +6,7 @@ import java.util.StringTokenizer;
 
 public class Solution {
 
-	static int V, E, MAX = 999_999_999;
+	static int V, E;
 	static boolean[] visited; // 방문 확인용
 	static ArrayList<Vertex>[] graph; // 정점 연결 정보
 	static PriorityQueue<Vertex> pq; // 최소 가중치를 찾기 위한 우선순위 큐
@@ -40,9 +40,6 @@ public class Solution {
 
 			// 정점 정보 저장
 			pq.offer(new Vertex(1, 0)); // 1번 정점에서 시작
-			for (int i = 2; i <= V; i++) {
-				pq.offer(new Vertex(i, MAX));
-			}
 
 			long cost = 0; // cost: 최소 스패닝 트리의 가중치
 			for (int i = 0; i < V; i++) { // 정점의 수만큼 반복
