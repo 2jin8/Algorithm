@@ -6,11 +6,6 @@ import java.util.StringTokenizer;
 
 public class Solution {
 
-	static int V, E;
-	static boolean[] visited; // 방문 확인용
-	static ArrayList<Vertex>[] graph; // 정점 연결 정보
-	static PriorityQueue<Vertex> pq; // 최소 가중치를 찾기 위한 우선순위 큐
-
 	public static void main(String[] args) throws Exception {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		int T = Integer.parseInt(br.readLine());
@@ -18,15 +13,15 @@ public class Solution {
 		for (int t = 1; t <= T; t++) {
 
 			StringTokenizer st = new StringTokenizer(br.readLine());
-			V = Integer.parseInt(st.nextToken());
-			E = Integer.parseInt(st.nextToken());
+			int V = Integer.parseInt(st.nextToken());
+			int E = Integer.parseInt(st.nextToken());
 			// 초기화
-			visited = new boolean[V + 1];
-			graph = new ArrayList[V + 1];
+			boolean[] visited = new boolean[V + 1]; // 방문 확인용
+			ArrayList<Vertex>[] graph = new ArrayList[V + 1]; // 정점 연결 정보
 			for (int i = 1; i <= V; i++) {
 				graph[i] = new ArrayList<>();
 			}
-			pq = new PriorityQueue<>();
+			PriorityQueue<Vertex> pq = new PriorityQueue<>();
 
 			// 정점의 정보 저장 (양방향)
 			for (int i = 0; i < E; i++) {
@@ -44,13 +39,14 @@ public class Solution {
 			long cost = 0; // cost: 최소 스패닝 트리의 가중치
 			for (int i = 0; i < V; i++) { // 정점의 수만큼 반복
 				// 최소 가중치를 가지는 노드 빼기
-				
+
 				Vertex vertex = null;
 				while (!pq.isEmpty()) {
 					vertex = pq.poll();
-					if (!visited[vertex.idx]) break; 
+					if (!visited[vertex.idx])
+						break;
 				}
-				
+
 				int min = vertex.weight, minIdx = vertex.idx;
 
 				// 방문 처리
