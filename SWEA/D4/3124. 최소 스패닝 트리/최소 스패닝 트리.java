@@ -49,7 +49,7 @@ public class Solution {
 				// 최소 가중치를 가지는 노드 빼기
 				
 				Vertex vertex = null;
-				while (true) {
+				while (!pq.isEmpty()) {
 					vertex = pq.poll();
 					if (!visited[vertex.idx]) break; 
 				}
