@@ -48,9 +48,6 @@ public class Solution {
 			}
 
 			pq.offer(new Vertex(0, 0)); // 0번 노드부터 시작
-			for (int i = 1; i < N; i++) {
-				pq.offer(new Vertex(i, MAX));
-			}
 
 			// 정점의 수(=N)만큼 반복
 			long cost = 0;
