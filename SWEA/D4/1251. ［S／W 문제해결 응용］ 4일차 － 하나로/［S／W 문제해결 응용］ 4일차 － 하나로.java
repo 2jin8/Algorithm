@@ -1,15 +1,16 @@
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.PriorityQueue;
 import java.util.StringTokenizer;
 
 public class Solution {
 
+	static final long MAX = Long.MAX_VALUE;
 	static int N;
-	static double E;
 	static long[] x, y;
-	static int[] parents;
-	static PriorityQueue<Edge> pq;
+	static boolean[] visited;
+	static ArrayList<Vertex>[] graph;
 
 	public static void main(String[] args) throws Exception {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -17,84 +18,81 @@ public class Solution {
 		int T = Integer.parseInt(br.readLine());
 		for (int t = 1; t <= T; t++) {
 			N = Integer.parseInt(br.readLine());
-
-			x = new long[N]; // 각 섬의 x좌표
+			visited = new boolean[N];
+			x = new long[N];
+			y = new long[N];
 			StringTokenizer st = new StringTokenizer(br.readLine());
 			for (int i = 0; i < N; i++) {
 				x[i] = Long.parseLong(st.nextToken());
 			}
 
-			y = new long[N]; // 각 섬의 y좌표
 			st = new StringTokenizer(br.readLine());
 			for (int i = 0; i < N; i++) {
 				y[i] = Long.parseLong(st.nextToken());
 			}
 
-			E = Double.parseDouble(br.readLine()); // 환경 부담 세율
+			double E = Double.parseDouble(br.readLine());
 
-			pq = new PriorityQueue<>();
+			graph = new ArrayList[N];
+			for (int i = 0; i < N; i++) {
+				graph[i] = new ArrayList<Vertex>();
+			}
+
+			PriorityQueue<Vertex> pq = new PriorityQueue<>();
 			for (int i = 0; i < N - 1; i++) {
 				for (int j = i + 1; j < N; j++) {
-					// 연산에서 오버플로우 날 수 있으므로 x, y 배열 long 타입으로 선언하기..
-					long L = (x[i] - x[j]) * (x[i] - x[j]) + (y[i] - y[j]) * (y[i] - y[j]);
-					pq.offer(new Edge(i, j, L));
+					long dist = (x[i] - x[j]) * (x[i] - x[j]) + (y[i] - y[j]) * (y[i] - y[j]);
+					graph[i].add(new Vertex(j, dist));
+					graph[j].add(new Vertex(i, dist));
 				}
 			}
 
-			int cnt = 0; // 연결된 간선의 수
-			long pay = 0L;
-			make();
-			while (!pq.isEmpty()) {
-				Edge edge = pq.poll();
-				if (union(edge.island1, edge.island2)) {
-					pay += edge.pay;
-					if (++cnt == N - 1) {
+			pq.offer(new Vertex(0, 0)); // 0번 노드부터 시작
+			for (int i = 1; i < N; i++) {
+				pq.offer(new Vertex(i, MAX));
+			}
+
+			// 정점의 수(=N)만큼 반복
+			long cost = 0;
+			for (int i = 0; i < N; i++) {
+				Vertex vertex = null;
+				while (true) {
+					vertex = pq.poll();
+					if (!visited[vertex.idx])
 						break;
+				}
+
+				long min = vertex.dist;
+				int minIdx = vertex.idx;
+
+				// 방문 처리 & 비용 더하기
+				cost += min;
+				visited[minIdx] = true;
+
+				for (Vertex v : graph[minIdx]) {
+					if (!visited[v.idx]) {
+						pq.offer(v);
 					}
 				}
 			}
-			sb.append("#").append(t).append(" ").append(Math.round(pay * E)).append("\n");
+			sb.append("#").append(t).append(" ").append(Math.round(cost * E)).append("\n");
 		}
 		System.out.println(sb);
 	}
 
-	static void make() {
-		parents = new int[N];
-		for (int i = 0; i < N; i++) {
-			parents[i] = i;
-		}
-	}
+	static class Vertex implements Comparable<Vertex> {
+		int idx;
+		long dist;
 
-	static int findSet(int a) {
-		if (a == parents[a])
-			return a;
-
-		return parents[a] = findSet(parents[a]);
-	}
-
-	static boolean union(int a, int b) {
-		int aRoot = findSet(a);
-		int bRoot = findSet(b);
-		if (aRoot == bRoot)
-			return false;
-
-		parents[bRoot] = aRoot;
-		return true;
-	}
-
-	static class Edge implements Comparable<Edge> {
-		int island1, island2;
-		long pay;
-
-		public Edge(int island1, int island2, long pay) {
-			this.island1 = island1;
-			this.island2 = island2;
-			this.pay = pay;
+		public Vertex(int idx, long dist) {
+			this.idx = idx;
+			this.dist = dist;
 		}
 
 		@Override
-		public int compareTo(Edge o) {
-			return Long.compare(this.pay, o.pay);
+		public int compareTo(Vertex o) {
+			return Long.compare(this.dist, o.dist); // 거리 기준 오름차순 정렬
 		}
 	}
+
 }
