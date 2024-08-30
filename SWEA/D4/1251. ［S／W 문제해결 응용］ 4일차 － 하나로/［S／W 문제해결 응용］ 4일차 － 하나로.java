@@ -6,21 +6,15 @@ import java.util.StringTokenizer;
 
 public class Solution {
 
-	static final long MAX = Long.MAX_VALUE;
-	static int N;
-	static long[] x, y;
-	static boolean[] visited;
-	static ArrayList<Vertex>[] graph;
-
 	public static void main(String[] args) throws Exception {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		StringBuilder sb = new StringBuilder();
 		int T = Integer.parseInt(br.readLine());
 		for (int t = 1; t <= T; t++) {
-			N = Integer.parseInt(br.readLine());
-			visited = new boolean[N];
-			x = new long[N];
-			y = new long[N];
+			int N = Integer.parseInt(br.readLine());
+			boolean[] visited = new boolean[N];
+			long[] x = new long[N];
+			long[] y = new long[N];
 			StringTokenizer st = new StringTokenizer(br.readLine());
 			for (int i = 0; i < N; i++) {
 				x[i] = Long.parseLong(st.nextToken());
@@ -33,7 +27,7 @@ public class Solution {
 
 			double E = Double.parseDouble(br.readLine());
 
-			graph = new ArrayList[N];
+			ArrayList<Vertex>[] graph = new ArrayList[N];
 			for (int i = 0; i < N; i++) {
 				graph[i] = new ArrayList<Vertex>();
 			}
