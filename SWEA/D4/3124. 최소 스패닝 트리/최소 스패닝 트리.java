@@ -1,27 +1,42 @@
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.PriorityQueue;
 import java.util.StringTokenizer;
 
 public class Solution {
+
+	static final int MAX = Integer.MAX_VALUE;
+	static int V, E, minEdge[];
+	static boolean[] visited;
+	static ArrayList<Vertex>[] graph;
 
 	public static void main(String[] args) throws Exception {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		int T = Integer.parseInt(br.readLine());
 		StringBuilder sb = new StringBuilder();
 		for (int t = 1; t <= T; t++) {
-
 			StringTokenizer st = new StringTokenizer(br.readLine());
-			int V = Integer.parseInt(st.nextToken());
-			int E = Integer.parseInt(st.nextToken());
+			V = Integer.parseInt(st.nextToken());
+			E = Integer.parseInt(st.nextToken());
 			// 초기화
-			boolean[] visited = new boolean[V + 1]; // 방문 확인용
-			ArrayList<Vertex>[] graph = new ArrayList[V + 1]; // 정점 연결 정보
+			visited = new boolean[V + 1]; // 방문 확인용
+			minEdge = new int[V + 1]; // 최소 가중치 저장
+			Arrays.fill(minEdge, MAX);
+
+			graph = new ArrayList[V + 1]; // 정점 연결 정보
 			for (int i = 1; i <= V; i++) {
 				graph[i] = new ArrayList<>();
 			}
-			PriorityQueue<Vertex> pq = new PriorityQueue<>();
+
+			PriorityQueue<Vertex> pq = new PriorityQueue<>(new Comparator<Vertex>() {
+				@Override
+				public int compare(Vertex o1, Vertex o2) {
+					return Integer.compare(o1.weight, o2.weight);
+				}
+			});
 
 			// 정점의 정보 저장 (양방향)
 			for (int i = 0; i < E; i++) {
@@ -33,31 +48,28 @@ public class Solution {
 				graph[b].add(new Vertex(a, c));
 			}
 
-			// 정점 정보 저장
-			pq.offer(new Vertex(1, 0)); // 1번 정점에서 시작
+			// 1번 정점에서 시작
+			minEdge[1] = 0;
+			pq.offer(new Vertex(1, 0));
 
-			long cost = 0; // cost: 최소 스패닝 트리의 가중치
-			for (int i = 0; i < V; i++) { // 정점의 수만큼 반복
-				// 최소 가중치를 가지는 노드 빼기
-
-				Vertex vertex = null;
-				while (!pq.isEmpty()) {
-					vertex = pq.poll();
-					if (!visited[vertex.idx])
-						break;
-				}
-
+			int cnt = 0;
+			long cost = 0; // 최소 스패닝 트리의 가중치
+			while (!pq.isEmpty()) {
+				Vertex vertex = pq.poll();
 				int min = vertex.weight, minIdx = vertex.idx;
+				if (visited[minIdx])
+					continue;
 
-				// 방문 처리
 				visited[minIdx] = true;
 				cost += min;
 
-				// 가중치 업데이트
+				if (cnt == V)
+					break;
+
 				for (Vertex v : graph[minIdx]) {
-					// 방문하지 않은 노드 우선순위 큐에 넣기
-					if (!visited[v.idx]) {
-						pq.offer(v); // 우선순위 큐에 넣으면 자동 정렬 > 항상 가중치가 작은 것이 먼저 나옴
+					if (!visited[v.idx] && minEdge[v.idx] > v.weight) {
+						pq.offer(v);
+						minEdge[v.idx] = v.weight;
 					}
 				}
 			}
@@ -66,17 +78,12 @@ public class Solution {
 		System.out.println(sb);
 	}
 
-	static class Vertex implements Comparable<Vertex> {
+	static class Vertex {
 		int idx, weight;
 
 		public Vertex(int idx, int weight) {
 			this.idx = idx;
 			this.weight = weight;
-		}
-
-		@Override
-		public int compareTo(Vertex o) {
-			return this.weight - o.weight; // 가중치 기준 오름차순 정렬
 		}
 	}
 }
