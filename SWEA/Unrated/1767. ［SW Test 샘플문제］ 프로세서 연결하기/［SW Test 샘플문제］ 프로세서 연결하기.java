@@ -35,11 +35,17 @@ public class Solution {
 	}
 
 	static void dfs(int depth, int core, int len) {
+		// 남은 코어의 개수를 다 연결해도 최대 코어 개수보다 작으면 더 이상 연결할 필요가 없음..!
+		// 남은 코어의 개수: coreList.size() - depth
+		// 현재까지 연결한 코어의 개수: core
+		if (coreList.size() - depth + core < maxCore)
+			return;
+
 		if (depth == coreList.size()) {
 			if (maxCore < core) {
 				maxCore = core;
-				minLen = len;
-			} else if (maxCore == core) {
+				minLen = len; // 길이도 갱신해야 함..! 
+			} else if (maxCore == core) { // 코어 개수가 같을 때도 고려해야 함..!
 				minLen = Math.min(minLen, len);
 			}
 			return;
@@ -61,9 +67,8 @@ public class Solution {
 				int nowCnt = changeArray(x, y, i, 2);
 
 				dfs(depth + 1, core + 1, len + nowCnt);
-				changeArray(x, y, i, 0); // 그러네.. 검사해서 옆이 다 0이였으니까 여기 들어온거구나..
+				changeArray(x, y, i, 0); // 검사해서 옆이 다 0이였으니까 0으로 초기화해도 되는 것..
 			}
-
 		}
 
 		// 해당 core 선택 X
@@ -83,19 +88,6 @@ public class Solution {
 			map[nx][ny] = value;
 		}
 		return cnt;
-	}
-
-	// 배열 복사
-	static void copyArray(int x, int y, int d, int[][] from, int[][] to) {
-		int nx = x, ny = y;
-		while (true) {
-			nx += dx[d];
-			ny += dy[d];
-			if (nx < 0 || ny < 0 || nx >= N || ny >= N)
-				break;
-
-			to[nx][ny] = from[nx][ny];
-		}
 	}
 
 	// 놓을 수 있는지 확인
