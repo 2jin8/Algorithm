@@ -1,0 +1,7 @@
+SELECT FLAVOR FROM ICECREAM_INFO 
+    WHERE FLAVOR IN (
+        SELECT FLAVOR FROM FIRST_HALF
+        WHERE TOTAL_ORDER > 3000 # 총 주문량 > 3000
+        ORDER BY TOTAL_ORDER DESC # 총 주문량이 큰 순서대로 조회
+    ) AND INGREDIENT_TYPE = 'fruit_based'; # 주 성분이 과일
+
