@@ -2,61 +2,58 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.StringTokenizer;
 
-class Solution {
-    static int n, change, max;
-    static final int MAX = 1000000;
-    static boolean[][] visited;
-    public static void main(String[] args) throws Exception {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        int T = Integer.parseInt(br.readLine());
-        StringBuilder sb = new StringBuilder();
-        for (int t = 1; t <= T; t++) {
-            StringTokenizer st = new StringTokenizer(br.readLine());
-            String num = st.nextToken();
-            n = num.length();
-            change = Integer.parseInt(st.nextToken());
-            if (change > n) change = n;
-            visited = new boolean[change][MAX];
-            int[] nums = new int[n];
-            for (int i = 0; i < n; i++) {
-                nums[i] = num.charAt(i) - '0';
-            }
+public class Solution {
 
-            max = 0;
-            dfs(0, nums);
-            sb.append("#").append(t).append(" ").append(max).append("\n");
-        }
-        System.out.println(sb);
-    }
+	static int N, M, max; // N: 자릿수, M: 교환횟수
+	static int[] arr;
 
-    static void dfs(int changeCnt, int[] nums) {
-        int total = nums[0];
-        for (int i = 1; i < n; i++) {
-            total = total * 10 + nums[i];
-        }        
-        
-        if (changeCnt == change) {
-            max = Math.max(max, total);
-            return;
-        }
+	public static void main(String[] args) throws Exception {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		StringBuilder sb = new StringBuilder();
+		int T = Integer.parseInt(br.readLine());
+		for (int t = 1; t <= T; t++) {
+			StringTokenizer st = new StringTokenizer(br.readLine());
+			char[] chars = st.nextToken().toCharArray();
+			N = chars.length;
+			M = Integer.parseInt(st.nextToken());
 
-        for (int i = 0; i < n - 1; i++) {
-            for (int j = i + 1; j < n; j++) {
-                if (!visited[changeCnt][total]) {
-                    swap(nums, i, j);
-                    visited[changeCnt][total] = true;
-                    dfs(changeCnt + 1, nums);
-                    visited[changeCnt][total] = false;
-                    swap(nums, i, j);
-                }
+			arr = new int[N];
+			for (int i = 0; i < chars.length; i++) {
+				arr[i] = chars[i] - '0';
+			}
+			if (M > N) M = N;
+			max = 0;
+			dfs(0);
+			sb.append("#").append(t).append(" ").append(max).append("\n");
+		}
+		System.out.println(sb);
+	}
 
-            }
-        }
-    }
+	static void dfs(int depth) {
+		// M번 교환 완료한 경우
+		if (depth == M) {
+			// 얻을 수 있는 상금 구하기
+			int total = arr[0];
+			for (int i = 1; i < N; i++) {
+				total = total * 10 + arr[i];
+			}
+			max = Math.max(max, total); // 최댓값으로 갱신하기
+			return;
+		}
 
-    static void swap(int[] nums, int i, int j) {
-        int tmp = nums[i];
-        nums[i] = nums[j];
-        nums[j] = tmp;
-    }
+		// 교환할 숫자판 고르기 (조합)
+		for (int i = 0; i < N - 1; i++) {
+			for (int j = i + 1; j < N; j++) {
+				swap(i, j); // 교환하기
+				dfs(depth + 1);
+				swap(j, i); // 교환 취소하기
+			}
+		}
+	}
+
+	static void swap(int i, int j) {
+		int tmp = arr[i];
+		arr[i] = arr[j];
+		arr[j] = tmp;
+	}
 }
