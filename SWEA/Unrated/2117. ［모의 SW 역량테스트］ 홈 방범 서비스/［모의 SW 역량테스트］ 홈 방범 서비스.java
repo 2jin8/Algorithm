@@ -1,6 +1,7 @@
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Queue;
 import java.util.StringTokenizer;
 
@@ -8,6 +9,7 @@ public class Solution {
 	static int N, M, ans; // ans: 손해보지 않으면서 가장 많은 서비스를 제공받는 집들의 수
 	static int[][] map;
 	static boolean[][] visited;
+	static ArrayList<Pos> homeList = new ArrayList<>();
 	static int[] dx = { 1, -1, 0, 0 }, dy = { 0, 0, 1, -1 };
 
 	public static void main(String[] args) throws Exception {
@@ -19,14 +21,16 @@ public class Solution {
 			N = Integer.parseInt(st.nextToken());
 			M = Integer.parseInt(st.nextToken());
 			map = new int[N][N];
-
+			homeList.clear();
 			for (int i = 0; i < N; i++) {
 				st = new StringTokenizer(br.readLine());
 				for (int j = 0; j < N; j++) {
 					map[i][j] = Integer.parseInt(st.nextToken());
+					if (map[i][j] == 1)
+						homeList.add(new Pos(i, j));
 				}
 			}
-			
+
 			ans = 0;
 			for (int i = 0; i < N; i++) {
 				for (int j = 0; j < N; j++) {
@@ -41,6 +45,8 @@ public class Solution {
 	static void homeCnt(int x, int y) {
 		for (int k = 1; k <= N + 1; k++) {
 			int cost = k * k + (k - 1) * (k - 1);
+			if (homeList.size() * M < cost) // 비용이 더 많이 다간다면 break
+				break;
 			visited = new boolean[N][N];
 			int home = bfs(x, y, k);
 			if (home * M >= cost) {
@@ -59,7 +65,7 @@ public class Solution {
 			int size = queue.size();
 			for (int s = 0; s < size; s++) {
 				Pos now = queue.poll();
-				if (map[now.x][now.y] == 1)
+				if (map[now.x][now.y] == 1) // 집의 개수 세기
 					home++;
 
 				for (int i = 0; i < 4; i++) {
