@@ -1,75 +1,84 @@
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.Arrays;
 import java.util.PriorityQueue;
 
 public class Solution {
+	static int N;
+	static int[][] arr, minDist;
+	static boolean[][] visited;
+	static int[] dx = { 1, -1, 0, 0 }, dy = { 0, 0, 1, -1 };
 
-    static int N;
-    static int[][] map;
-    static boolean[][] visited;
+	public static void main(String[] args) throws Exception {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		StringBuilder sb = new StringBuilder();
+		int T = Integer.parseInt(br.readLine());
+		for (int t = 1; t <= T; t++) {
+			N = Integer.parseInt(br.readLine());
 
-    public static void main(String[] args) throws Exception {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        int T = Integer.parseInt(br.readLine());
-        StringBuilder sb = new StringBuilder();
+			arr = new int[N][N];
+			minDist = new int[N][N];
+			visited = new boolean[N][N];
+			for (int i = 0; i < N; i++) {
+				char[] chars = br.readLine().toCharArray();
+				for (int j = 0; j < N; j++) {
+					arr[i][j] = chars[j] - '0';
+				}
+			}
+			sb.append("#").append(t).append(" ").append(getMinDist(0, 0, N - 1, N - 1)).append("\n");
+		}
+		System.out.println(sb);
+	}
 
-        for (int t = 1; t <= T; t++) {
-            N = Integer.parseInt(br.readLine());
-            map = new int[N][N];
-            visited = new boolean[N][N];
-            for (int i = 0; i < N; i++) {
-                String line = br.readLine();
-                for (int j = 0; j < N; j++) {
-                    map[i][j] = line.charAt(j) - '0';
-                }
-            }
+	static int getMinDist(int sx, int sy, int ex, int ey) {
+		final int INF = Integer.MAX_VALUE;
+		// 거리 배열 초기화
+		for (int i = 0; i < N; i++) {
+			Arrays.fill(minDist[i], INF);
+		}
 
-            sb.append("#").append(t).append(" ").append(bfs()).append("\n");
-        }
-        System.out.println(sb);
-    }
+		PriorityQueue<Node> pq = new PriorityQueue<>((n1, n2) -> Integer.compare(n1.w, n2.w));
 
-    static long bfs() {
-        PriorityQueue<Point> pq = new PriorityQueue<>();
-        pq.offer(new Point(0, 0, 0));
-        visited[0][0] = true;
+		minDist[sx][sy] = 0;
+		pq.offer(new Node(sx, sy, minDist[sx][sy]));
 
-        int time = 0;
-        int[][] move = { { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 } };
-        while (!pq.isEmpty()) {
-            Point now = pq.poll();
-            int x = now.x, y = now.y;
-            if (x == N - 1 && y == N - 1) {
-                time = now.time;
-                break;
-            }
+		while (!pq.isEmpty()) {
+			Node now = pq.poll();
+			int x = now.x, y = now.y;
+			if (x == ex && y == ey)
+				return now.w;
 
-            for (int i = 0; i < 4; i++) {
-                int nx = x + move[i][0];
-                int ny = y + move[i][1];
-                if (nx < 0 || ny < 0 || nx >= N || ny >= N || visited[nx][ny])
-                    continue;
+			// 이미 방문한 경우
+			if (visited[x][y])
+				continue;
 
-                pq.offer(new Point(nx, ny, now.time + map[nx][ny]));
-                visited[nx][ny] = true;
-            }
-        }
-        return time;
-    }
+			// 방문 처리
+			visited[x][y] = true;
 
-    static class Point implements Comparable<Point> {
-        int x, y;
-        int time;// 복구 작업 시간
+			// 네 방향 탐색
+			for (int i = 0; i < 4; i++) {
+				int nx = x + dx[i];
+				int ny = y + dy[i];
+				if (nx < 0 || ny < 0 || nx >= N || ny >= N || visited[nx][ny])
+					continue;
 
-        public Point(int x, int y, int time) {
-            this.x = x;
-            this.y = y;
-            this.time = time;
-        }
+				// 저장된 최단 경로보다 짧다면 갱신
+				if (minDist[nx][ny] > now.w + arr[nx][ny]) {
+					minDist[nx][ny] = now.w + arr[nx][ny];
+					pq.offer(new Node(nx, ny, minDist[nx][ny]));
+				}
+			}
+		}
+		return -1;
+	}
 
-        @Override
-        public int compareTo(Point o) {
-            return Integer.compare(time, o.time);
-        }
-    }
+	static class Node {
+		int x, y, w;
+
+		public Node(int x, int y, int w) {
+			this.x = x;
+			this.y = y;
+			this.w = w;
+		}
+	}
 }
