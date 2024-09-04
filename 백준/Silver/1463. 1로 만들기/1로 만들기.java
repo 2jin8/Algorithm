@@ -1,43 +1,29 @@
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 
+// DP
 public class Main {
-    static int[] dist;
-    public static void main(String[] args) throws Exception {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        int N = Integer.parseInt(br.readLine());
-        dist = new int[N + 1];
 
-        bfs(N);
-        System.out.println(dist[1] - 1);
-    }
+	static int N;
+	static int[] dp;
 
-    static void bfs(int x) {
-        Queue<Integer> queue = new LinkedList<>();
-        queue.offer(x);
-        dist[x] = 1;
+	public static void main(String[] args) throws Exception {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		N = Integer.parseInt(br.readLine());
+		dp = new int[N + 1];
 
-        while (!queue.isEmpty()) {
-            int now = queue.poll();
-            if (now == 1) break; // 1을 만들었다면 탐색 종료
+		for (int i = 2; i <= N; i++) {
+			// 1을 빼는 경우
+			dp[i] = dp[i - 1] + 1;
 
-            int next = now / 3;
-            if (now % 3 == 0 && dist[next] == 0) {
-                queue.offer(next);
-                dist[next] = dist[now] + 1;
-            }
+			// 3으로 나누는 경우
+			if (i % 3 == 0)
+				dp[i] = Math.min(dp[i], dp[i / 3] + 1); // 둘 중 작은 값으로 갱신
 
-            next = now / 2;
-            if (now % 2 == 0 && dist[next] == 0) {
-                queue.offer(next);
-                dist[next] = dist[now] + 1;
-            }
-
-            next = now - 1;
-            if (dist[next] == 0) {
-                queue.offer(next);
-                dist[next] = dist[now] + 1;
-            }
-        }
-    }
+			// 2로 나누는 경우
+			if (i % 2 == 0)
+				dp[i] = Math.min(dp[i], dp[i / 2] + 1); // 둘 중 작은 값으로 갱신
+		}
+		System.out.println(dp[N]);
+	}
 }
