@@ -1,80 +1,89 @@
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.StringTokenizer;
 
 public class Solution {
 
-    static int N, K, maxH, maxLen;
-    static int[][] map;
-    static boolean[][] visited;
-    static int[] dx = {1, -1, 0, 0};
-    static int[] dy = {0, 0, 1, -1};
+	static int N, K, ans; // K: 최대 공사 가능한 깊이
+	static int[][] map;
+	static boolean[][] visited;
+	static int[] dx = { 1, -1, 0, 0 }, dy = { 0, 0, 1, -1 };
+	static ArrayList<Pos> topList = new ArrayList<>();
 
-    public static void main(String[] args) throws Exception {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        int T = Integer.parseInt(br.readLine());
-        StringBuilder sb = new StringBuilder();
+	public static void main(String[] args) throws Exception {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		int T = Integer.parseInt(br.readLine());
+		StringBuilder sb = new StringBuilder();
+		for (int t = 1; t <= T; t++) {
+			StringTokenizer st = new StringTokenizer(br.readLine());
+			N = Integer.parseInt(st.nextToken());
+			K = Integer.parseInt(st.nextToken());
 
-        for (int t = 1; t <= T; t++) {
-            StringTokenizer st = new StringTokenizer(br.readLine());
-            N = Integer.parseInt(st.nextToken());
-            K = Integer.parseInt(st.nextToken());
-            map = new int[N][N];
-            visited = new boolean[N][N];
-            maxH = 0;
-            maxLen = 0;
-            for (int i = 0; i < N; i++) {
-                st = new StringTokenizer(br.readLine());
-                for (int j = 0; j < N; j++) {
-                    map[i][j] = Integer.parseInt(st.nextToken());
-                    maxH = Math.max(maxH, map[i][j]);
-                }
-            }
+			map = new int[N][N];
+			visited = new boolean[N][N];
 
-            for (int i = 0; i < N; i++) {
-                for (int j = 0; j < N; j++) {
-                    if (map[i][j] == maxH) {
-                        // 최대 높이인 곳에서 탐색 시작
-                        visited[i][j] = true;
-                        dfs(i, j, 1, false); // 자신부터 세야 하므로 초기값은 1
-                        visited[i][j] = false;
-                    }
-                }
-            }
-            sb.append("#").append(t).append(" ").append(maxLen).append("\n");
-        }
-        System.out.println(sb);
-    }
+			int maxH = 0;
+			for (int i = 0; i < N; i++) {
+				st = new StringTokenizer(br.readLine());
+				for (int j = 0; j < N; j++) {
+					map[i][j] = Integer.parseInt(st.nextToken());
+					if (maxH < map[i][j]) {
+						maxH = map[i][j];
+					}
+				}
+			}
 
-    static void dfs(int x, int y, int len, boolean isCrash) {
-        maxLen = Math.max(maxLen, len);
+			ans = 0;
+			for (int i = 0; i < N; i++) {
+				for (int j = 0; j < N; j++) {
+					// 가장 높은 봉우리일 때
+					if (map[i][j] == maxH) {
+						// 등산로의 길이 구하기
+						visited[i][j] = true;
+						dfs(i, j, 1, false); // 자기 자신 시작 = 등산로 길이 1
+						visited[i][j] = false;
+					}
+				}
+			}
+			sb.append("#").append(t).append(" ").append(ans).append("\n");
+		}
+		System.out.println(sb);
+	}
 
-        // 네 방향으로 이동
-        for (int i = 0; i < 4; i++) {
-            int nx = x + dx[i];
-            int ny = y + dy[i];
-            if (nx < 0 || ny < 0 || nx >= N || ny >= N || visited[nx][ny]) {
-                continue;
-            }
+	static void dfs(int x, int y, int route, boolean crash) {
 
-            // 높은 지형에서 낮은 지형으로 이동하는 경우
-            if (map[nx][ny] < map[x][y]) {
-                visited[nx][ny] = true;
-                dfs(nx, ny, len + 1, isCrash);
-                visited[nx][ny] = false;
-            }
-            // 낮은 지형에서 높은 지형으로 이동하는 경우 & 지형을 깎지 않은 경우
-            else if (map[nx][ny] >= map[x][y] && !isCrash) {
-                int crash = map[nx][ny] - map[x][y] + 1;
-                // 현재 지형과 차이가 적을수록 등산로의 길이가 길어짐
-                if (crash <= K) { // 깎는 높이가 K를 넘지 않을 때만 깎기
-                    map[nx][ny] -= crash;
-                    visited[nx][ny] = true;
-                    dfs(nx, ny, len + 1, true);
-                    visited[nx][ny] = false;
-                    map[nx][ny] += crash;
-                }
-            }
-        }
-    }
+		visited[x][y] = true;
+
+		for (int i = 0; i < 4; i++) {
+			int nx = x + dx[i];
+			int ny = y + dy[i];
+			if (nx < 0 || ny < 0 || nx >= N || ny >= N || visited[nx][ny])
+				continue;
+
+			// 낮은 지형으로 이동 가능할 때
+			if (map[x][y] > map[nx][ny]) {
+				dfs(nx, ny, route + 1, crash);
+			}
+			// 낮은 지형으로 이동 불가능할 때, 공사하지 않았다면 현재 높이 - 1로 깎기
+			else if (!crash && map[nx][ny] - (map[x][y] - 1) <= K) { // K만큼만 깎을 수 있음
+				int tmp = map[nx][ny];
+				map[nx][ny] = map[x][y] - 1;
+				dfs(nx, ny, route + 1, true);
+				map[nx][ny] = tmp;
+			}
+		}
+		visited[x][y] = false;
+		if (ans < route)
+			ans = route;
+	}
+
+	static class Pos {
+		int x, y;
+
+		public Pos(int x, int y) {
+			this.x = x;
+			this.y = y;
+		}
+	}
 }
