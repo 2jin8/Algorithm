@@ -44,40 +44,20 @@ public class Main {
 			int nx = x + dx[i];
 			int ny = y + dy[i];
 			// 범위 벗어난 경우
-			if (isOut(nx, ny))
+			if (nx <= 0 || ny <= 0 || nx > N || ny > N)
 				continue;
 
 			// 이미 방문했거나 벽이 있는 경우
 			if (visited[nx][ny] || map[nx][ny] == 1)
 				continue;
 
-			boolean isMove = true;
 			if (i == 1) { // 대각선 방향으로 이동하는 것은 대각선 위, 대각선 왼쪽에 벽이 있는지 확인해야 함
-				for (int j = 0; j < 2; j++) {
-					int tx = nx + cx[j];
-					int ty = ny + cy[j];
-					// 범위 벗어난 경우
-					if (isOut(tx, ty))
-						continue;
-
-					// 벽이 있으면 대각선으로 이동하지 못함
-					if (map[tx][ty] == 1) {
-						isMove = false;
-						break;
-					}
-				}
+				// 벽이 있으면 대각선으로 이동하지 못함
+				if (map[nx - 1][ny] == 1 || map[nx][ny - 1] == 1)
+					continue;
 			}
-
-			if (isMove) { // 가로, 세로 방향으로 이동하는 것은 그냥 이동 가능하므로 체크 X
-				dfs(nx, ny, i);
-			}
+			dfs(nx, ny, i); // 가로, 세로 방향으로 이동하는 것은 그냥 이동 가능하므로 체크 X
 		}
 		visited[x][y] = false;
-	}
-
-	static boolean isOut(int x, int y) { // 범위 벗어나면 true
-		if (x <= 0 || y <= 0 || x > N || y > N)
-			return true;
-		return false;
 	}
 }
