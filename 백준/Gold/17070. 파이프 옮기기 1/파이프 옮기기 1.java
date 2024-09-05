@@ -8,7 +8,7 @@ public class Main {
 	static int[][] map;
 	static boolean[][] visited;
 	static int[] dx = { 0, 1, 1 }, dy = { 1, 1, 0 }; // 가로, 대각선, 세로
-	static int[] tx = { 0, -1 }, ty = { -1, 0 };
+	static int[] cx = { 0, -1 }, cy = { -1, 0 }; // 대각선 확인용
 
 	public static void main(String[] args) throws Exception {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -33,45 +33,51 @@ public class Main {
 
 		visited[x][y] = true;
 
-		// 가로, 세로는 그냥 이동하면 됨
-		// 대각선은 세 방향을 모두 확인해야 함
 		int start = 0, end = 2;
-		if (d == 0) {
+		if (d == 0) { // 가로 방향으로 놓여져있으면 가로, 대각선으로 이동
 			end--;
-		} else if (d == 2) {
+		} else if (d == 2) { // 세로 방향으로 놓여져있으면 세로, 대각선으로 이동
 			start++;
 		}
 
 		for (int i = start; i <= end; i++) {
 			int nx = x + dx[i];
 			int ny = y + dy[i];
-			if (nx <= 0 || ny <= 0 || nx > N || ny > N)
+			// 범위 벗어난 경우
+			if (isOut(nx, ny))
 				continue;
 
+			// 이미 방문했거나 벽이 있는 경우
 			if (visited[nx][ny] || map[nx][ny] == 1)
 				continue;
 
-			if (i != 1) {
-				dfs(nx, ny, i);
-			} else {
-				// 현재 기준 위, 왼쪽 체크
-				boolean check = false;
+			boolean isMove = true;
+			if (i == 1) { // 대각선 방향으로 이동하는 것은 대각선 위, 대각선 왼쪽에 벽이 있는지 확인해야 함
 				for (int j = 0; j < 2; j++) {
-					int nnx = nx + tx[j];
-					int nny = ny + ty[j];
-					if (nnx <= 0 || nny <= 0 || nnx > N || nny > N)
+					int tx = nx + cx[j];
+					int ty = ny + cy[j];
+					// 범위 벗어난 경우
+					if (isOut(tx, ty))
 						continue;
 
-					if (map[nnx][nny] == 1) {
-						check = true;
+					// 벽이 있으면 대각선으로 이동하지 못함
+					if (map[tx][ty] == 1) {
+						isMove = false;
 						break;
 					}
 				}
-				if (!check) {
-					dfs(nx, ny, i);
-				}
+			}
+
+			if (isMove) { // 가로, 세로 방향으로 이동하는 것은 그냥 이동 가능하므로 체크 X
+				dfs(nx, ny, i);
 			}
 		}
 		visited[x][y] = false;
+	}
+
+	static boolean isOut(int x, int y) { // 범위 벗어나면 true
+		if (x <= 0 || y <= 0 || x > N || y > N)
+			return true;
+		return false;
 	}
 }
