@@ -1,0 +1,4 @@
+# 회원의 수 출력
+SELECT COUNT(USER_ID) FROM USER_INFO
+    WHERE AGE BETWEEN 20 AND 29 # 나이가 20세 이상 29세 이하
+    AND YEAR(JOINED) = 2021; # 2021년에 가입
