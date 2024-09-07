@@ -1,0 +1,3 @@
+# 모든 동물의 정보 조회
+SELECT * FROM ANIMAL_INS 
+    ORDER BY ANIMAL_ID; # ANIMAL_ID 순으로
