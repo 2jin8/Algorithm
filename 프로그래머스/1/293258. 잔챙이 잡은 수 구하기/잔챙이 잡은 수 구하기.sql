@@ -1,0 +1,4 @@
+# 10cm 이하인 물고기 수 출력
+SELECT COUNT(ID) AS FISH_COUNT # 컬럼명은 FISH_COUNT로
+    FROM FISH_INFO
+    WHERE LENGTH IS NULL; # 10cm 이하인 물고기는 LENGTH가 NULL
