@@ -1,61 +1,55 @@
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.ArrayDeque;
-import java.util.PriorityQueue;
-import java.util.Queue;
 import java.util.StringTokenizer;
 
+// DFS + 메모이제이션
 public class Solution {
-
-	static int N;
-	static int[][] arr;
-	static boolean[][] visited;
+	static int N, ansNum, ansCnt, MAX = 1001;
+	static int[][] arr, dp;
 	static int[] dx = { 1, -1, 0, 0 }, dy = { 0, 0, 1, -1 };
 
 	public static void main(String[] args) throws Exception {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		StringBuilder sb = new StringBuilder();
+		StringTokenizer st = null;
 		int T = Integer.parseInt(br.readLine());
 		for (int t = 1; t <= T; t++) {
 			N = Integer.parseInt(br.readLine());
 			arr = new int[N][N];
-
-			PriorityQueue<Room> pq = new PriorityQueue<>();
 			for (int i = 0; i < N; i++) {
-				StringTokenizer st = new StringTokenizer(br.readLine());
+				st = new StringTokenizer(br.readLine());
 				for (int j = 0; j < N; j++) {
 					arr[i][j] = Integer.parseInt(st.nextToken());
-					pq.offer(new Room(i, j, arr[i][j]));
 				}
 			}
 
-			visited = new boolean[N][N];
-			int maxRoom = -1, maxNum = -1;
-			while (!pq.isEmpty()) {
-				Room now = pq.poll();
-				if (!visited[now.x][now.y]) {
-					int room = bfs(now);
-					if (room > maxRoom) { // num이 작은 것부터 확인하므로 무조건 더 작은 num이 들어감
-						maxRoom = room;
-						maxNum = arr[now.x][now.y];
+			dp = new int[N][N];
+			ansCnt = 0; // 이동할 수 있는 방의 개수가 최대인 것 출력
+			ansNum = MAX; // 방에 적힌 수가 가장 적은 것 출력
+			for (int i = 0; i < N; i++) {
+				for (int j = 0; j < N; j++) {
+					if (dp[i][j] == 0) {
+						dfs(i, j);
+					}
+
+					if (ansCnt < dp[i][j]) {
+						ansCnt = dp[i][j];
+						ansNum = arr[i][j];
+					} else if (ansCnt == dp[i][j]) {
+						ansNum = Math.min(ansNum, arr[i][j]);
 					}
 				}
 			}
-			sb.append("#").append(t).append(" ").append(maxNum).append(" ").append(maxRoom).append("\n");
+			sb.append("#").append(t).append(" ").append(ansNum).append(" ").append(ansCnt).append("\n");
 		}
 		System.out.println(sb);
 	}
 
-	static int bfs(Room room) {
-		Queue<Room> queue = new ArrayDeque<>();
-		queue.offer(room);
-		visited[room.x][room.y] = true;
+	static int dfs(int x, int y) {
 
-		int roomCnt = 0; // 방문할 수 있는 방의 개수
-		while (!queue.isEmpty()) {
-			Room now = queue.poll();
-			int x = now.x, y = now.y;
-			roomCnt++;
+		// 아직 방문하지 않은 경우
+		if (dp[x][y] == 0) {
+			dp[x][y] = 1; // 방문 처리 (자기 자신 방을 방문하는 경우)
 
 			for (int i = 0; i < 4; i++) {
 				int nx = x + dx[i];
@@ -63,30 +57,12 @@ public class Solution {
 				if (nx < 0 || ny < 0 || nx >= N || ny >= N)
 					continue;
 
-				// 아직 값을 기록하지 않았고 현재 칸보다 1이 큰 경우(=이동가능)
-				if (!visited[nx][ny] && arr[nx][ny] == arr[x][y] + 1) {
-					queue.add(new Room(nx, ny, arr[nx][ny]));
-					visited[nx][ny] = true;
-					break; // 배열에 적힌 값은 다 같으므로 break 해줘도 됨
+				if (arr[x][y] + 1 == arr[nx][ny]) { // 현재 방에 적힌 숫자보다 정확히 1 커야 함
+					dp[x][y] += dfs(nx, ny);
+					break; // 모든 방의 숫자는 다르므로 자신보다 1 큰 수는 오직 하나
 				}
 			}
 		}
-		return roomCnt;
-	}
-
-	static class Room implements Comparable<Room> {
-		int x, y;
-		int num;
-
-		public Room(int x, int y, int num) {
-			this.x = x;
-			this.y = y;
-			this.num = num;
-		}
-
-		@Override
-		public int compareTo(Room o) {
-			return Integer.compare(this.num, o.num);
-		}
+		return dp[x][y];
 	}
 }
