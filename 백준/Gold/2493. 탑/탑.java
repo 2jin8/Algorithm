@@ -1,51 +1,50 @@
-import java.util.*;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.Stack;
+import java.util.StringTokenizer;
 
 public class Main {
-    public static void main(String[] args) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        int n = Integer.parseInt(br.readLine());
-        StringTokenizer st = new StringTokenizer(br.readLine());
-        int[] heights = new int[n];
-        for (int i = 0; i < n; i++) {
-            heights[i] = Integer.parseInt(st.nextToken());
-        }
 
-        Stack<Top> stack = new Stack<>();
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < n; i++) {
-            if (stack.isEmpty()) { // 스택이 비어있다면 push & 0 기록
-                stack.push(new Top(heights[i], i + 1));
-                sb.append("0 ");
-                continue;
-            }
+	public static void main(String[] args) throws Exception {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		Stack<Top> stack = new Stack<>();
+		int N = Integer.parseInt(br.readLine());
+		StringBuilder sb = new StringBuilder();
+		StringTokenizer st = new StringTokenizer(br.readLine());
 
-            boolean check = false;
-            while (!stack.isEmpty()) {
-                if (stack.peek().height > heights[i]) { // 'peek 높이 > 현재 높이'인 경우
-                    // 기록 & push
-                    sb.append(stack.peek().idx).append(" ");
-                    stack.push(new Top(heights[i], i + 1));
-                    check = true;
-                    break;
-                } else { // 아니라면 그냥 pop
-                    stack.pop();
-                }
-            }
-            if (!check) {
-                sb.append("0 ");
-                stack.push(new Top(heights[i], i + 1));
-            }
-        }
-        System.out.println(sb.toString());
-    }
+		stack.push(new Top(1, Integer.parseInt(st.nextToken()))); // 첫 번째 탑
+		sb.append(0).append(" "); // 첫 번째 탑은 항상 레이저가 닿는 곳이 없음
+		for (int i = 2; i <= N; i++) {
+			int height = Integer.parseInt(st.nextToken());
+			while (true) {
+				// 현재 탑의 높이가 앞의 탑보다 더 높다면 더 앞의 탑이랑 비교해야 함
+				int frontHeight = stack.peek().height;
+				if (height > frontHeight) {
+					stack.pop();
+					if (stack.isEmpty()) { // 앞의 탑이 없으면 현재 탑을 넣어야 함
+						stack.push(new Top(i, height));
+						sb.append(0).append(" ");
+						break;
+					}
+				}
 
-    static class Top {
-        int height, idx;
+				// 현재 탑의 높이가 앞의 탑보다 더 낮다면 앞의 탑에 레이저가 닿게 됨 (높이가 같은 경우 없음)
+				else {
+					sb.append(stack.peek().num).append(" "); // 레이저가 닿는 탑 기록
+					stack.push(new Top(i, height)); // 현재 탑 넣기
+					break;
+				}
+			}
+		}
+		System.out.println(sb);
+	}
 
-        public Top(int height, int idx) {
-            this.height = height;
-            this.idx = idx;
-        }
-    }
+	static class Top {
+		int num, height;
+
+		public Top(int num, int height) {
+			this.num = num;
+			this.height = height;
+		}
+	}
 }
