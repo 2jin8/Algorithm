@@ -1,13 +1,11 @@
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.Arrays;
 import java.util.StringTokenizer;
 
 public class Main {
 
 	static int N, M, ans;
 	static int[][] arr;
-	static Point[] points;
 	static boolean[][] visited;
 	static int[] dx = { 1, -1, 0, 0 }, dy = { 0, 0, 1, -1 };
 
@@ -24,25 +22,24 @@ public class Main {
 			}
 		}
 
-		// 시간초과 날 것 같지만 일단 ㄲ
 		visited = new boolean[N][M];
-		points = new Point[3];
 		for (int i = 0; i < N; i++) {
 			for (int j = 0; j < M; j++) {
-				points[0] = new Point(i, j);
 				visited[i][j] = true;
 				dfs(1, arr[i][j], i, j);
 				visited[i][j] = false;
+
+				// ㅗ 방향 고려하기
+				checkExtraDir(i, j);
 			}
 		}
 		System.out.println(ans);
 	}
 
 	static void dfs(int depth, int total, int x, int y) {
-		// 3개 칸을 고른 경우
-		if (depth == 3) {
-			// 나머지 칸 고르기
-			ans = Math.max(ans, total + bfs());
+		// 네 개의 칸을 고르면 최댓값 갱신하기
+		if (depth == 4) {
+			ans = Math.max(ans, total);
 			return;
 		}
 
@@ -53,35 +50,29 @@ public class Main {
 				continue;
 
 			visited[nx][ny] = true;
-			points[depth] = new Point(nx, ny);
 			dfs(depth + 1, total + arr[nx][ny], nx, ny);
 			visited[nx][ny] = false;
 		}
 	}
 
-	static int bfs() {
-		int max = 0;
-		for (int i = 0; i < 3; i++) {
-			Point now = points[i];
-			for (int j = 0; j < 4; j++) {
-				int nx = now.x + dx[j];
-				int ny = now.y + dy[j];
-				if (nx < 0 || ny < 0 || nx >= N || ny >= M || visited[nx][ny])
-					continue;
-
-				// 선택할 공간의 값이 더 큰 것으로 선택하기
-				max = Math.max(max, arr[nx][ny]);
-			}
+	static void checkExtraDir(int x, int y) {
+		// ㅗ 모양
+		if (x - 1 >= 0 && y + 2 < M) {
+			ans = Math.max(ans, arr[x][y] + arr[x][y + 1] + arr[x][y + 2] + arr[x - 1][y + 1]);
 		}
-		return max;
-	}
 
-	static class Point {
-		int x, y;
+		// ㅜ 모양
+		if (x + 1 < N && y + 2 < M) {
+			ans = Math.max(ans, arr[x][y] + arr[x][y + 1] + arr[x][y + 2] + arr[x + 1][y + 1]);
+		}
 
-		public Point(int x, int y) {
-			this.x = x;
-			this.y = y;
+		// ㅏ 모양
+		if (x + 2 < N && y + 1 < M) {
+			ans = Math.max(ans, arr[x][y] + arr[x + 1][y] + arr[x + 2][y] + arr[x + 1][y + 1]);
+		}
+		// ㅓ 모양
+		if (x + 2 < N && y - 1 >= 0) {
+			ans = Math.max(ans, arr[x][y] + arr[x + 1][y] + arr[x + 2][y] + arr[x + 1][y - 1]);
 		}
 	}
 }
