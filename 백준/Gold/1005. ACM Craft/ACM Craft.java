@@ -10,7 +10,7 @@ public class Main {
 
 	static int N, K;
 	static int[] inDegree, times, dp;
-	static ArrayList<Integer>[] graph, rGraph;
+	static ArrayList<Integer>[] graph;
 
 	public static void main(String[] args) throws Exception {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -31,10 +31,8 @@ public class Main {
 			}
 
 			graph = new ArrayList[N + 1];
-			rGraph = new ArrayList[N + 1];
 			for (int i = 1; i <= N; i++) {
 				graph[i] = new ArrayList<>();
-				rGraph[i] = new ArrayList<>();
 			}
 
 			for (int i = 0; i < K; i++) {
@@ -44,7 +42,6 @@ public class Main {
 				int b = Integer.parseInt(st.nextToken());
 				inDegree[b]++; // 진입차수 증가
 				graph[a].add(b); // 건설 순서 저장
-				rGraph[b].add(a); // 역 건설 순서 저장
 			}
 
 			int target = Integer.parseInt(br.readLine());
@@ -54,19 +51,18 @@ public class Main {
 				// 진입 차수가 0인 건물 큐에 넣기
 				if (inDegree[i] == 0) {
 					queue.offer(i);
+					dp[i] = times[i];
 				}
 			}
 
 			while (!queue.isEmpty()) {
 				int now = queue.poll();
-				for (int prev : rGraph[now]) {
-					dp[now] = Math.max(dp[now], dp[prev]);
-				}
-				dp[now] += times[now];
 				if (now == target)
 					break;
 
 				for (int next : graph[now]) {
+					dp[next] = Math.max(dp[next], dp[now] + times[next]);
+
 					if (--inDegree[next] == 0) {
 						queue.offer(next);
 					}
