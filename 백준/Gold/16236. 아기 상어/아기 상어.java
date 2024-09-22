@@ -7,8 +7,9 @@ import java.util.StringTokenizer;
 
 public class Main {
 
-	static int N, MAX = Integer.MAX_VALUE;
+	static int N;
 	static int[][] arr;
+	static int[] dx = { -1, 0, 0, 1 }, dy = { 0, -1, 1, 0 };
 
 	public static void main(String[] args) throws Exception {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -16,109 +17,87 @@ public class Main {
 		arr = new int[N][N];
 		StringTokenizer st = null;
 
-		Fish babyShark = null;
-		PriorityQueue<Fish> sizePQ = new PriorityQueue<>((f1, f2) -> Integer.compare(f1.size, f2.size));
+		int sharkX = -1, sharkY = -1;
 		for (int i = 0; i < N; i++) {
 			st = new StringTokenizer(br.readLine());
 			for (int j = 0; j < N; j++) {
 				arr[i][j] = Integer.parseInt(st.nextToken());
-				if (arr[i][j] == 9) { // 아기 상어
-					babyShark = new Fish(i, j, 2, 0);
-				} else if (arr[i][j] != 0) { // 물고기
-					sizePQ.offer(new Fish(i, j, arr[i][j], 0));
+				if (arr[i][j] == 9) {
+					sharkX = i;
+					sharkY = j;
+					arr[i][j] = 0;
 				}
 			}
 		}
 
-		PriorityQueue<Fish> distPQ = new PriorityQueue<>((f1, f2) -> {
-			if (f1.dist == f2.dist) { // 거리가 같다면 가장 위에 있는 물고기
-				if (f1.x == f2.x) { // 가장 위에 있는 물고기가 여러 마리면 가장 왼쪽에 있는 물고기
-					return f1.y - f2.y;
-				}
-				return f1.x - f2.x;
-			}
-			return f1.dist - f2.dist; // 거리가 가장 가까운 물고기 먹기
-		});
-
+		int sharkSize = 2; // 아기 상어의 초기 크기는 2
 		int time = 0, eatCnt = 0;
+		PriorityQueue<Fish> pq = new PriorityQueue<>((f1, f2) -> {
+			if (f1.dist == f2.dist) { // 거리가 같은 경우
+				if (f1.x == f2.x) { // x좌표가 같은 경우
+					return f1.y - f2.y; // 3. y좌표 기준 오름차순 정렬
+				}
+				return f1.x - f2.x; // 2. x좌표 기준 오름차순 정렬
+			}
+			return f1.dist - f2.dist; // 1. 거리 기준 오름차순 정렬
+		});
 		while (true) {
-			while (!sizePQ.isEmpty()) {
-				// 아기 상어보다 작은 물고기가 있다면 poll
-				if (babyShark.size > sizePQ.peek().size) {
-					Fish fish = sizePQ.poll();
-					fish.dist = getDist(fish, babyShark);
-					distPQ.offer(fish);
-				} else {
+			boolean eatFish = false;
+			boolean[][] visited = new boolean[N][N];
+			pq.clear();
+
+			pq.offer(new Fish(sharkX, sharkY, 0));
+			visited[sharkX][sharkY] = true;
+
+			while (!pq.isEmpty()) {
+				Fish fish = pq.poll();
+				int x = fish.x, y = fish.y;
+				// 먹을 수 있는 물고기인지 확인하기
+				if (arr[x][y] != 0 && arr[x][y] < sharkSize) {
+					time += fish.dist; // 물고기를 잡아먹을 수 있는 시간 계산
+					arr[x][y] = 0; // 물고기 없어진 것 표시
+					eatCnt++; // 먹은 물고기의 수 증가
+					eatFish = true; // 물고기 먹었다고 표시
+					sharkX = x; // 상어 위치 이동
+					sharkY = y;
 					break;
 				}
+
+				for (int i = 0; i < 4; i++) {
+					int nx = x + dx[i];
+					int ny = y + dy[i];
+					if (nx < 0 || ny < 0 || nx >= N || ny >= N)
+						continue;
+
+					// 이미 방문했거나 물고기 크기가 상어 크기보다 크다면 이동 불가
+					if (visited[nx][ny] || arr[nx][ny] > sharkSize)
+						continue;
+
+					pq.offer(new Fish(nx, ny, fish.dist + 1));
+					visited[nx][ny] = true;
+				}
 			}
 
-			// 먹을 수 있는 물고기가 없는 경우
-			if (distPQ.isEmpty())
-				break;
-
-			Fish fish = distPQ.poll();
-			// 해당 물고기까지 이동할 수 없다면 종료
-			// poll한 것이 가장 작은 거리에 위치하는 것이니 이후 poll하는 것도 MAX
-			if (fish.dist == MAX) { 
+			// 더 이상 먹을 물고기가 없으면 엄마 상어에게 도움 요청
+			if (!eatFish) { // 물고기를 먹지 못한 경우
 				break;
 			}
-			
-			if (++eatCnt == babyShark.size) {
-				babyShark.size++;
+
+			// 자신의 크기만큼 물고기를 먹으면 크기 1 증가
+			if (eatCnt == sharkSize) {
+				sharkSize++;
 				eatCnt = 0;
-			}
-			// 배열 값 변경하기
-			arr[babyShark.x][babyShark.y] = 0; // 기존 아기 상어 위치 삭제
-			babyShark.x = fish.x; // 아기 상어의 위치 변경
-			babyShark.y = fish.y;
-			arr[babyShark.x][babyShark.y] = 9; // 새로운 아기 상어 위치 표시
-			time += fish.dist; // 이동 시간 = 물고기를 잡아먹을 수 있는 시간
-
-			// 다음 탐색을 위해 잡아먹지 않은 물고기들은 다시 넣기
-			while (!distPQ.isEmpty()) { 
-				sizePQ.offer(distPQ.poll());
 			}
 		}
 		System.out.println(time);
 	}
 
-	static int[] dx = { 1, -1, 0, 0, }, dy = { 0, 0, 1, -1 };
-
-	static int getDist(Fish fish, Fish babyShark) {
-		Queue<int[]> queue = new ArrayDeque<>();
-		int[][] dist = new int[N][N];
-		queue.offer(new int[] { babyShark.x, babyShark.y });
-		dist[babyShark.x][babyShark.y] = 1;
-
-		while (!queue.isEmpty()) {
-			int[] now = queue.poll();
-			int x = now[0], y = now[1];
-			if (x == fish.x && y == fish.y) // 물고기 위치에 다다르면 해당 거리 반환
-				return dist[x][y] - 1;
-
-			for (int i = 0; i < 4; i++) {
-				int nx = x + dx[i];
-				int ny = y + dy[i];
-				if (nx < 0 || ny < 0 || nx >= N || ny >= N)
-					continue;
-
-				if (dist[nx][ny] == 0 && arr[nx][ny] <= babyShark.size) {
-					queue.offer(new int[] { nx, ny });
-					dist[nx][ny] = dist[x][y] + 1;
-				}
-			}
-		}
-		return Integer.MAX_VALUE;
-	}
-
 	static class Fish {
-		int x, y, size, dist;
+		int x, y, dist;
 
-		public Fish(int x, int y, int size, int dist) {
+		public Fish(int x, int y, int dist) {
 			this.x = x;
 			this.y = y;
-			this.size = size;
 			this.dist = dist;
 		}
 	}
