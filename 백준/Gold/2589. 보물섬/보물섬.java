@@ -1,67 +1,70 @@
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Queue;
 import java.util.StringTokenizer;
 
 public class Main {
-    static int N, M;
-    static char[][] map;
-    static boolean[][] visited;
-    static int[][] move = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
-    static Queue<int[]> landList = new ArrayDeque<>();
-    public static void main(String[] args) throws Exception {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st = new StringTokenizer(br.readLine());
 
-        N = Integer.parseInt(st.nextToken());
-        M = Integer.parseInt(st.nextToken());
+	static int N, M;
+	static char[][] map;
+	static boolean[][] visited;
+	static int[] dx = { 1, -1, 0, 0 }, dy = { 0, 0, 1, -1 };
+	static ArrayList<int[]> areaList = new ArrayList<>();
 
-        map = new char[N][M];
-        visited = new boolean[N][M];
-        for (int i = 0; i < N; i++) {
-            String line = br.readLine();
-            for (int j = 0; j < M; j++) {
-                map[i][j] = line.charAt(j);
-                if (map[i][j] == 'L') landList.add(new int[]{i, j});
-            }
-        }
+	public static void main(String[] args) throws Exception {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		StringTokenizer st = new StringTokenizer(br.readLine());
+		N = Integer.parseInt(st.nextToken());
+		M = Integer.parseInt(st.nextToken());
+		map = new char[N][M];
+		for (int i = 0; i < N; i++) {
+			String line = br.readLine();
+			for (int j = 0; j < M; j++) {
+				map[i][j] = line.charAt(j);
+				if (map[i][j] == 'L') {
+					areaList.add(new int[] { i, j });
+				}
+			}
+		}
 
-        int time = 0;
-        while (!landList.isEmpty()) {
-            int[] land = landList.poll();
-            visited = new boolean[N][M];
-            time = Math.max(time, bfs(land[0], land[1]));
-        }
-        System.out.println(time);
-    }
+		int ans = 0;
+		for (int[] area : areaList) {
+			// 가장 멀리 연결된 육지 찾기
+			visited = new boolean[N][M];
+			ans = Math.max(ans, bfs(area[0], area[1]));
+		}
+		System.out.println(ans);
+	}
 
-    static int bfs(int x, int y) {
-        Queue<int[]> queue = new ArrayDeque<>();
-        queue.offer(new int[]{x, y});
-        visited[x][y] = true;
+	static int bfs(int x, int y) {
+		Queue<int[]> queue = new ArrayDeque<>();
+		queue.offer(new int[] { x, y });
+		visited[x][y] = true;
 
-        int time = 0;
-        while (!queue.isEmpty()) {
-            int size = queue.size();
-            time++;
-            for (int s = 0; s < size; s++) {
-                int[] now = queue.poll();
+		// 현재 육지에서 연결된 모든 육지까지 갈 수 있는 최단 거리
+		int dist = 0;
+		while (!queue.isEmpty()) {
+			dist++;
+			int size = queue.size();
+			for (int i = 0; i < size; i++) {
+				int[] now = queue.poll();
 
-                for (int i = 0; i < 4; i++) {
-                    int nx = now[0] + move[i][0];
-                    int ny = now[1] + move[i][1];
-                    if (nx < 0 || ny < 0 || nx >= N || ny >= M) {
-                        continue;
-                    }
+				for (int j = 0; j < 4; j++) {
+					int nx = now[0] + dx[j];
+					int ny = now[1] + dy[j];
+					if (nx < 0 || ny < 0 || nx >= N || ny >= M)
+						continue;
 
-                    if (!visited[nx][ny] && map[nx][ny] == 'L') {
-                        queue.offer(new int[]{nx, ny});
-                        visited[nx][ny] = true;
-                    }
-                }
-            }
-        }
-        return time - 1; // 시작 위치는 시간을 세지 않음
-    }
+					// 방문하지 않은 육지면 큐에 넣기
+					if (!visited[nx][ny] && map[nx][ny] == 'L') {
+						visited[nx][ny] = true;
+						queue.offer(new int[] { nx, ny });
+					}
+				}
+			}
+		}
+		return dist - 1; // 시작점은 세지 않음
+	}
 }
