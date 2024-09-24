@@ -1,7 +1,6 @@
-import java.util.ArrayList;
 import java.util.Scanner;
-
-public class Main {
+import java.util.*;
+public class Main{
     static int n;
     static int[] primes;
     public static void main(String[] args) {
@@ -15,31 +14,30 @@ public class Main {
         //소수구하기
         getPrimes();
         
-        int ans = 0;
-
-        for(int i =2; i <= n ; i++){
+        ArrayList<Integer> p = new ArrayList<>();
+        for(int i = 2; i <= n; i++){
             if(primes[i] != 0){
-                //누적합 구하기
-                int sum = i;
-                if(sum == n){
-                    ans++;
-                    continue;
-                }
-                for(int j = i+1; j <= n; j++){
-                    if(primes[j] != 0){
-                        sum += primes[j];
-                        //n이 나오면 count
-                        if(sum == n){
-                            ans++;
-                            break;
-                        }
-                        if(sum > n){
-                            break;
-                        }
-                    }
-                }
+                p.add(primes[i]);
             }
         }
+        int ans = 0;
+        int start = 0;
+        int end = 0;
+        int sum = 0;
+        while(end < p.size()){
+            if(sum < n){
+                sum += p.get(end++);
+            }
+            if(sum > n){
+                sum -= p.get(start++);
+            }
+            if(sum == n){
+                sum -= p.get(start++);
+                ans++;
+            }
+
+        }
+
 
         System.out.println(ans);
         sc.close();
