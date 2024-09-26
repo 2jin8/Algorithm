@@ -4,45 +4,52 @@ import java.util.StringTokenizer;
 
 public class Main {
 
-	static int R, C, maxCnt;
-	static char[][] board;
-	static boolean[] visited = new boolean[26];
+	static int R, C, ans;
+	static char[][] map;
+	static boolean[] used = new boolean[26]; // HashSet 시간 많이 걸림..
 	static int[] dx = { 1, -1, 0, 0 }, dy = { 0, 0, 1, -1 };
 
 	public static void main(String[] args) throws Exception {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		// 좌측 상단에서 시작해서 최대한 몇 칸 지날 수 있는지 (시작점도 포함)
 		StringTokenizer st = new StringTokenizer(br.readLine());
 		R = Integer.parseInt(st.nextToken());
 		C = Integer.parseInt(st.nextToken());
-		board = new char[R][C];
+		map = new char[R][C];
 		for (int i = 0; i < R; i++) {
 			String line = br.readLine();
 			for (int j = 0; j < C; j++) {
-				board[i][j] = line.charAt(j);
+				map[i][j] = line.charAt(j);
 			}
 		}
-		// 좌측 상단에서 시작해서 최대한 몇 칸을 지날 수 있는지 구하기
-		dfs(0, 0, 1);
-		System.out.println(maxCnt);
+
+		// (0, 0)에서 시작
+		// 시작점이 정해져있음 => 그냥 DFS 돌리기?
+		used[map[0][0] - 'A'] = true;
+		dfs(0, 0, 1); // 시작점도 포함
+		System.out.println(ans);
 	}
 
-	static void dfs(int x, int y, int cnt) {
-		int idx = board[x][y] - 'A';
+	static void dfs(int x, int y, int depth) {
+		// 지나갈 수 있는 최대의 칸 수 세기
+		if (ans < depth)
+			ans = depth;
 
-		visited[idx] = true;
 		for (int i = 0; i < 4; i++) {
 			int nx = x + dx[i];
 			int ny = y + dy[i];
 			if (nx < 0 || ny < 0 || nx >= R || ny >= C)
 				continue;
 
-			// 해당 알파벳을 사용하지 않았을 경우에만 DFS 탐색 진행
-			if (!visited[board[nx][ny] - 'A']) {
-				dfs(nx, ny, cnt + 1);
-			}
-		}
-		visited[idx] = false;
+			int cIdx = map[nx][ny] - 'A';
 
-		maxCnt = Math.max(maxCnt, cnt);
+			// 이미 방문한 지점이거나 해당 알파벳을 이미 사용한 경우
+			if (used[cIdx])
+				continue;
+
+			used[cIdx] = true;
+			dfs(nx, ny, depth + 1);
+			used[cIdx] = false;
+		}
 	}
 }
