@@ -1,5 +1,5 @@
-# 식품 ID, 식품 이름, 식품 코드, 식품 분류, 상품 가격 조회
+# 가격이 제일 비싼 식품ID, 식품 이름, 식품 코드, 식품 분류, 식품 가격 출력
 SELECT PRODUCT_ID, PRODUCT_NAME, PRODUCT_CD, CATEGORY, PRICE
 FROM FOOD_PRODUCT
-ORDER BY PRICE DESC # 가격이 제일 비싼 상품
-LIMIT 1; # 1개만 고르기
+ORDER BY PRICE DESC
+LIMIT 1;
