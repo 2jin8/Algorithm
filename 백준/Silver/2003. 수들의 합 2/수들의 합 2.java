@@ -1,45 +1,32 @@
-import java.util.Scanner;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.StringTokenizer;
 
-class Main{
+public class Main {
 
+	static int N, M, cnt;
+	static int[] arr, dp;
 
-    public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
+	public static void main(String[] args) throws Exception {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		StringTokenizer st = new StringTokenizer(br.readLine());
+		N = Integer.parseInt(st.nextToken());
+		M = Integer.parseInt(st.nextToken());
+		arr = new int[N + 1];
+		dp = new int[N + 1];
+		st = new StringTokenizer(br.readLine());
+		for (int i = 1; i <= N; i++) {
+			arr[i] = Integer.parseInt(st.nextToken());
+			dp[i] = arr[i] + dp[i - 1];
+		}
 
-        int n = sc.nextInt();
-        int m = sc.nextInt();
-
-        int[] arr = new int[n];
-
-        for(int i = 0 ; i < n ; i ++){
-            arr[i] = sc.nextInt();
-        }
-
-        int start = 0;
-        int end = n-1;
-        int temp = 0;
-        int ans = 0;
-        while(start <= end){
-            temp = 0;
-            // 값 저장
-            for(int i = start; i < n; i++){
-                temp += arr[i];
-
-                //값이 m이랑 같으면 올리고 패스
-                if(temp == m){
-                    ans++;
-                    break;
-                }
-                if(temp > m){
-                    break;
-                }
-            }
-
-            start++;
-        }
-
-        System.out.println(ans);
-
-
-    }
+		for (int i = 1; i <= N; i++) {
+			for (int j = i; j <= N; j++) {
+				int sum = dp[j] - dp[i - 1];
+				if (sum == M)
+					cnt++;
+			}
+		}
+		System.out.println(cnt);
+	}
 }
