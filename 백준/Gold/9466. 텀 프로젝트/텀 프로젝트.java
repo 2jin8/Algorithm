@@ -32,9 +32,7 @@ public class Main {
 			visited = new boolean[N + 1];
 			for (int i = 1; i <= N; i++) {
 				if (!completed[i]) {
-					Arrays.fill(visited, false);
 					dfs(i);
-					completed[i] = true;
 				}
 			}
 			sb.append(N - students).append("\n");
@@ -55,6 +53,7 @@ public class Main {
 		
 		visited[x] = true; // 방문 처리
 		dfs(arr[x]); // 선택한 학생 탐색
+        visited[x] = false; // 방문 처리 취소
 		completed[x] = true; // 이미 방문해서 팀 구성 여부를 알았으므로 탐색 완료 처리
 	}
 }
