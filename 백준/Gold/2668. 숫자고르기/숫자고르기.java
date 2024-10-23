@@ -1,50 +1,57 @@
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Collections;
 
 public class Main {
-    static int N;
-    static int[] arr;
-    static boolean[] visited, done;
-    static List<Integer> ans = new ArrayList<>();
-    public static void main(String[] args) throws Exception {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        N = Integer.parseInt(br.readLine());
-        arr = new int[N + 1];
-        done = new boolean[N + 1];
-        visited = new boolean[N + 1];
-        for (int i = 1; i <= N; i++) {
-            arr[i] = Integer.parseInt(br.readLine());
-            if (i == arr[i]) {
-                ans.add(i);
-                done[i] = true;
-            }
-        }
 
-        // 사이클이 생기는 것들 모두 더하면 됨
-        for (int i = 1; i <= N; i++) {
-            if (!done[i]) dfs(i);
-        }
-        Collections.sort(ans);
+	static int N;
+	static int[] arr;
+	static boolean[] done, visited;
+	static ArrayList<Integer> numberList = new ArrayList<>();
 
-        StringBuilder sb = new StringBuilder();
-        sb.append(ans.size()).append("\n");
-        for (Integer a : ans) {
-            sb.append(a).append("\n");
-        }
-        System.out.println(sb);
-    }
+	public static void main(String[] args) throws Exception {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		N = Integer.parseInt(br.readLine());
+		arr = new int[N + 1];
+		done = new boolean[N + 1];
+		visited = new boolean[N + 1];
+		for (int i = 1; i <= N; i++) {
+			arr[i] = Integer.parseInt(br.readLine());
+			if (arr[i] == i) {
+				done[i] = true;
+				numberList.add(i);
+			}
+		}
 
-    public static void dfs(int v) {
-        if (done[v]) return; // 이미 탐색이 완료된 경우라면
-        if (visited[v]) { // 탐색이 완료되지 않았는데 이미 방문한 경우라면 → 사이클에 포함
-            done[v] = true;
-            ans.add(v);
-        }
+		for (int i = 1; i <= N; i++) {
+			if (!done[i]) { // 아직 탐색하지 않은 경우
+				dfs(i);
+			}
+		}
 
-        visited[v] = true;
-        dfs(arr[v]);
-        visited[v] = false;
+		StringBuilder sb = new StringBuilder();
+		sb.append(numberList.size()).append("\n");
+		Collections.sort(numberList);
+		for (int number : numberList) {
+			sb.append(number).append("\n");
+		}
+		System.out.println(sb);
+	}
 
-        done[v] = true;
-    }
+	static void dfs(int x) {
+		// 이미 탐색을 완료했으면 탐색 종료
+		if (done[x])
+			return;
+		// 탐색을 완료하지 않았는데 이미 방문했으면 사이클에 포함됨
+		if (visited[x]) {
+			numberList.add(x);
+			done[x] = true;
+		}
+
+		visited[x] = true;
+		dfs(arr[x]); // 연결된 정수로 이동하기
+		visited[x] = false;
+		done[x] = true; // 사이클 포함 여부를 알았으므로 탐색 완료 처리
+	}
 }
