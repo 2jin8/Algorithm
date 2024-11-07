@@ -5,65 +5,67 @@ import java.util.Queue;
 import java.util.StringTokenizer;
 
 public class Solution {
+
 	static int N, M;
 	static char[][] map;
-	static boolean[][] visited;
-	static Queue<Pos> queue = new ArrayDeque<>();
+	static int[][] visited;
+	static Queue<int[]> queue = new ArrayDeque<>();
+	static int[] dx = { 1, -1, 0, 0 }, dy = { 0, 0, 1, -1 };
 
 	public static void main(String[] args) throws Exception {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		StringBuilder sb = new StringBuilder();
 		int T = Integer.parseInt(br.readLine());
+		StringBuilder sb = new StringBuilder();
+		StringTokenizer st = null;
 		for (int t = 1; t <= T; t++) {
-			StringTokenizer st = new StringTokenizer(br.readLine());
+			st = new StringTokenizer(br.readLine());
 			N = Integer.parseInt(st.nextToken());
 			M = Integer.parseInt(st.nextToken());
 			map = new char[N][M];
+			visited = new int[N][M];
 			queue.clear();
-			visited = new boolean[N][M];
+
+			// 모든 땅에서 어느 물까지의 최소 이동 횟수들의 합
+			// == 물에서 모든 땅까지의 최단 거리
 			for (int i = 0; i < N; i++) {
 				String line = br.readLine();
 				for (int j = 0; j < M; j++) {
 					map[i][j] = line.charAt(j);
-					if (map[i][j] == 'W') { // 물의 위치 저장 & 방문 처리
-						queue.offer(new Pos(i, j, 0));
-						visited[i][j] = true;
+					if (map[i][j] == 'W') { // 물의 위치 큐에 저장하기
+						queue.offer(new int[] { i, j });
+						visited[i][j] = 1;
 					}
 				}
 			}
-			sb.append("#").append(t).append(" ").append(bfs()).append("\n");
+			bfs();
+			int totalDist = 0;
+			for (int i = 0; i < N; i++) {
+				for (int j = 0; j < M; j++) {
+					totalDist += visited[i][j] - 1;
+				}
+			}
+			sb.append("#").append(t).append(" ").append(totalDist).append("\n");
 		}
 		System.out.println(sb);
 	}
 
-	static int bfs() {
-		int totalMove = 0;
-		int[] dx = { 1, -1, 0, 0 }, dy = { 0, 0, 1, -1 }; // 상하좌우 이동
+	static void bfs() {
 		while (!queue.isEmpty()) {
-			Pos now = queue.poll();
-			totalMove += now.move; // 이동 횟수 더하기
+			int[] now = queue.poll();
+			int x = now[0], y = now[1];
 
 			for (int i = 0; i < 4; i++) {
-				int nx = now.x + dx[i];
-				int ny = now.y + dy[i];
-				if (nx < 0 || ny < 0 || nx >= N || ny >= M || visited[nx][ny])
+				int nx = x + dx[i];
+				int ny = y + dy[i];
+				if (nx < 0 || ny < 0 || nx >= N || ny >= M)
 					continue;
 
-				// 처음에 모든 물의 위치를 큐에 넣고 방문 처리 => 큐에 넣을 때 확인할 필요 X
-				queue.offer(new Pos(nx, ny, now.move + 1));
-				visited[nx][ny] = true;
+				if (visited[nx][ny] != 0 || map[nx][ny] == 'W')
+					continue;
+
+				queue.offer(new int[] { nx, ny });
+				visited[nx][ny] = visited[x][y] + 1;
 			}
-		}
-		return totalMove;
-	}
-
-	static class Pos {
-		int x, y, move;
-
-		public Pos(int x, int y, int move) {
-			this.x = x;
-			this.y = y;
-			this.move = move;
 		}
 	}
 }
