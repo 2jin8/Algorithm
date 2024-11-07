@@ -8,7 +8,7 @@ public class Solution {
 
 	static final int N = 100, M = 201; // 음수 좌표 > 양수 좌표
 	static int sx, sy, ex, ey;
-	static int[][][] visited; // [][][0]: 가로 이동으로 시작, [][][1]: 세로 이동으로 시작
+	static int[][] visited; // [][][0]: 가로 이동으로 시작, [][][1]: 세로 이동으로 시작
 
 	public static void main(String[] args) throws Exception {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -23,9 +23,9 @@ public class Solution {
 			ey = Integer.parseInt(st.nextToken()) + N;
 
 			// 가로 이동
-			visited = new int[M][M][2];
+			visited = new int[M][M];
 			int d1 = bfs(0);
-			visited = new int[M][M][2];
+			visited = new int[M][M];
 			int d2 = bfs(1);
 			sb.append("#").append(t).append(" ").append(Math.min(d1, d2)).append("\n");
 		}
@@ -37,24 +37,24 @@ public class Solution {
 	static int bfs(int sd) {
 		Queue<Pos> queue = new ArrayDeque<>();
 		queue.offer(new Pos(sx, sy, sd));
-		visited[sx][sy][sd] = 1;
+		visited[sx][sy] = 1;
 		while (!queue.isEmpty()) {
 			Pos now = queue.poll();
 			int x = now.x, y = now.y, d = now.d;
 			if (x == ex && y == ey)
-				return visited[x][y][d] - 1;
+				return visited[x][y] - 1;
 
 			// 전에 가로로 이동(d = 0)했다면 세로로, 세로로 이동(d = 1)했다면 가로로 이동하기
-			int nd = (d == 0? 1 : 0);
-			int[][] move = (d == 0? moveUD : moveLR);
+			int nd = (d == 0 ? 1 : 0);
+			int[][] move = (d == 0 ? moveUD : moveLR);
 			for (int i = 0; i < 2; i++) {
 				int nx = x + move[i][0];
 				int ny = y + move[i][1];
-				if (nx < 0 || ny < 0 || nx >= M || ny >= M || visited[nx][ny][nd] != 0)
+				if (nx < 0 || ny < 0 || nx >= M || ny >= M || visited[nx][ny] != 0)
 					continue;
-				
+
 				queue.offer(new Pos(nx, ny, nd));
-				visited[nx][ny][nd] = visited[x][y][d] + 1;
+				visited[nx][ny] = visited[x][y] + 1;
 			}
 		}
 		return Integer.MAX_VALUE;
