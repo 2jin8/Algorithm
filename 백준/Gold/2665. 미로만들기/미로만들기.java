@@ -3,15 +3,15 @@ import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.PriorityQueue;
 
-/**
-BFS 풀이
-**/
+/*
+    다익스트라 풀이
+*/
 public class Main {
 
-	static int N;
-	static int[][] map;
+	static int N, INF = 2500;
+	static int[][] map, minDist;
 	static boolean[][] visited;
-    static int[] dx = { 1, -1, 0, 0 }, dy = { 0, 0, 1, -1 };
+	static int[] dx = { 1, -1, 0, 0 }, dy = { 0, 0, 1, -1 };
 
 	public static void main(String[] args) throws Exception {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -22,25 +22,31 @@ public class Main {
 			char[] chars = br.readLine().toCharArray();
 			for (int j = 0; j < N; j++) {
 				// 거리 계산을 위해 흰 방을 0, 검은 방을 1로 바꾸기
-				if (chars[j] == '0')
-					map[i][j] = 1;
-				else
-					map[i][j] = 0;
+				if (chars[j] == '0') map[i][j] = 1;
+				else map[i][j] = 0;
 			}
 		}
-		System.out.println(bfs(0, 0, N - 1, N - 1));
+
+		minDist = new int[N][N];
+		for (int i = 0; i < N; i++) {
+			Arrays.fill(minDist[i], INF);
+		}
+		System.out.println(dijkstra(0, 0, N - 1, N - 1));
 	}
 
-	static int bfs(int sx, int sy, int ex, int ey) {
-		// 검은 방의 수를 기준으로 오름차순 정렬 (검은 방을 최대한 적게 지나가야 함)
+	static int dijkstra(int sx, int sy, int ex, int ey) {
 		PriorityQueue<Room> pq = new PriorityQueue<>((r1, r2) -> Integer.compare(r1.d, r2.d));
 		pq.offer(new Room(sx, sy, 0));
-		visited[sx][sy] = true;
+		minDist[sx][sy] = 0;
 
 		while (!pq.isEmpty()) {
 			Room now = pq.poll();
 			if (now.x == ex && now.y == ey)
-				return now.d;
+				break;
+
+			if (visited[now.x][now.y])
+				continue;
+			visited[now.x][now.y] = true;
 
 			for (int i = 0; i < 4; i++) {
 				int nx = now.x + dx[i];
@@ -48,13 +54,13 @@ public class Main {
 				if (nx < 0 || ny < 0 || nx >= N || ny >= N)
 					continue;
 
-				if (!visited[nx][ny]) {
-					pq.offer(new Room(nx, ny, now.d + map[nx][ny]));
-					visited[nx][ny] = true;
+				if (!visited[nx][ny] && minDist[nx][ny] > minDist[now.x][now.y] + map[nx][ny]) {
+					minDist[nx][ny] = minDist[now.x][now.y] + map[nx][ny];
+					pq.offer(new Room(nx, ny, minDist[nx][ny]));
 				}
 			}
 		}
-		return -1;
+		return minDist[ex][ey];
 	}
 
 	static class Room {
