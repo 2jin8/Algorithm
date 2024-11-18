@@ -1,49 +1,46 @@
-import java.util.Scanner;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.StringTokenizer;
 
-class Main{
-    static int sum,n;
-    static int[] visited,arr,selected;
-    public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
+public class Main {
 
-        n = sc.nextInt();
+	static int N, max;
+	static int[] arr, idx;
+	static boolean[] used;
 
-        arr = new int[n];
-        visited = new int[n];
-        selected = new int[n];
-        sum = 0;
+	public static void main(String[] args) throws Exception {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		N = Integer.parseInt(br.readLine());
+		arr = new int[N];
+		used = new boolean[N];
+		StringTokenizer st = new StringTokenizer(br.readLine());
+		for (int i = 0; i < N; i++) {
+			arr[i] = Integer.parseInt(st.nextToken());
+		}
 
-        for(int i = 0; i < n ; i ++){
-            arr[i] = sc.nextInt();
-        }
-        
-        
-        permu(0);
+		idx = new int[N]; // 순서 기록용 배열
+		dfs(0);
+		System.out.println(max);
+	}
 
-        System.out.println(sum);
-        
+	// 배열의 순서를 정하기! (= 순열 만들기)
+	static void dfs(int depth) {
+		if (depth == N) {
+			int sum = 0;
+			for (int i = 0; i < N - 1; i++) {
+				sum += Math.abs(arr[idx[i]] - arr[idx[i + 1]]);
+			}
+			max = Math.max(max, sum);
+			return;
+		}
 
-        sc.close();
-    }
+		for (int i = 0; i < N; i++) {
+			if (used[i]) continue;
 
-    static void permu(int idx){
-        if(idx == n){
-            //합 구하기
-            int temp = 0;
-            for(int i = 1; i< n; i++){
-                temp += Math.abs(selected[i-1]- selected[i]);
-            }
-            sum = Math.max(sum, temp);
-        }
-
-        for(int i = 0; i < n; i++){
-            if(visited[i] == 0){
-                visited[i] = 1;
-                selected[idx] = arr[i];
-                permu(idx+1);
-                visited[i] = 0;
-            }
-        }
-        
-    }
+			used[i] = true;
+			idx[depth] = i;
+			dfs(depth + 1);
+			used[i] = false;
+		}
+	}
 }
