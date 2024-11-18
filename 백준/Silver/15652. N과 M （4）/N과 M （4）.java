@@ -1,34 +1,36 @@
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.StringTokenizer;
 
 public class Main {
 
-    static int n, m;
-    static int[] result; // 결과 저장 배열
-    static StringBuilder sb = new StringBuilder();
-    public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
-        // 1~n까지 m개 고르기
-        n = sc.nextInt();
-        m = sc.nextInt();
+	static int N, M;
+	static int[] nums;
+	static StringBuilder sb = new StringBuilder();
 
-        result = new int[m];
-        dfs(1, 0);
-        System.out.println(sb);
-    }
+	// 중복 조합
+	public static void main(String[] args) throws Exception {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		StringTokenizer st = new StringTokenizer(br.readLine());
+		N = Integer.parseInt(st.nextToken());
+		M = Integer.parseInt(st.nextToken());
+		nums = new int[M]; // 순열 기록
+		dfs(0, 1);
+		System.out.println(sb);
+	}
 
-    public static void dfs(int start, int cnt) {
-        if (cnt == m) {
-            for (int r : result) {
-                sb.append(r).append(" ");
-            }
-            sb.append("\n");
-            return;
-        }
+	static void dfs(int depth, int start) {
+		if (depth == M) {
+			for (int num : nums) {
+				sb.append(num).append(" ");
+			}
+			sb.append("\n");
+			return;
+		}
 
-        for (int i = start; i <= n; i++) { // 앞의 수와 같거나 커도 됨
-            // 중복도 허용함
-            result[cnt] = i;
-            dfs(i, cnt + 1);
-        }
-    }
+		for (int i = start; i <= N; i++) {
+			nums[depth] = i;
+			dfs(depth + 1, i);
+		}
+	}
 }
