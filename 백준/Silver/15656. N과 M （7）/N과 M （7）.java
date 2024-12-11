@@ -1,38 +1,44 @@
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.Arrays;
+import java.util.StringTokenizer;
 
 public class Main {
-    static int n, m;
-    static int[] result, nList; // 결과 저장 배열
-    static StringBuilder sb = new StringBuilder();
-    public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
-        n = sc.nextInt();
-        m = sc.nextInt();
 
-        nList = new int[n];
-        for (int i = 0; i < n; i++) {
-            nList[i] = sc.nextInt();
-        }
-        Arrays.sort(nList); // 증가하는 순서대로 출력
+	static int N, M;
+	static int[] arr, record;
+	static StringBuilder sb = new StringBuilder();
 
-        result = new int[m];
-        dfs(0);
-        System.out.println(sb);
-    }
+	public static void main(String[] args) throws Exception {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		StringTokenizer st = new StringTokenizer(br.readLine());
+		N = Integer.parseInt(st.nextToken());
+		M = Integer.parseInt(st.nextToken());
+		st = new StringTokenizer(br.readLine());
+		arr = new int[N];
+		for (int i = 0; i < N; i++) {
+			arr[i] = Integer.parseInt(st.nextToken());
+		}
+		Arrays.sort(arr);
+		
+		record = new int[M];
+		dfs(0);
+		System.out.println(sb);
+	}
 
-    public static void dfs(int cnt) {
-        if (cnt == m) {
-            for (int r : result) {
-                sb.append(r).append(" ");
-            }
-            sb.append("\n");
-            return;
-        }
+	// 같은 수를 골라도 됨 => 중복 순열
+	static void dfs(int depth) {
+		if (depth == M) {
+			for (int r : record) {
+				sb.append(r).append(" ");
+			}
+			sb.append("\n");
+			return;
+		}
 
-        for (int i = 0; i < n; i++) {
-            // 같은 수 여러 번 골라도 됨
-            result[cnt] = nList[i];
-            dfs(cnt + 1);
-        }
-    }
+		for (int i = 0; i < N; i++) {
+			record[depth] = arr[i];
+			dfs(depth + 1);
+		}
+	}
 }
