@@ -1,58 +1,57 @@
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.HashMap;
+import java.util.StringTokenizer;
 
 public class Main {
-    static int total = 0;
-    static String[] dna;
-    static StringBuilder sb = new StringBuilder();
-    public static void main(String[] args) throws Exception {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st = new StringTokenizer(br.readLine(), " ");
-        int n = Integer.parseInt(st.nextToken());
-        int m = Integer.parseInt(st.nextToken());
-        dna = new String[n];
-        for (int i = 0; i < n; i++) {
-            dna[i] = br.readLine();
-        }
-        hammingDistance(n, m);
-        System.out.println(sb);
-        System.out.println(total);
-    }
 
-    public static void hammingDistance(int n, int m) {
-        for (int i = 0; i < m; i++) {
-            // A, C, G, T
-            int[] count = new int[4];
-            for (int j = 0; j < n; j++) {
-                count[charToInt(dna[j].charAt(i))]++;
-            }
+	static int N, M;
+	static int[][] count;
+	static HashMap<Character, Integer> charToInt = new HashMap<>();
+	static HashMap<Integer, Character> intToChar = new HashMap<>();
 
-            int max = count[0], idx = 0;
-            for (int j = 1; j < 4; j++) {
-                if (max < count[j]) { // 같으면 사전순 → '=' 포함 X
-                    max = count[j];
-                    idx = j;
-                }
-            }
-            for (int j = 0; j < 4; j++) {
-                if (idx == j) continue;
-                total += count[j];
-            }
-            sb.append(intToString(idx));
-        }
-    }
+	public static void main(String[] args) throws Exception {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		StringTokenizer st = new StringTokenizer(br.readLine());
+		N = Integer.parseInt(st.nextToken());
+		M = Integer.parseInt(st.nextToken());
+		count = new int[M][4]; // A, C, G, T
 
-    public static int charToInt(char c) {
-        if (c == 'A') return 0;
-        else if (c == 'C') return 1;
-        else if (c == 'G') return 2;
-        else return 3;
-    }
+		init();
+		for (int i = 0; i < N; i++) {
+			String str = br.readLine();
+			for (int j = 0; j < M; j++) {
+				int idx = charToInt.get(str.charAt(j));
+				count[j][idx]++;
+			}
+		}
 
-    public static String intToString(int idx) {
-        if (idx == 0) return "A";
-        else if (idx == 1) return "C";
-        else if (idx == 2) return "G";
-        else return "T";
-    }
+		StringBuilder sb = new StringBuilder();
+		int sum = 0;
+		for (int i = 0; i < M; i++) {
+			int max = count[i][0], maxIdx = 0;
+			for (int j = 1; j < 4; j++) { 
+				if (max < count[i][j]) { // 같으면 사전순으로 기록해야 하므로 등호 X
+					max = count[i][j];
+					maxIdx = j;
+				}
+			}
+			sum += N - count[i][maxIdx]; // i번째 자리의 Hamming Distance
+			sb.append(intToChar.get(maxIdx));
+		}
+		System.out.println(sb);
+		System.out.println(sum);
+	}
+
+	static void init() {
+		charToInt.put('A', 0);
+		charToInt.put('C', 1);
+		charToInt.put('G', 2);
+		charToInt.put('T', 3);
+
+		intToChar.put(0, 'A');
+		intToChar.put(1, 'C');
+		intToChar.put(2, 'G');
+		intToChar.put(3, 'T');
+	}
 }
