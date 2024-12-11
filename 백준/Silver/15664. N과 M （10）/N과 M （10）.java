@@ -10,7 +10,6 @@ public class Main {
 	static int N, M;
 	static int[] arr, record;
 	static StringBuilder sb = new StringBuilder();
-	static HashSet<String> answer = new LinkedHashSet<>();
 
 	public static void main(String[] args) throws Exception {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -26,27 +25,25 @@ public class Main {
 
 		record = new int[M];
 		dfs(0, 0);
-		
-		sb.setLength(0);
-		for (String a : answer) {
-			sb.append(a).append("\n");
-		}
 		System.out.println(sb);
 	}
 
 	static void dfs(int depth, int start) {
 		if (depth == M) {
-			sb.setLength(0);
 			for (int r : record) {
 				sb.append(r).append(" ");
 			}
-			answer.add(sb.toString());
+            sb.append("\n");
 			return;
 		}
 
+        int before = -1;
 		for (int i = start; i < N; i++) {
-			record[depth] = arr[i];
-			dfs(depth + 1, i + 1);
+            if (before != arr[i]) {
+                before = arr[i];
+                record[depth] = arr[i];
+			    dfs(depth + 1, i + 1);
+            }
 		}
 	}
 }
