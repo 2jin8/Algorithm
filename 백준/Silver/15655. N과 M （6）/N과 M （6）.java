@@ -1,46 +1,45 @@
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.Arrays;
+import java.util.StringTokenizer;
 
 public class Main {
-    static int n, m;
-    static int[] result, nList; // 결과 저장 배열
-    static boolean[] used; // 사용여부 확인 여부
-    static StringBuilder sb = new StringBuilder();
-    public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
-        n = sc.nextInt();
-        m = sc.nextInt();
 
-        nList = new int[n];
-        for (int i = 0; i < n; i++) {
-            nList[i] = sc.nextInt();
-        }
-        Arrays.sort(nList); // 증가하는 순서대로 출력
+	static int N, M;
+	static int[] arr, record;
+	static boolean[] used;
+	static StringBuilder sb = new StringBuilder();
 
-        result = new int[m];
-        used = new boolean[10001]; // n은 10,000보다 작거나 같은 자연수
+	public static void main(String[] args) throws Exception {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		StringTokenizer st = new StringTokenizer(br.readLine());
+		N = Integer.parseInt(st.nextToken());
+		M = Integer.parseInt(st.nextToken());
+		st = new StringTokenizer(br.readLine());
+		arr = new int[N]; 
+		for (int i = 0; i < N; i++) {
+			arr[i] = Integer.parseInt(st.nextToken());
+		}
+		Arrays.sort(arr);
+		
+		record = new int[M];
+		dfs(0, 0);
+		System.out.println(sb);
+	}
 
-        dfs(0, 0);
-        System.out.println(sb);
-    }
+	// 조합 만들기
+	static void dfs(int depth, int start) {
+		if (depth == M) {
+			for (int r : record) {
+				sb.append(r).append(" ");
+			}
+			sb.append("\n");
+			return;
+		}
 
-    public static void dfs(int start, int cnt) {
-        if (cnt == m) {
-            for (int r : result) {
-                sb.append(r).append(" ");
-            }
-            sb.append("\n");
-            return;
-        }
-
-        // 고른 수열은 오름차순
-        for (int i = start; i < n; i++) {
-            int num = nList[i];
-            if (!used[num]) {
-                result[cnt] = num;
-                used[num] = true;
-                dfs(i + 1, cnt + 1);
-                used[num] = false;
-            }
-        }
-    }
+		for (int i = start; i < N; i++) {
+			record[depth] = arr[i];
+			dfs(depth + 1, i + 1);
+		}
+	}
 }
