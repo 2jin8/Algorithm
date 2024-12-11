@@ -1,45 +1,49 @@
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.Arrays;
+import java.util.StringTokenizer;
 
 public class Main {
-    static int n, m;
-    static int[] result, nList; // 결과 저장 배열
-    static boolean[] used; // 사용여부 확인 여부
-    static StringBuilder sb = new StringBuilder();
-    public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
-        n = sc.nextInt();
-        m = sc.nextInt();
 
-        nList = new int[n];
-        for (int i = 0; i < n; i++) {
-            nList[i] = sc.nextInt();
-        }
-        Arrays.sort(nList); // 증가하는 순서대로 출력
+	static int N, M;
+	static int[] arr, record;
+	static boolean[] used;
+	static StringBuilder sb = new StringBuilder();
 
-        result = new int[m];
-        used = new boolean[10001]; // n은 10,000보다 작거나 같은 자연수
+	public static void main(String[] args) throws Exception {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		StringTokenizer st = new StringTokenizer(br.readLine());
+		N = Integer.parseInt(st.nextToken());
+		M = Integer.parseInt(st.nextToken());
+		st = new StringTokenizer(br.readLine());
+		arr = new int[N]; // N개의 자연수
+		for (int i = 0; i < N; i++) {
+			arr[i] = Integer.parseInt(st.nextToken());
+		}
+		Arrays.sort(arr);
+		
+		used = new boolean[N];
+		record = new int[M];
+		dfs(0);
+		System.out.println(sb);
+	}
 
-        dfs(0);
-        System.out.println(sb);
-    }
+	static void dfs(int depth) {
+		if (depth == M) {
+			for (int r : record) {
+				sb.append(r).append(" ");
+			}
+			sb.append("\n");
+			return;
+		}
 
-    public static void dfs(int cnt) {
-        if (cnt == m) {
-            for (int r : result) {
-                sb.append(r).append(" ");
-            }
-            sb.append("\n");
-            return;
-        }
+		for (int i = 0; i < N; i++) {
+			if (used[i]) continue;
 
-        for (int i = 0; i < n; i++) {
-            int num = nList[i];
-            if (!used[num]) { // 사용되지 않았으면
-                result[cnt] = num;
-                used[num] = true;
-                dfs(cnt + 1);
-                used[num] = false;
-            }
-        }
-    }
+			used[i] = true;
+			record[depth] = arr[i];
+			dfs(depth + 1);
+			used[i] = false;
+		}
+	}
 }
