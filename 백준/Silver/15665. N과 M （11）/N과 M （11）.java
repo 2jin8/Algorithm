@@ -10,7 +10,6 @@ public class Main {
 	static int N, M;
 	static int[] arr, record;
 	static StringBuilder sb = new StringBuilder();
-	static HashSet<String> answer = new LinkedHashSet<>(); 
 
 	public static void main(String[] args) throws Exception {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -26,28 +25,27 @@ public class Main {
 
 		record = new int[M];
 		dfs(0);
-		
-		sb.setLength(0);
-		for (String a : answer) {
-			sb.append(a).append("\n");
-		}
 		System.out.println(sb);
 	}
 
 	// 중복 순열
 	static void dfs(int depth) {
 		if (depth == M) {
-			sb.setLength(0); 
 			for (int r : record) {
 				sb.append(r).append(" ");
 			}
-			answer.add(sb.toString());
+			sb.append("\n");
 			return;
 		}
 
+		// 같은 depth 일 때, 이전에 선택된 수와 같지 않게 선택해야 함
+		int before = -1;
 		for (int i = 0; i < N; i++) {
-			record[depth] = arr[i];
-			dfs(depth + 1);
+			if (before != arr[i]) {
+				before = arr[i];
+				record[depth] = arr[i];
+				dfs(depth + 1);
+			}
 		}
 	}
 }
