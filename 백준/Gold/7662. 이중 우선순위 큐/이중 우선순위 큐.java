@@ -1,23 +1,12 @@
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.PriorityQueue;
+import java.util.Map;
 import java.util.StringTokenizer;
+import java.util.TreeMap;
 
 public class Main {
 
-	static PriorityQueue<Number> pq1 = new PriorityQueue<>((n1, n2) -> {
-		if (n1.k == n2.k)
-			return Integer.compare(n1.order, n2.order);
-		return Integer.compare(n2.k, n1.k);
-	});
-	static PriorityQueue<Number> pq2 = new PriorityQueue<>((n1, n2) -> {
-		if (n1.k == n2.k)
-			return Integer.compare(n1.order, n2.order);
-		return Integer.compare(n1.k, n2.k);
-	});
-	static HashSet<Number> deletedSet = new HashSet<>();
+	static TreeMap<Integer, Integer> map = new TreeMap<>();
 
 	public static void main(String[] args) throws Exception {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -27,62 +16,36 @@ public class Main {
 		int T = Integer.parseInt(br.readLine());
 		for (int t = 0; t < T; t++) {
 			int n = Integer.parseInt(br.readLine());
-			// pq1: 내림차순 정렬, pq2: 오름차순 정렬
-			pq1.clear();
-			pq2.clear();
-			deletedSet.clear();
-
+            map.clear();
+            
 			for (int i = 0; i < n; i++) {
 				st = new StringTokenizer(br.readLine());
 				String cmd = st.nextToken();
 				int k = Integer.parseInt(st.nextToken());
+				
 				if (cmd.equals("I")) { // 데이터 삽입 연산
-					Number number = new Number(i, k);
-					pq1.offer(number);
-					pq2.offer(number);
+					map.put(k, map.getOrDefault(k, 0) + 1);
 				} else if (cmd.equals("D")) { // 데이터 삭제 연산
-					if (k == 1) { // 최댓값 삭제
-						while (!pq1.isEmpty()) {
-							Number number = pq1.poll();
-							if (!deletedSet.contains(number)) {
-								deletedSet.add(number);
-								break;
-							}
-						}
-					} else if (k == -1) { // 최솟값 삭제
-						while (!pq2.isEmpty()) {
-							Number number = pq2.poll();
-							if (!deletedSet.contains(number)) {
-								deletedSet.add(number);
-								break;
-							}
-						}
-					}
-				}
-			}
-			
-			while (!pq1.isEmpty()) {
-				Number number = pq1.peek();
-				if (deletedSet.contains(number)) {
-					pq1.poll();
-				} else {
-					break;
-				}
-			}
-			
-			while (!pq2.isEmpty()) {
-				Number number = pq2.peek();
-				if (deletedSet.contains(number)) {
-					pq2.poll();
-				} else {
-					break;
-				}
-			}
+					// k가 1이면 최댓값 삭제, -1이면 최솟값 삭제
+					if (map.size() == 0)
+						continue;
 
-			if (pq1.isEmpty() || pq2.isEmpty())
-				sb.append("EMPTY").append("\n");
-			else
-				sb.append(pq1.peek().k).append(" ").append(pq2.peek().k).append("\n");
+					int num = (k == -1 ? map.firstKey() : map.lastKey());
+
+					// map에서 remove 개수 하나 감소
+					// 하나만 남았었더라면(현재 0이 되면) map에서 제거하기
+					// map.put(.., ..) 결과 = 이전 값 반환
+					if (map.put(num, map.get(num) - 1) == 1)
+						map.remove(num);
+
+					// 이거랑 같은 것!
+//					map.put(num,  map.get(num) - 1);
+//					if (map.get(num) == 0) {
+//						map.remove(num);
+//					}
+				}
+			}
+			sb.append(map.size() == 0 ? "EMPTY" : map.lastKey() + " " + map.firstKey()).append("\n");
 		}
 		System.out.println(sb);
 	}
