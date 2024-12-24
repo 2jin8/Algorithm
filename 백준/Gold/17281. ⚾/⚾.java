@@ -1,7 +1,5 @@
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.ArrayDeque;
-import java.util.Queue;
 import java.util.StringTokenizer;
 
 public class Main {
@@ -59,14 +57,12 @@ public class Main {
 
 	static void playBaseball() {
 		int score = 0, order = 1; // 이닝이 변경되어도 타자 번호는 유지됨
-		Queue<Integer> runner = new ArrayDeque<>();
-
+		
+		int[] runner = new int[4];
+		runner[0] = 1;
 		for (int i = 1; i <= N; i++) {
 			int out = 0;
-			runner.clear(); // 이닝이 시작할 때 주자는 없음
-			for (int j = 0; j < 3; j++) { 
-				runner.offer(0);
-			}
+			runner[1] = runner[2] = runner[3] = 0; // 이닝이 시작할 때 주자는 없음
 			
 			// 3아웃일 때, 이닝 변경
 			while (out != 3) {
@@ -76,34 +72,30 @@ public class Main {
 					out++;
 					break;
 				case 1: // 안타
-					score += runPlayer(runner, 0);
+					score += runner[3];
+					runner[3] = runner[2];
+					runner[2] = runner[1];
+					runner[1] = runner[0];
 					break;
 				case 2: // 2루타
-					score += runPlayer(runner, 1);
+					score += runner[3] + runner[2];
+					runner[3] = runner[1];
+					runner[2] = runner[0];
+					runner[1] = 0;
 					break;
 				case 3: // 3루타
-					score += runPlayer(runner, 2);
+					score += runner[3] + runner[2] + runner[1];
+					runner[3] = runner[0];
+					runner[2] = runner[1] = 0;
 					break;
 				case 4: // 홈런
-					score += runPlayer(runner, 3);
+					score += runner[3] + runner[2] + runner[1] + runner[0];
+					runner[3] = runner[2] = runner[1] = 0;
 					break;
 				}
-				if (++order > M)
-					order = 1;
+				if (++order > M) order = 1;
 			}
 		}
 		maxScore = Math.max(maxScore, score);
-	}
-
-	static int runPlayer(Queue<Integer> runner, int cnt) {
-		int score = 0;
-		runner.offer(1); // 홈에 있던 주자
-		score += runner.poll();
-
-		for (int i = 0; i < cnt; i++) {
-			runner.offer(0);
-			score += runner.poll();
-		}
-		return score;
 	}
 }
