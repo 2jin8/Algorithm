@@ -1,34 +1,63 @@
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.Arrays;
+import java.util.StringTokenizer;
 
 public class Main {
-    static int N;
-    static int[] arr;
-    public static void main(String[] args) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        N = Integer.parseInt(br.readLine());
-        StringTokenizer st = new StringTokenizer(br.readLine(), " ");
-        arr = new int[N];
-        for (int i = 0; i < N; i++) {
-            arr[i] = Integer.parseInt(st.nextToken());
-        }
-        Arrays.sort(arr); // 오름차순 정렬
 
-        // 0에 가장 가깝게
-        int l = 0, r = N - 1, ans1 = 0, ans2 = 0;
-        long min = Long.MAX_VALUE;
-        while (l < r) {
-            long diff = arr[l] + arr[r]; // 특성값
-            if (min > Math.abs(diff)) { // min보다 작은 값이라면 갱신
-                ans1 = arr[l];
-                ans2 = arr[r];
-                if (diff == 0) break; // 특성값이 0이라면 탐색 종료
-                min = Math.abs(diff);
-            }
+	static int N;
+	static int[] arr;
 
-            if (diff < 0) l++; // 특성값이 0 미만이라면, 더 큰 값과 더해질 수 있도록 l 증가
-            else r--; // 특성값이 0 초과라면, 더 작은 값과 더해질 수 있도록 r 감소
-        }
-        System.out.println(ans1 + " " + ans2);
-    }
+	public static void main(String[] args) throws Exception {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		N = Integer.parseInt(br.readLine());
+		arr = new int[N];
+		StringTokenizer st = new StringTokenizer(br.readLine());
+		for (int i = 0; i < N; i++) {
+			arr[i] = Integer.parseInt(st.nextToken());
+		}
+		Arrays.sort(arr);
+
+		// 용액 하나를 선택한 후, 혼합값이 가장 0에 가까워지는 다른 용액 선택하기
+		int a = -1, b = -1, minDiff = Integer.MAX_VALUE;
+		for (int i = 0; i < N - 1; i++) {
+			int c = binarySearch(i);
+			int diff = Math.abs(arr[i] + arr[c]);
+			if (diff < minDiff) {
+				minDiff = diff;
+				a = arr[i];
+				b = arr[c];
+			}
+		}
+		System.out.println(a + " " + b);
+	}
+
+	static int binarySearch(int start) {
+		int left = start + 1, right = N - 1;
+		int ans = -1, minDiff = 2_000_000_000;
+
+		while (left <= right) {
+			int mid = (left + right) / 2;
+			int diff = arr[start] + arr[mid];
+
+			// 합이 0이면 바로 종료
+			if (diff == 0)
+				return mid;
+
+			// minDiff보다 작은 경우 갱신
+			int absDiff = Math.abs(diff);
+			if (absDiff < minDiff) {
+				minDiff = absDiff;
+				ans = mid;
+			}
+
+			// 혼합값이 음수면 더 큰 값을 더하도록 => 우측으로
+			if (diff < 0) {
+				left = mid + 1;
+			} else {
+				right = mid - 1;
+			}
+		}
+		return ans;
+	}
 }
