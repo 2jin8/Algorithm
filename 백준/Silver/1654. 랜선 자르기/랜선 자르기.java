@@ -1,38 +1,51 @@
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.StringTokenizer;
 
 public class Main {
-    static int N, M;
-    static int[] lines;
-    public static void main(String[] args) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st = new StringTokenizer(br.readLine(), " ");
-        N = Integer.parseInt(st.nextToken());
-        M = Integer.parseInt(st.nextToken());
-        lines = new int[N];
-        for (int i = 0; i < N; i++) {
-            lines[i] = Integer.parseInt(br.readLine());
-        }
-        Arrays.sort(lines);
 
-        System.out.println(biSearch(1, lines[N - 1]));
-    }
+	static int K, N;
+	static int[] lines;
 
-    public static long biSearch(long start, long end) {
-        long ans = 0;
-        while (start <= end) {
-            long mid = (start + end) / 2;
-            int total = 0;
-            for (int i = 0; i < N; i++) {
-                total += lines[i] / mid;
-            }
-            if (total < M) { // 랜선이 더 필요한 경우
-                end = mid - 1; // 왼쪽으로 범위 이동
-            } else { // 랜선이 충분한 경우
-                ans = mid;
-                start = mid + 1;
-            }
-        }
-        return ans;
-    }
+	// 가지고 있는 랜선들을 잘라서 랜선 N개를 만들 수 있는 랜선의 최대 길이
+	public static void main(String[] args) throws Exception {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		StringTokenizer st = new StringTokenizer(br.readLine());
+		K = Integer.parseInt(st.nextToken()); // 가지고 있는 랜선의 개수
+		N = Integer.parseInt(st.nextToken()); // 필요한 랜선의 개수
+		lines = new int[K];
+		
+		int maxLan = 0;
+		for (int i = 0; i < K; i++) {
+			lines[i] = Integer.parseInt(br.readLine());
+			maxLan = Math.max(maxLan, lines[i]);
+		}
+		System.out.println(findMaxLanLength(maxLan));
+	}
+
+	static long findMaxLanLength(int max) {
+		long left = 1, right = max;
+		long ans = 0;
+
+		while (left <= right) {
+			long mid = (left + right) / 2;
+			// 만들 수 있는 랜선의 개수가 N개 이상이면 자르는 길이를 늘려보기
+			// => 우측으로 이동하기
+			if (check(mid)) {
+				left = mid + 1;
+				ans = mid;
+			} else {
+				right = mid - 1;
+			}
+		}
+		return ans;
+	}
+
+	static boolean check(long length) {
+		long total = 0;
+		for (int line : lines) {
+			total += line / length;
+		}
+		return total >= N;
+	}
 }
