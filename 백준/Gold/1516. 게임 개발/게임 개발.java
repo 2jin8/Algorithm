@@ -1,16 +1,15 @@
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Queue;
+import java.util.PriorityQueue;
 import java.util.StringTokenizer;
 
 public class Main {
 
 	static int N;
-	static int[] inDegree, times, ans; // inDegree: 진입 차수, times: 건물 짓는데 걸리는 시간
+	static int[] inDegree, times; // inDegree: 진입 차수, times: 건물 짓는데 걸리는 시간
 	static ArrayList<Integer>[] graph, reverse;
-	static Queue<Integer> queue = new ArrayDeque<>();
+	static PriorityQueue<Building> pq = new PriorityQueue<>();
 
 	public static void main(String[] args) throws Exception {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -25,7 +24,6 @@ public class Main {
 		}
 
 		StringTokenizer st = null;
-		ans = new int[N + 1];
 		for (int i = 1; i <= N; i++) {
 			st = new StringTokenizer(br.readLine());
 			times[i] = Integer.parseInt(st.nextToken());
@@ -39,34 +37,39 @@ public class Main {
 
 			// 진입 차수가 0인 것 큐에 넣기
 			if (inDegree[i] == 0) {
-				queue.offer(i);
-				ans[i] = times[i];
+				pq.offer(new Building(i, times[i]));
 			}
 		}
 
-		while (!queue.isEmpty()) {
-			int now = queue.poll();
+		while (!pq.isEmpty()) {
+			int now = pq.poll().idx;
 
 			for (int next : graph[now]) {
-				// 연결 끊기 & 진입 차수가 0이 되면 큐에 넣기
 				if (--inDegree[next] == 0) {
-					queue.offer(next);
-
-					// 현재 건물을 짓기 전, 가장 오래걸리는 시간 찾기
-					int maxTime = 0;
-					for (int prev : reverse[next]) {
-						maxTime = Math.max(maxTime, ans[prev]);
-					}
-
-					ans[next] = maxTime + times[next];
+					times[next] += times[now];
+					pq.offer(new Building(next, times[next]));
 				}
 			}
 		}
 
 		StringBuilder sb = new StringBuilder();
 		for (int i = 1; i <= N; i++) {
-			sb.append(ans[i]).append("\n");
+			sb.append(times[i]).append("\n");
 		}
 		System.out.println(sb);
+	}
+
+	static class Building implements Comparable<Building> {
+		int idx, time;
+
+		public Building(int idx, int time) {
+			this.idx = idx;
+			this.time = time;
+		}
+
+		@Override
+		public int compareTo(Building b) {
+			return Integer.compare(this.time, b.time);
+		}
 	}
 }
