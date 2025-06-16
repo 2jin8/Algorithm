@@ -1,130 +1,165 @@
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Queue;
 import java.util.StringTokenizer;
 
 public class Main {
 
-	static int N, M, totalCnt, ans, map[][]; // 사각지대 최소 = cctv 범위가 최대
-	static ArrayList<CCTV> cctvInfo; // CCTV 위치 정보
-	static CCTV[] cctvList; // CCTV 조합 결과 저장
-	static int[] dx = { 0, 1, 0, -1 }, dy = { 1, 0, -1, 0 };
-	static int[] rotateCnt = { 0, 4, 2, 4, 4, 1 }; // 회전 가능한 횟수
+    static int N, M, ans = Integer.MAX_VALUE;
+    static int[][] map;
+    static boolean[][] visited;
+    static ArrayList<Pos> cctvList = new ArrayList<>();
+    static int[] dx = {0, -1, 0, 1}, dy = {-1, 0, 1, 0};
+    static ArrayList<Pos>[] choiceList;
 
-	public static void main(String[] args) throws Exception {
-		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		StringTokenizer st = new StringTokenizer(br.readLine());
-		N = Integer.parseInt(st.nextToken());
-		M = Integer.parseInt(st.nextToken());
-		map = new int[N][M];
+    public static void main(String[] args) throws Exception {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st = new StringTokenizer(br.readLine());
+        N = Integer.parseInt(st.nextToken());
+        M = Integer.parseInt(st.nextToken());
+        map = new int[N][M];
+        for (int i = 0; i < N; i++) {
+            st = new StringTokenizer(br.readLine());
+            for (int j = 0; j < M; j++) {
+                map[i][j] = Integer.parseInt(st.nextToken());
+                // CCTV 위치 기록
+                if (map[i][j] >= 1 && map[i][j] <= 5) {
+                    cctvList.add(new Pos(i, j, map[i][j]));
+                }
+            }
+        }
 
-		cctvInfo = new ArrayList<>();
-		for (int i = 0; i < N; i++) {
-			st = new StringTokenizer(br.readLine());
-			for (int j = 0; j < M; j++) {
-				map[i][j] = Integer.parseInt(st.nextToken());
-				if (map[i][j] == 0) { // 빈 공간의 수 세기
-					totalCnt++;
-				} else if (map[i][j] != 6) { // CCTV 위치 저장하기
-					cctvInfo.add(new CCTV(i, j, map[i][j], -1));
-				}
-			}
-		}
+        choiceList = new ArrayList[cctvList.size()];
+        for (int i = 0; i < cctvList.size(); i++) {
+            choiceList[i] = new ArrayList<>();
+        }
 
-		ans = Integer.MAX_VALUE;
-		cctvList = new CCTV[cctvInfo.size()];
-		dfs(0);
-		System.out.println(ans);
-	}
+        choiceDirection(0);
+        System.out.println(ans);
+    }
+    
+    // 1. CCTV의 방향 선택하기
+    static void choiceDirection(int depth) {
+        if (depth == cctvList.size()) {
+            checkArea();
+            return;
+        }
 
-	static void dfs(int depth) {
-		// 모든 CCTV의 회전 방향을 선택한 경우
-		if (depth == cctvInfo.size()) {
-			ans = Math.min(ans, totalCnt - checkArea());
-			return;
-		}
+        // CCTV 종류에 따라 방향 선택하기
+        int kind = cctvList.get(depth).kind;
+        switch (kind) {
+            case 1: // 선택 가능한 방향: 4개
+                for (int i = 0; i < 4; i++) {
+                    choiceList[depth].clear();
+                    choiceList[depth].add(new Pos(dx[i], dy[i], kind));
+                    choiceDirection(depth + 1);
+                }
+                break;
+            case 2: // 선택 가능한 방향: 2개
+                for (int i = 0; i < 2; i++) {
+                    choiceList[depth].clear();
+                    choiceList[depth].add(new Pos(dx[i], dy[i], kind));
+                    choiceList[depth].add(new Pos(dx[i + 2], dy[i + 2], kind));
+                    choiceDirection(depth + 1);
+                }
+                break;
+            case 3: // 선택 가능한 방향: 4개
+                for (int i = 0; i < 4; i++) {
+                    choiceList[depth].clear();
+                    choiceList[depth].add(new Pos(dx[i], dy[i], kind));
+                    choiceList[depth].add(new Pos(dx[(i + 1) % 4], dy[(i + 1) % 4], kind));
+                    choiceDirection(depth + 1);
+                }
+                break;
+            case 4: // 선택 가능한 방향: 4개
+                for (int i = 0; i < 4; i++) {
+                    choiceList[depth].clear();
+                    choiceList[depth].add(new Pos(dx[i], dy[i], kind));
+                    choiceList[depth].add(new Pos(dx[(i + 1) % 4], dy[(i + 1) % 4], kind));
+                    choiceList[depth].add(new Pos(dx[(i + 2) % 4], dy[(i + 2) % 4], kind));
+                    choiceDirection(depth + 1);
+                }
+                break;
+            case 5: // 선택 가능한 방향: 1개
+                choiceList[depth].clear();
+                choiceList[depth].add(new Pos(dx[0], dy[0], kind));
+                choiceList[depth].add(new Pos(dx[1], dy[1], kind));
+                choiceList[depth].add(new Pos(dx[2], dy[2], kind));
+                choiceList[depth].add(new Pos(dx[3], dy[3], kind));
+                choiceDirection(depth + 1);
+                break;
+        }
+    }
 
-		CCTV cctv = cctvInfo.get(depth);
-		for (int i = 0; i < rotateCnt[cctv.num]; i++) { // 회전 가능한 횟수만큼 반복
-			cctvList[depth] = new CCTV(cctv.x, cctv.y, cctv.num, i);
-			dfs(depth + 1);
-		}
-	}
+    // 2. 감시 가능한 영역 체크 (기존 배열 복사해서)
+    static void checkArea() {
+        int[][] checkMap = new int[N][M];
+        for (int i = 0; i < N; i++) {
+            checkMap[i] = map[i].clone();
+        }
 
-	static int checkArea() {
-		int cnt = 0;
-		int[][] tmp = copyArray(map);
-		for (CCTV cctv : cctvList) {
-			int dir = cctv.dir;
-			switch (cctv.num) {
-			case 1:
-				cnt += changeMap(tmp, cctv.x, cctv.y, dir);
-				break;
-			case 2:
-				for (int i = 0; i < 2; i++) { // 방향이 2개
-					cnt += changeMap(tmp, cctv.x, cctv.y, dir);
-					dir = (dir + 2) % 4;
-				}
-				break;
-			case 3:
-				for (int i = 0; i < 2; i++) { // 방향이 2개
-					cnt += changeMap(tmp, cctv.x, cctv.y, dir);
-					dir = (dir + 1) % 4;
-				}
-				break;
-			case 4:
-				for (int i = 0; i < 3; i++) { // 방향이 3개
-					cnt += changeMap(tmp, cctv.x, cctv.y, dir);
-					dir = (dir + 1) % 4;
-				}
-				break;
-			case 5:
-				for (int i = 0; i < 4; i++) { // 방향이 4개
-					cnt += changeMap(tmp, cctv.x, cctv.y, dir);
-					dir = (dir + 1) % 4;
-				}
-				break;
-			}
-		}
-		return cnt;
-	}
+        for (int i = 0; i < cctvList.size(); i++) {
+            Pos cctvPos = cctvList.get(i);
+            for (Pos pos : choiceList[i]) {
+                int nx = cctvPos.x, ny = cctvPos.y;
+                while (true) {
+                    nx += pos.x;
+                    ny += pos.y;
+                    // 범위를 벗어나거나 벽에 닿으면 더 이상 감시 불가능
+                    if (nx < 0 || ny < 0 || nx >= N || ny >= M || checkMap[nx][ny] == 6) break;
 
-	static int changeMap(int[][] arr, int nx, int ny, int dir) {
-		int cnt = 0;
-		while (true) {
-			nx += dx[dir];
-			ny += dy[dir];
-			if (nx < 0 || ny < 0 || nx >= N || ny >= M || arr[nx][ny] == 6)
-				break;
+                    checkMap[nx][ny] = pos.kind;
+                }
+            }
+        }
 
-			if (arr[nx][ny] == 0) {
-				arr[nx][ny] = -1;
-				cnt++;
-			}
-		}
-		return cnt;
-	}
+        int minArea = 0;
+        visited = new boolean[N][M];
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < M; j++) {
+                if (checkMap[i][j] == 0 && !visited[i][j]) {
+                    minArea += calcArea(checkMap, i, j);
+                }
+            }
+        }
+        ans = Math.min(ans, minArea);
+    }
 
-	static int[][] copyArray(int[][] from) {
-		int[][] to = new int[N][M];
-		for (int i = 0; i < N; i++) {
-			for (int j = 0; j < M; j++) {
-				to[i][j] = from[i][j];
-			}
-		}
-		return to;
-	}
+    // 3. 영역 구하기 (BFS)
+    static int calcArea(int[][] checkMap, int x, int y) {
+        Queue<int[]> queue = new ArrayDeque<>();
+        queue.offer(new int[]{x, y});
+        visited[x][y] = true;
 
-	static class CCTV {
-		int x, y;
-		int num; // CCTV 번호
-		int dir; // CCTV 회전 방향
+        int area = 0;
+        while (!queue.isEmpty()) {
+            int[] now = queue.poll();
+            area++;
 
-		public CCTV(int x, int y, int num, int dir) {
-			this.x = x;
-			this.y = y;
-			this.num = num;
-			this.dir = dir;
-		}
-	}
+            for (int i = 0; i < 4; i++) {
+                int nx = now[0] + dx[i];
+                int ny = now[1] + dy[i];
+                if (nx < 0 || ny < 0 || nx >= N || ny >= M || visited[nx][ny])
+                    continue;
+
+                if (checkMap[nx][ny] == 0) {
+                    queue.offer(new int[]{nx, ny});
+                    visited[nx][ny] = true;
+                }
+            }
+        }
+        return area;
+    }
+
+    static class Pos {
+        int x, y, kind;
+
+        public Pos(int x, int y, int kind) {
+            this.x = x;
+            this.y = y;
+            this.kind = kind;
+        }
+    }
 }
