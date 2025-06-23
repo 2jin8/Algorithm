@@ -1,59 +1,53 @@
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.Arrays;
-import java.util.StringTokenizer;
+import java.util.ArrayList;
 
 public class Main {
+    static int N, team;
+    static int[] arr;
+    static boolean[] visited, done;
+    static ArrayList<Integer> list;
+    public static void main(String[] args) throws Exception {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringBuilder sb = new StringBuilder();
+        int T = Integer.parseInt(br.readLine());
+        for (int tc = 0; tc < T; tc++) {
+            N = Integer.parseInt(br.readLine());
+            arr = new int[N + 1];
+            visited = new boolean[N + 1];
+            done = new boolean[N + 1];
+            String[] str = br.readLine().split(" ");
+            team = 0;
+            for (int i = 1; i <= N; i++) {
+                arr[i] = Integer.parseInt(str[i - 1]);
+                if (i == arr[i]) { // 자신을 선택 → 혼자 팀 구성
+                    done[i] = true;
+                    team++;
+                }
+            }
 
-	static int N, students;
-	static int[] arr;
-	static boolean[] visited, completed;
+            for (int i = 1; i <= N; i++) {
+                if (!done[i]) {
+                    dfs(i);
+                }
+            }
+            sb.append(N - team).append("\n");
+        }
+        System.out.println(sb);
+    }
 
-	public static void main(String[] args) throws Exception {
-		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		int T = Integer.parseInt(br.readLine());
-		StringTokenizer st = null;
-		StringBuilder sb = new StringBuilder();
+    public static void dfs(int x) {
+        if (done[x]) return; // 이미 검사가 끝난 원소 → 종료
+        if (visited[x]) { // 이미 방문한 경우 → 사이클의 구성원에 포함
+            team++;
+            done[x] = true;
+        }
 
-		for (int t = 0; t < T; t++) {
-			students = 0;
-			N = Integer.parseInt(br.readLine());
-			arr = new int[N + 1];
-			completed = new boolean[N + 1];
-			st = new StringTokenizer(br.readLine());
-			for (int i = 1; i <= N; i++) {
-				arr[i] = Integer.parseInt(st.nextToken());
-				if (arr[i] == i) { // 자기 자신을 선택한 경우
-					students++;
-					completed[i] = true;
-				}
-			}
+        // 처음 방문한 경우
+        visited[x] = true; // 방문 체크
+        dfs(arr[x]);
+        visited[x] = false; // 방문 체크 초기화
 
-			visited = new boolean[N + 1];
-			for (int i = 1; i <= N; i++) {
-				if (!completed[i]) {
-					dfs(i);
-				}
-			}
-			sb.append(N - students).append("\n");
-		}
-		System.out.println(sb);
-	}
-	
-	static void dfs(int x) {
-		 // 이미 탐색이 완료된 학생이라면 종료
-		if (completed[x]) return;
-		
-		// 탐색이 완료되지 않았는데 이미 방문한 학생 == 사이클 발생
-		if (visited[x]) {
-			students++;
-			completed[x] = true;
-			// 팀에 구성되는 사람(탐색 완료 X & 방문 완료 O)들을 계속 찾아야 하므로 return하면 안됨!
-		}
-		
-		visited[x] = true; // 방문 처리
-		dfs(arr[x]); // 선택한 학생 탐색
-        visited[x] = false; // 방문 처리 취소
-		completed[x] = true; // 이미 방문해서 팀 구성 여부를 알았으므로 탐색 완료 처리
-	}
+        done[x] = true; // 사이클이 아니더라도 검사가 끝났으니 true 체크
+    }
 }
