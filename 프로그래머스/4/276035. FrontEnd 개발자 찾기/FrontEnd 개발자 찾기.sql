@@ -1,0 +1,12 @@
+# Front End 스킬을 가진 개발자의 정보 조회
+SELECT D.ID, D.EMAIL, D.FIRST_NAME, D.LAST_NAME FROM DEVELOPERS D
+JOIN (SELECT CODE FROM SKILLCODES
+WHERE CATEGORY = 'Front End') S # Front End 스킬
+ON D.SKILL_CODE & S.CODE > 0
+GROUP BY D.ID, D.FIRST_NAME, D.LAST_NAME, D.EMAIL
+ORDER BY D.ID;
+
+# 한 개발자가 여러 프론트엔드 스킬을 가지고 있을 수도 있음..!
+# SKILLCODES와 DEVELOPERS 테이블이 다대일 관계라 가능한 것,,
+
+#
