@@ -7,6 +7,7 @@ import java.util.StringTokenizer;
 
 public class Main {
 
+    static boolean[] prime;
     static int[] dist;
     public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -14,6 +15,12 @@ public class Main {
         StringBuilder sb = new StringBuilder();
         StringTokenizer st = null;
         dist = new int[10000]; // 최대 9999
+        // 소수 여부 미리 기록하기
+        prime = new boolean[10000];
+        for (int i = 1000; i < 10000; i++) {
+            prime[i] = isPrime(i);
+        }
+
         for (int t = 0; t < T; t++) {
             st = new StringTokenizer(br.readLine());
             int A = Integer.parseInt(st.nextToken());
@@ -44,7 +51,7 @@ public class Main {
 
                 numbers[0] = i;
                 int number = getNumber(numbers);
-                if (dist[number] == -1 && isPrime(number)) {
+                if (dist[number] == -1 && prime[number]) {
                     queue.offer(new Number(number, Arrays.copyOf(numbers, 4)));
                     dist[number] = dist[now.number] + 1;
                 }
@@ -59,7 +66,7 @@ public class Main {
 
                     numbers[i] = j;
                     int number = getNumber(numbers);
-                    if (dist[number] == -1 && isPrime(number)) {
+                    if (dist[number] == -1 && prime[number]) {
                         queue.offer(new Number(number, Arrays.copyOf(numbers, 4)));
                         dist[number] = dist[now.number] + 1;
                     }
