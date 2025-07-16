@@ -1,91 +1,86 @@
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.PriorityQueue;
-import java.util.Queue;
 import java.util.StringTokenizer;
 
 public class Main {
 
-	static int N, M, X, INF = Integer.MAX_VALUE;
-	static int[] dist[], d;
-	static boolean[] visited;
-	static ArrayList<Node>[] graph;
+    static int N, M, X, INF = 1_000_000_000;
+    static ArrayList<City>[] graph;
+    static int[] dist;
+    static boolean[] visited;
 
-	public static void main(String[] args) throws Exception {
-		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		StringTokenizer st = new StringTokenizer(br.readLine());
-		N = Integer.parseInt(st.nextToken());
-		M = Integer.parseInt(st.nextToken());
-		X = Integer.parseInt(st.nextToken()); // 도착지
+    public static void main(String[] args) throws Exception {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st = new StringTokenizer(br.readLine());
+        N = Integer.parseInt(st.nextToken());
+        M = Integer.parseInt(st.nextToken());
+        X = Integer.parseInt(st.nextToken());
+        graph = new ArrayList[N + 1];
+        for (int i = 1; i <= N; i++) {
+            graph[i] = new ArrayList<>();
+        }
+        dist = new int[N + 1];
+        visited = new boolean[N + 1];
 
-		d = new int[N + 1];
-		visited = new boolean[N + 1];
-		dist = new int[N + 1][N + 1];
-		graph = new ArrayList[N + 1];
-		for (int i = 1; i <= N; i++) {
-			graph[i] = new ArrayList<Node>();
-		}
+        for (int i = 0; i < M; i++) {
+            st = new StringTokenizer(br.readLine());
+            int u = Integer.parseInt(st.nextToken());
+            int v = Integer.parseInt(st.nextToken());
+            int t = Integer.parseInt(st.nextToken());
+            graph[u].add(new City(v, t)); // 단방향
+        }
 
-		for (int i = 0; i < M; i++) {
-			st = new StringTokenizer(br.readLine());
-			int u = Integer.parseInt(st.nextToken());
-			int v = Integer.parseInt(st.nextToken());
-			int d = Integer.parseInt(st.nextToken());
-			graph[u].add(new Node(v, d));
-		}
+        int maxDist = 0;
+        for (int i = 1; i <= N; i++) {
+            // 집 > X
+            Arrays.fill(dist, INF);
+            Arrays.fill(visited, false);
+            int go = dijkstra(i, X);
 
-		// 각 정점에서 모든 정점까지 소요 시간 구하기
-		for (int i = 1; i <= N; i++) {
-			dist[i] = dijkstra(i).clone();
-		}
+            // X > 집
+            Arrays.fill(dist, INF);
+            Arrays.fill(visited, false);
+            int back = dijkstra(X, i);
+            maxDist = Math.max(maxDist, go + back);
+        }
+        System.out.println(maxDist);
+    }
 
-		int maxTime = 0;
-		for (int i = 1; i <= N; i++) {
-			if (i == X)
-				continue;
-			int time = dist[i][X] + dist[X][i];
-			if (time > maxTime)
-				maxTime = time;
-		}
-		System.out.println(maxTime);
-	}
+    static int dijkstra(int start, int end) {
+        PriorityQueue<City> pq = new PriorityQueue<>((c1, c2) -> Integer.compare(c1.t, c2.t));
+        pq.offer(new City(start, 0));
+        dist[start] = 0;
 
-	static int[] dijkstra(int x) {
-		PriorityQueue<Node> pq = new PriorityQueue<>((n1, n2) -> Integer.compare(n1.dist, n2.dist));
-		Arrays.fill(d, INF);
-		Arrays.fill(visited, false);
+        while (!pq.isEmpty()) {
+            City now = pq.poll();
+            if (now.u == end)
+                break;
 
-		pq.offer(new Node(x, 0));
-		d[x] = 0;
+            // 방문 처리
+            if (visited[now.u]) continue;
+            visited[now.u] = true;
 
-		while (!pq.isEmpty()) {
-			Node now = pq.poll();
+            for (City next : graph[now.u]) {
+                if (visited[next.u]) continue;
 
-			if (visited[now.x])
-				continue;
-			visited[now.x] = true;
+                if (dist[next.u] > dist[now.u] + next.t) {
+                    dist[next.u] = dist[now.u] + next.t;
+                    pq.offer(new City(next.u, dist[next.u]));
+                }
+            }
+        }
+        return dist[end];
+    }
 
-			for (Node next : graph[now.x]) {
-				if (visited[next.x]) continue;
-				
-				if (d[next.x] > d[now.x] + next.dist) {
-					d[next.x] = d[now.x] + next.dist;
-					pq.offer(new Node(next.x, d[next.x]));
-				}
-			}
-		}
-		return d;
-	}
+    static class City {
+        int u, t;
 
-	static class Node {
-		int x, dist;
-
-		public Node(int x, int dist) {
-			this.x = x;
-			this.dist = dist;
-		}
-	}
+        public City(int u, int t) {
+            this.u = u;
+            this.t = t;
+        }
+    }
 }
