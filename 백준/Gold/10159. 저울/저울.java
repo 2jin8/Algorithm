@@ -1,52 +1,50 @@
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.util.*;
 
 public class Main {
+
     static int N, M;
-    static final int INF = (int) 1e9;
-    static int[][] arr1, arr2;
-    public static void main(String[] args) throws IOException {
+    static boolean[][] arr, reverse;
+
+    public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         N = Integer.parseInt(br.readLine());
+        arr = new boolean[N + 1][N + 1];
+        reverse = new boolean[N + 1][N + 1];
+
         M = Integer.parseInt(br.readLine());
-        arr1 = new int[N][N];
-        arr2 = new int[N][N];
-        for (int i = 0; i < N; i++) {
-            Arrays.fill(arr1[i], INF);
-            Arrays.fill(arr2[i], INF);
-            arr1[i][i] = 0;
-            arr2[i][i] = 0;
-        }
-
+        StringTokenizer st = null;
         for (int i = 0; i < M; i++) {
-            StringTokenizer st = new StringTokenizer(br.readLine(), " ");
-            int a = Integer.parseInt(st.nextToken()) - 1;
-            int b = Integer.parseInt(st.nextToken()) - 1;
-            // 단방향 (a → b)
-            arr1[a][b] = 1;
-            // 역방향 (b → a)
-            arr2[b][a] = 1;
+            st = new StringTokenizer(br.readLine());
+            int u = Integer.parseInt(st.nextToken());
+            int v = Integer.parseInt(st.nextToken());
+            arr[u][v] = true;
+            reverse[v][u] = true;
         }
 
-        for (int k = 0; k < N; k++) {
-            for (int i = 0; i < N; i++) {
-                for (int j = 0; j < N; j++) {
-                    arr1[i][j] = Math.min(arr1[i][j], arr1[i][k] + arr1[k][j]);
-                    arr2[i][j] = Math.min(arr2[i][j], arr2[i][k] + arr2[k][j]);
+        // arr[i][j] vs arr[i][k] + arr[k][j]
+        for (int k = 1; k <= N; k++) {
+            for (int i = 1; i <= N; i++) {
+                if (k == i) continue;
+                for (int j = 1; j <= N; j++) {
+                    if (k == j || i == j) continue;
+
+                    // 연결 여부만 확인
+                    if (arr[i][k] && arr[k][j]) arr[i][j] = true;
+                    if (reverse[i][k] && reverse[k][j]) reverse[i][j] = true;
                 }
             }
         }
 
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < N; i++) {
-            int total = N - 1;
-            for (int j = 0; j < N; j++) {
-                if (i == j) continue;
-                if (arr1[i][j] != INF) total--;
-                if (arr2[i][j] != INF) total--;
+        for (int i = 1; i <= N; i++) {
+            int count = N - 1;
+            for (int j = 1; j <= N; j++) {
+                if (arr[i][j] || reverse[i][j]) count--;
             }
-            sb.append(total).append("\n");
+            sb.append(count).append("\n");
         }
-        System.out.println(sb.toString());
+        System.out.println(sb);
     }
 }
