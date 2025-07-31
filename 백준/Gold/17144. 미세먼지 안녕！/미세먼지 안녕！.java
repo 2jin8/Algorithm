@@ -1,109 +1,133 @@
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.StringTokenizer;
 
 public class Main {
+
     static int R, C, T;
-    static int[][] arr, tmp;
-    static int x1, x2;
+    static int[][] map, newMap;
+    static ArrayList<Integer> airConditionR;
+    static int[] dx = {0, 1, 0, -1}, dy = {1, 0, -1, 0};
+
     public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st = new StringTokenizer(br.readLine(), " ");
+        // T초가 지난 후 방에 남아있는 미세먼지의 양
+        StringTokenizer st = new StringTokenizer(br.readLine());
         R = Integer.parseInt(st.nextToken());
         C = Integer.parseInt(st.nextToken());
         T = Integer.parseInt(st.nextToken());
-        arr = new int[R][C];
-        ArrayList<Integer> points = new ArrayList<>();
+        map = new int[R][C];
+        airConditionR = new ArrayList<>();
+
+
         for (int i = 0; i < R; i++) {
-            st = new StringTokenizer(br.readLine(), " ");
+            st = new StringTokenizer(br.readLine());
             for (int j = 0; j < C; j++) {
-                arr[i][j] = Integer.parseInt(st.nextToken());
-                if (arr[i][j] == -1) {
-                    points.add(i);
+                map[i][j] = Integer.parseInt(st.nextToken());
+                if (map[i][j] == -1) { // 공청기 좌표 기록 (열은 무조건 0)
+                    airConditionR.add(i);
                 }
             }
         }
-        x1 = points.get(0);
-        x2 = points.get(1);
 
-        for (int i = 0; i < T; i++) {
-            tmp = new int[R][C]; // 필수..!
-            spreadDust();
-            move();
+        for (int t = 0; t < T; t++) {
+            newMap = new int[R][C];
+            newMap[airConditionR.get(0)][0] = -1;
+            newMap[airConditionR.get(1)][0] = -1;
+
+            // 미세먼지가 퍼뜨리기
+            for (int i = 0; i < R; i++) {
+                for (int j = 0; j < C; j++) {
+                    if (map[i][j] > 0) {
+                        spreadDust(i, j);
+                    }
+                }
+            }
+
+            // 배열 복사: map <- newMap
+            copyArray(newMap, map);
+
+            // 공청기 작동
+            circulateDust();
+
+            copyArray(newMap, map);
         }
-        int total = 0;
+
+        int totalDust = 0;
         for (int i = 0; i < R; i++) {
             for (int j = 0; j < C; j++) {
-                total += arr[i][j];
+                totalDust += map[i][j];
             }
         }
-        System.out.println(total);
+        System.out.println(totalDust + 2); // 공청기는 -1로 게산되니까 2 더하기
     }
 
-    public static void spreadDust() {
-        // 미세먼지 확산
-        int[] dx = {1, -1, 0, 0};
-        int[] dy = {0, 0, 1, -1};
-        for (int i = 0; i < R; i++) {
-            for (int j = 0; j < C; j++) {
-                if (arr[i][j] > 0) {
-                    int dust = arr[i][j] / 5;
-                    int spread = 0;
-                    for (int k = 0; k < 4; k++) {
-                        int tx = i + dx[k];
-                        int ty = j + dy[k];
-                        if (tx < 0 || ty < 0 || tx >= R || ty >= C) continue;
-
-                        if ((tx == x1 && ty == 0) || (tx == x2 && ty == 0)) continue;
-
-                        tmp[tx][ty] += dust;
-                        spread++;
-                    }
-                    tmp[i][j] += (arr[i][j] - dust * spread);
-                }
+    static void spreadDust(int x, int y) {
+        int spreadCount = 0, newValue = map[x][y] / 5;
+        for (int i = 0; i < 4; i++) {
+            int nx = x + dx[i];
+            int ny = y + dy[i];
+            if (nx < 0 || ny < 0 || nx >= R || ny >= C || map[nx][ny] == -1) {
+                continue;
             }
+
+            newMap[nx][ny] += newValue;
+            spreadCount++;
         }
+        newMap[x][y] += map[x][y] - newValue * spreadCount;
+    }
+
+    static void copyArray(int[][] from, int[][] to) {
         for (int i = 0; i < R; i++) {
-            arr[i] = tmp[i].clone();
+            to[i] = from[i].clone();
         }
     }
 
-    public static void move() {
-        for (int i = 0; i <= x1; i++) {
-            for (int j = 0; j < C; j++) {
-                if (i == x1 && j == 0) tmp[i][j + 1] = 0;
-                else if (j == 0) { // 아래
-                    if (i + 1 < x1) {
-                        tmp[i + 1][j] = arr[i][j];
-                    }
-                } else if (i == 0) { // 왼쪽
-                    tmp[i][j - 1] = arr[i][j];
-                } else if (j == C - 1) { // 위
-                    if (i - 1 >= 0) {
-                        tmp[i - 1][j] = arr[i][j];
-                    }
-                }  else if (i == x1) { // 오른쪽
-                    if (j + 1 < C) {
-                        tmp[i][j + 1] = arr[i][j];
-                    }
-                }
+    static void circulateDust() {
+        // 위 공청기
+        int idx = 0;
+        int x = airConditionR.get(0), y = 0;
+        newMap[x][y] = -1;
+        while (true) {
+            int nx = x + dx[idx];
+            int ny = y + dy[idx];
+            if (nx < 0 || ny < 0 || nx >= R || ny >= C) {
+                if (--idx < 0) idx = 3;
+                nx = x + dx[idx];
+                ny = y + dy[idx];
+
             }
-        }
-        for (int i = x2; i < R; i++) {
-            for (int j = 0; j < C; j++) {
-                if (i == x2 && j == 0) tmp[i][j + 1] = 0;
-                else if (j == 0) { // 위
-                    if (i - 1 > x2) tmp[i - 1][j] = arr[i][j];
-                } else if (i == R - 1) { // 왼쪽
-                    tmp[i][j - 1] = arr[i][j];
-                } else if (j == C - 1) { // 아래
-                    tmp[i + 1][j] = arr[i][j];
-                } else if (i == x2) { // 오른쪽
-                    if (j + 1 < C) tmp[i][j + 1] = arr[i][j];
-                }
+
+            // 공청기에 닿으면 좋료
+            if (newMap[nx][ny] == -1) {
+                break;
             }
+
+            newMap[nx][ny] = map[x][y] == -1? 0 : map[x][y];
+            x = nx; y = ny;
         }
-        for (int i = 0; i < R; i++) {
-            arr[i] = tmp[i].clone();
+
+        // 아래 공청기
+        idx = 0;
+        x = airConditionR.get(1);
+        y = 0;
+        newMap[x][y] = -1;
+        while (true) {
+            int nx = x + dx[idx];
+            int ny = y + dy[idx];
+            if (nx < 0 || ny < 0 || nx >= R || ny >= C) {
+                if (++idx > 3) idx = 0;
+                nx = x + dx[idx];
+                ny = y + dy[idx];
+            }
+
+            // 공청기에 닿으면 좋료
+            if (newMap[nx][ny] == -1)
+                break;
+
+            newMap[nx][ny] = map[x][y] == -1? 0 : map[x][y];
+            x = nx; y = ny;
         }
     }
 }
