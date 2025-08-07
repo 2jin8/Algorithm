@@ -1,17 +1,18 @@
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.Queue;
+import java.util.StringTokenizer;
 
 public class Main {
 
-    static int N, M = 10_000, A, B;
-    static int[] jump;
-    static boolean[][] visited; // 번호 - 거리
+    static int N, A, B;
+    static int[] jump, dist;
     public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         N = Integer.parseInt(br.readLine());
         jump = new int[N + 1];
-        visited = new boolean[N + 1][M + 1];
+        dist = new int[N + 1];
         StringTokenizer st = new StringTokenizer(br.readLine());
         for (int i = 1; i <= N; i++) {
             jump[i] = Integer.parseInt(st.nextToken());
@@ -25,53 +26,39 @@ public class Main {
     }
 
     static int bfs() {
-        PriorityQueue<Node> pq = new PriorityQueue<>();
-        pq.offer(new Node(A, 0));
-        visited[A][0] = true;
+        Queue<Integer> queue = new ArrayDeque<>();
+        queue.offer(A);
+        dist[A] = 1;
 
-        while (!pq.isEmpty()) {
-            Node now = pq.poll();
-            if (now.x == B) {
-                return now.dist;
+        while (!queue.isEmpty()) {
+            int now = queue.poll();
+            if (now == B) {
+                return dist[B] - 1;
             }
 
             // 징검다리에 적힌 수의 배수만큼 떨어진 곳으로 갈 수 있음
             // 앞으로 이동
             for (int i = 1; i <= N; i++) {
-                int move = now.x + jump[now.x] * i;
+                int move = now + jump[now] * i;
                 if (move > N) break;
 
-                if (!visited[move][now.dist + 1]) {
-                    pq.offer(new Node(move, now.dist + 1));
-                    visited[move][now.dist + 1] = true;
+                if (dist[move] == 0) {
+                    queue.offer(move);
+                    dist[move] = dist[now] + 1;
                 }
             }
 
             // 뒤로 이동
             for (int i = 1; i <= N; i++) {
-                int move = now.x - jump[now.x] * i;
+                int move = now - jump[now] * i;
                 if (move <= 0) break;
 
-                if (!visited[move][now.dist + 1]) {
-                    pq.offer(new Node(move, now.dist + 1));
-                    visited[move][now.dist + 1] = true;
+                if (dist[move] == 0) {
+                    queue.offer(move);
+                    dist[move] = dist[now] + 1;
                 }
             }
         }
         return -1;
-    }
-
-    static class Node implements Comparable<Node> {
-        int x, dist;
-
-        public Node(int x, int dist) {
-            this.x = x;
-            this.dist = dist;
-        }
-
-        @Override
-        public int compareTo(Node o) {
-            return Integer.compare(this.dist, o.dist);
-        }
     }
 }
