@@ -1,77 +1,93 @@
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Arrays;
+import java.util.Comparator;
+import java.util.PriorityQueue;
 import java.util.StringTokenizer;
 
 public class Main {
 
-	static int V, E;
-	static int[] parents;
+    private static int v, e;
+    private static int[] parent;
+    private static PriorityQueue<Edge> priorityQueue = new PriorityQueue<>(new EdgeComparator());
 
-	public static void main(String[] args) throws Exception {
-		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		StringTokenizer st = new StringTokenizer(br.readLine());
-		V = Integer.parseInt(st.nextToken());
-		E = Integer.parseInt(st.nextToken());
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st = new StringTokenizer(br.readLine());
 
-		Edge[] edges = new Edge[E];
-		for (int i = 0; i < E; i++) {
-			st = new StringTokenizer(br.readLine());
-			int a = Integer.parseInt(st.nextToken());
-			int b = Integer.parseInt(st.nextToken());
-			int c = Integer.parseInt(st.nextToken());
-			edges[i] = new Edge(a, b, c);
-		}
+        v = Integer.parseInt(st.nextToken());
+        e = Integer.parseInt(st.nextToken());
 
-		// 가중치 기준 오름차순 정렬
-		Arrays.sort(edges);
-		int weight = 0;
-		make();
-		for (Edge edge : edges) {
-			// 사이클이 발생하지 않으면 가중치 더하기
-			if (union(edge.a, edge.b)) {
-				weight += edge.w;
-			}
-		}
-		System.out.println(weight);
-	}
+        parent = new int[v + 1];
+        for (int i = 1; i <= v; i++) {
+            parent[i] = -1;
+        }
 
-	static void make() {
-		parents = new int[V + 1];
-		for (int i = 1; i <= V; i++) {
-			parents[i] = i;
-		}
-	}
+        for (int i = 0; i < e; i++) {
+            st = new StringTokenizer(br.readLine());
+            int u = Integer.parseInt(st.nextToken());
+            int v = Integer.parseInt(st.nextToken());
+            int weight = Integer.parseInt(st.nextToken());
 
-	static int findSet(int a) {
-		if (a == parents[a])
-			return a;
+            priorityQueue.add(new Edge(u, v, weight));
+        }
 
-		return parents[a] = findSet(parents[a]);
-	}
+        long sum = 0;
+        while (!priorityQueue.isEmpty()) {
+            Edge edge = priorityQueue.poll();
+            int u = edge.u;
+            int v = edge.v;
+            int root_u = find(u);
+            int root_v = find(v);
 
-	static boolean union(int a, int b) {
-		int aRoot = findSet(a);
-		int bRoot = findSet(b);
-		if (aRoot == bRoot) // 대표자가 같은 경우
-			return false;
+            if (root_u != root_v) {
+                sum += edge.weight;
+                union(root_u, root_v);
+            }
+        }
+        System.out.println(sum);
+    }
 
-		parents[bRoot] = aRoot;
-		return true;
-	}
+    private static int find(int i) {
+        int root, trail, lead;
+        for (root = i; parent[root] >= 0; root = parent[root]);
+        for (trail = i; trail != root; trail = lead) {
+            lead = parent[trail];
+            parent[trail] = root;
+        }
 
-	static class Edge implements Comparable<Edge> {
-		int a, b, w;
+        return root;
+    }
 
-		public Edge(int a, int b, int w) {
-			this.a = a;
-			this.b = b;
-			this.w = w;
-		}
+    private static void union(int i, int j) {
+        int tmp = parent[i] + parent[j];
+        if (-parent[i] < -parent[j]) {
+            parent[i] = j;
+            parent[j] = tmp;
+        } else {
+            parent[j] = i;
+            parent[i] = tmp;
+        }
+    }
 
-		@Override
-		public int compareTo(Edge o) {
-			return this.w - o.w; // 가중치 기준 오름차순 정렬
-		}
-	}
+    public static class Edge {
+        int u;
+        int v;
+        int weight;
+
+        public Edge(int u, int v, int weight) {
+            this.u = u;
+            this.v = v;
+            this.weight = weight;
+        }
+    }
+}
+
+class EdgeComparator implements Comparator<Main.Edge> {
+    @Override
+    public int compare(Main.Edge o1, Main.Edge o2) {
+        if (o1.weight > o2.weight) return 1;
+        else if (o1.weight == o2.weight) return 0;
+        else return -1;
+    }
 }
