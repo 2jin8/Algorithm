@@ -1,91 +1,77 @@
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.ArrayDeque;
+import java.util.Queue;
+import java.util.StringTokenizer;
 
+/**
+ *  0인 것들을 BFS 탐색 수행함
+ *  그러다가 1을 만나면 그냥 카운팅만 하기
+ *  BFS 탐색 끝나면 이제 0인 것들은 녹기 처리하기 & 그만큼 수 제거
+ *  치즈 수가 0이 되면 탐색 종료
+ */
 public class Main {
-    static int N, M;
-    static boolean[][] cheese;
+
+    static int N, M, cheese;
+    static int[][] map, check;
     static boolean[][] visited;
-    public static void main(String[] args) throws IOException {
+    static int[] dx = {1, -1, 0, 0}, dy = {0, 0, 1, -1};
+
+    public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st = new StringTokenizer(br.readLine(), " ");
+        StringTokenizer st = new StringTokenizer(br.readLine());
         N = Integer.parseInt(st.nextToken());
         M = Integer.parseInt(st.nextToken());
-
-        cheese = new boolean[N][M];
+        map = new int[N][M];
         for (int i = 0; i < N; i++) {
-            st = new StringTokenizer(br.readLine(), " ");
+            st = new StringTokenizer(br.readLine());
             for (int j = 0; j < M; j++) {
-                cheese[i][j] = Integer.parseInt(st.nextToken()) == 1; // 0: false, 1: true
+                map[i][j] = Integer.parseInt(st.nextToken());
+                cheese += map[i][j];
             }
         }
 
         int time = 0;
-        while (!isMelt()) { // 다 녹으면 true 반환, 덜 녹으면 false 반환
+        while (cheese != 0) {
             visited = new boolean[N][M];
-            bfs();
+            check = new int[N][M];
+            bfs(0, 0); // 가장자리는 치즈가 놓이지 않음
+
+            for (int i = 0; i < N; i++) {
+                for (int j = 0; j < M; j++) {
+                    if (check[i][j] >= 2) { // 공기랑 닿는 부분이 2개 이상이면 녹음
+                        map[i][j] = 0;
+                        cheese--;
+                    }
+                }
+            }
             time++;
         }
         System.out.println(time);
     }
 
-     static void bfs() {
-         Queue<Pos> queue = new LinkedList<>();
-         queue.offer(new Pos(0, 0));
-         visited[0][0] = true;
+    static void bfs(int x, int y) {
+        Queue<int[]> queue = new ArrayDeque<>();
+        queue.offer(new int[]{x, y});
+        visited[x][y] = true;
 
-         int[][] melt = new int[N][M];
-         int[][] move = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
-         while (!queue.isEmpty()) {
-             Pos pos = queue.poll();
+        while (!queue.isEmpty()) {
+            int[] now = queue.poll();
 
-             for (int i = 0; i < 4; i++) {
-                 int nx = pos.x + move[i][0];
-                 int ny = pos.y + move[i][1];
-                 if (nx < 0 || ny < 0 || nx >= N || ny >= M || visited[nx][ny]) {
-                     continue;
-                 }
+            for (int i = 0; i < 4; i++) {
+                int nx = now[0] + dx[i];
+                int ny = now[1] + dy[i];
+                if (nx < 0 || ny < 0 || nx >= N || ny >= M || visited[nx][ny]) {
+                    continue;
+                }
 
-                 // 치즈가 있는 칸인 경우
-                 if (cheese[nx][ny]) {
-                     // 공기와 맞닿으므로 1 증가
-                     melt[nx][ny]++;
-                 } else { // 치즈가 없는 칸인 경우
-                     // 큐에 넣기
-                     queue.offer(new Pos(nx, ny));
-                     visited[nx][ny] = true;
-                 }
-             }
-         }
-
-         // 4변 중에서 2변 이상이 공기와 접촉한 경우, 치즈가 녹음
-         for (int i = 0; i < N; i++) {
-             for (int j = 0; j < M; j++) {
-                 if (melt[i][j] >= 2) {
-                     cheese[i][j] = false;
-                 }
-             }
-         }
-    }
-
-    // 치즈가 다 녹았는지 확인하기
-    static boolean isMelt() {
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < M; j++) {
-                // 아직 치즈가 덜 녹은 경우
-                if (cheese[i][j]) return false;
+                if (map[nx][ny] == 0) { // 치즈가 없으면 계속 BFS 탐색
+                    queue.offer(new int[]{nx, ny});
+                    visited[nx][ny] = true;
+                } else { // 치즈가 있는 부분이면 기록만
+                    check[nx][ny]++;
+                }
             }
         }
-        // 치즈가 다 녹은 경우
-        return true;
-    }
-
-    static class Pos {
-        int x, y;
-
-        Pos(int x, int y) {
-            this.x = x;
-            this.y = y;
-        }
-
     }
 }
